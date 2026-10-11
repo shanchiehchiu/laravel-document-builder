@@ -9,6 +9,7 @@ use DocumentBuilder\Models\DocField;
 use DocumentBuilder\Models\DocRecord;
 use DocumentBuilder\Models\DocType;
 use DocumentBuilder\Services\DocRecordService;
+use DocumentBuilder\Services\FilterIndexService;
 use DocumentBuilder\Services\MasterSourceRegistry;
 use DocumentBuilder\Services\RecordValidator;
 use DocumentBuilder\FormPlatform\FormRevisionService;
@@ -30,6 +31,7 @@ class DocRecordController extends Controller
         private readonly MasterSourceRegistry $masters,
         private readonly FormRuntimeRenderer $runtimeRenderer,
         private readonly FormRevisionService $revisions,
+        private readonly FilterIndexService $filters,
     ) {}
 
     public function index(Request $request, DocType $docType)
@@ -48,7 +50,7 @@ class DocRecordController extends Controller
             ->when($request->filled('status_id'), fn (Builder $q) => $q->where('status_id', (int) $request->input('status_id')))
             ->when($request->filled('date_from'), fn (Builder $q) => $q->where('doc_date', '>=', $request->input('date_from')))
             ->when($request->filled('date_to'), fn (Builder $q) => $q->where('doc_date', '<=', $request->input('date_to')))
-            ->when(is_array($request->input('field')), function (Builder $query) use ($request, $listFields): void {
+            ->when(is_array($request->input('field')), function (Builder $query) use ($request, $docType, $listFields): void {
                 // 欄位值篩選只接受「列表顯示」的表頭欄位代碼，避免任意鍵進入查詢
                 $fields = $listFields->keyBy('key');
                 foreach ((array) $request->input('field') as $key => $value) {
@@ -59,7 +61,7 @@ class DocRecordController extends Controller
                     $value = trim((string) $value);
 
                     if ($field->type === 'master') {
-                        // 主檔值存成 {"id": …, "label": …}，只比對 id；依主鍵型別轉型，SQLite 整數與字串不相等
+                        // 主檔值存成 {"id": …, "label": …}，只比對 id；整數主鍵的值必須是數字
                         $source = (string) $field->masterSource();
                         if (! $this->masters->has($source)) {
                             continue;
@@ -70,13 +72,17 @@ class DocRecordController extends Controller
                             }
                             $value = (int) $value;
                         }
-                        $query->where("data->{$key}->id", $value);
+                    }
+
+                    // 已建立篩選索引欄位的走索引；沒有的（例如索引還沒同步）退回 JSON 取值
+                    if ($this->filters->hasColumn($docType, $key)) {
+                        // 虛擬欄位是文字欄位，整數 id 也用字串比對
+                        $query->where(FilterIndexService::columnName($docType, $key), (string) $value);
 
                         continue;
                     }
 
-                    // Laravel 會依資料庫產生對應的 JSON 取值語法（MySQL/MariaDB 與 SQLite）
-                    $query->where("data->{$key}", $value);
+                    $query->where($field->type === 'master' ? "data->{$key}->id" : "data->{$key}", $value);
                 }
             })
             ->when($request->filled('keyword'), function (Builder $query) use ($request): void {

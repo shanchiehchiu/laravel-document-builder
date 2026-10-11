@@ -7,6 +7,7 @@ namespace DocumentBuilder\Services;
 use DocumentBuilder\Models\DocField;
 use DocumentBuilder\Models\DocType;
 use DocumentBuilder\Services\MasterSourceRegistry;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -16,6 +17,8 @@ use Illuminate\Validation\ValidationException;
  */
 class DocFieldService
 {
+    public function __construct(private readonly FilterIndexService $filterIndex) {}
+
     public const ATTRIBUTES = [
         'key' => '欄位代碼', 'label' => '欄位名稱', 'type' => '型別', 'width' => '欄寬',
         'choices' => '固定選項', 'layout' => '排列方向', 'currency' => '幣別符號', 'decimals' => '小數位數', 'source' => '主檔來源', 'sum' => '顯示合計',
@@ -51,7 +54,7 @@ class DocFieldService
             throw ValidationException::withMessages(['key' => "欄位代碼 {$key} 已存在"]);
         }
 
-        return $type->fields()->create($this->attributes($data) + [
+        $field = $type->fields()->create($this->attributes($data) + [
             'section' => $section,
             'table_key' => $section === DocField::SECTION_ITEM ? $data['table_key'] : null,
             'key' => $key,
@@ -59,6 +62,9 @@ class DocFieldService
             'options' => $this->options($data['type'], $data, $section),
             'seq' => (int) $type->fields()->where('section', $section)->max('seq') + 1,
         ]);
+        $this->syncFilterIndex($field);
+
+        return $field;
     }
 
     public function update(DocField $field, array $data): DocField
@@ -75,6 +81,7 @@ class DocFieldService
         }
 
         $field->update($this->attributes($data) + ['type' => $data['type'], 'options' => $options]);
+        $this->syncFilterIndex($field);
 
         return $field;
     }
@@ -82,6 +89,15 @@ class DocFieldService
     public function archive(DocField $field): void
     {
         $field->update(['archived_at' => now()]);
+        $this->syncFilterIndex($field);
+    }
+
+    /** 交易中（例如版面存檔）由呼叫端在交易結束後同步，這裡只處理獨立呼叫 */
+    private function syncFilterIndex(DocField $field): void
+    {
+        if (DB::transactionLevel() === 0) {
+            $this->filterIndex->sync($field->docType);
+        }
     }
 
     private function attributes(array $data): array
