@@ -3,7 +3,7 @@
 單據建置精靈：管理員用 GrapesJS 視覺化設計單據表單，使用者照著表單填單。包含明細表、自動單號、
 單據狀態、版本審核、欄位變更連動，以及給 AI 工具使用的 MCP 介面。
 
-需求：PHP 8.1 以上、Laravel 10。頁面使用 Bootstrap 5、jQuery、select2、SweetAlert2、DataTables。
+需求：PHP 8.1 以上、Laravel 10。頁面使用 Bootstrap 5、jQuery、jQuery Form（ajaxForm）、select2、SweetAlert2、DataTables。
 
 ## 安裝
 

@@ -1,0 +1,30 @@
+<?php
+
+// Shared button and message labels; hosts can override in lang/vendor/document-builder/{locale}/ui.php
+return [
+    'create' => 'Create',
+    'edit' => 'Edit',
+    'delete' => 'Delete',
+    'read' => 'View',
+    'save' => 'Submit',
+    'cancel' => 'Cancel',
+    'sure' => 'OK',
+    'list' => 'List',
+    'back_list' => 'Back to list',
+    'option' => 'Actions',
+    'status' => 'Status',
+    'active' => 'Active',
+    'inactive' => 'Inactive',
+    'detail_info' => 'Details',
+    'success' => 'Success',
+    'confirm_delete' => 'Are you sure you want to delete this?',
+    'my_documents' => 'My documents',
+    'type_settings' => 'Document types',
+    'new_type' => 'New document type',
+    'no_types' => 'There are no documents you can fill in yet.',
+    'record_count' => ':count records',
+    'back_to_app' => 'Back to app',
+    'logout' => 'Log out',
+    'add_row' => 'Add row',
+    'remove_row' => 'Remove this row',
+];

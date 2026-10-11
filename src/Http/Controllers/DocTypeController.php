@@ -42,7 +42,7 @@ class DocTypeController extends Controller
 
         $type = $this->service->create($data);
 
-        return response()->json(['message' => __('create').__('success'), 'id' => $type->id]);
+        return response()->json(['message' => __('document-builder::ui.create').__('document-builder::ui.success'), 'id' => $type->id]);
     }
 
     /** 單據設定已併入設計器（標題列元件與整張單據的設定） */
@@ -55,6 +55,6 @@ class DocTypeController extends Controller
     {
         $this->service->delete($type);
 
-        return response()->json(['message' => __('delete').__('success')]);
+        return response()->json(['message' => __('document-builder::ui.delete').__('document-builder::ui.success')]);
     }
 }

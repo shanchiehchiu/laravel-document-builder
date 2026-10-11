@@ -19,7 +19,10 @@ return [
 
     /*
      * 使用者：從哪個 guard 取得登入者、用哪個 model、資料表叫什麼（版本與審核紀錄的外鍵指向這張表）。
-     * 誰是超級管理員由宿主定義 Gate：document-builder.super-admin（預設沒有人是）。
+     * 權限由宿主定義 Gate（定義在 AuthServiceProvider；沒定義就用預設）：
+ *   document-builder.super-admin：可以發布、審核、還原版本、透過 MCP 修改草稿（預設沒有人是）
+ *   document-builder.design：可以進入單據設定、設計器、版本紀錄與來源庫（預設等於 super-admin）
+ *   document-builder.view-type：選用，參數是 (使用者, DocType)，決定誰能填寫某種單據（預設登入者都可以）
      */
     'guard' => 'web',
     'user_model' => 'App\Models\User',
@@ -31,17 +34,33 @@ return [
      */
     'integration' => DocumentBuilder\Integrations\NullIntegration::class,
 
-    // 套件頁面要 extends 的版型；需提供 content 區塊與 scripts 堆疊。預設是套件附的極簡版型
+    /*
+     * 套件頁面要 extends 的版型。預設是套件自帶的完整介面（導覽列、樣式、函式庫都在套件裡，不依賴宿主畫面）。
+     * 想嵌進自家後台時改成自己的版型：需提供 content 區塊、styles 與 scripts 堆疊，並載入 Bootstrap 5、
+     * jQuery、jQuery Form、select2、SweetAlert2、DataTables，以及 AJAX 錯誤提示。
+     */
     'layout' => 'document-builder::layouts.app',
+
+    /*
+     * 自帶介面的導覽列。brand：左上角名稱（空白時用 menu.builder）；home_url：「回到系統」連結，
+     * 設成 null 就不顯示；logout_route：登出的路由名稱（POST），路由不存在時不顯示。
+     */
+    'ui' => [
+        'brand' => null,
+        'home_url' => '/',
+        'logout_route' => 'logout',
+    ],
 
     /*
      * 前端資產。url：套件資產在 public 底下的位置（vendor:publish --tag=document-builder-assets 發布到這裡）。
      * canvas_styles：設計器畫布要載入的版面樣式，讓畫布長得和填單畫面一樣；可填完整網址或 public 底下的路徑。
-     * favicon、datatables_language：選填，沒設定就不載入。
+     *   null 表示用套件自帶的 Bootstrap（和自帶介面一致）；改用自家版型時填自家的樣式。
+     * favicon：選填。datatables_language：null 表示依 app 語系用套件附的繁中或英文語系檔。
+     * 所有函式庫都附在套件裡，不從 CDN 載入。
      */
     'assets' => [
         'url' => 'vendor/document-builder',
-        'canvas_styles' => ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css'],
+        'canvas_styles' => null,
         'favicon' => null,
         'datatables_language' => null,
     ],

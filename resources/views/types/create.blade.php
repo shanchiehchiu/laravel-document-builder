@@ -3,7 +3,7 @@
 @section('content')
 <div class="block block-rounded">
     <div class="block-header block-header-default">
-        <h3 class="block-title">{{ __('create') }}</h3>
+        <h3 class="block-title">{{ __('document-builder::ui.create') }}</h3>
     </div>
     <div class="block-content block-content-full">
         <form id="form-create" action="{{ route(document_builder_route_name('document_builder.types.store')) }}" method="post">
@@ -23,8 +23,8 @@
                     <input type="number" name="seq" class="form-control" min="0" value="0">
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">{{ __('save') }}</button>
-            <a href="{{ route(document_builder_route_name('document_builder.types.index')) }}" class="btn btn-secondary">{{ __('back_list') }}</a>
+            <button type="submit" class="btn btn-primary">{{ __('document-builder::ui.save') }}</button>
+            <a href="{{ route(document_builder_route_name('document_builder.types.index')) }}" class="btn btn-secondary">{{ __('document-builder::ui.back_list') }}</a>
         </form>
     </div>
 </div>

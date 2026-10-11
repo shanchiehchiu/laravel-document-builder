@@ -3,9 +3,9 @@
 @section('content')
 <div class="block block-rounded">
     <div class="block-header block-header-default">
-        <h3 class="block-title">{{ $docType->name }}{{ __('list') }}</h3>
+        <h3 class="block-title">{{ $docType->name }}{{ __('document-builder::ui.list') }}</h3>
         @if($docType->hasButton('create'))
-        <a href="{{ route(document_builder_route_name('doc_records.create'), $docType->code) }}" class="btn btn-primary create">{{ __('create') }}</a>
+        <a href="{{ route(document_builder_route_name('doc_records.create'), $docType->code) }}" class="btn btn-primary create">{{ __('document-builder::ui.create') }}</a>
         @endif
     </div>
     <div class="block-content block-content-full">
@@ -61,9 +61,7 @@ $(function () {
         ordering: false,
         searching: false,
         responsive: true,
-        @if($dtLanguage = \DocumentBuilder\Support\Assets::external(config('document_builder.assets.datatables_language')))
-        language: { url: '{{ $dtLanguage }}' },
-        @endif
+        language: { url: '{{ \DocumentBuilder\Support\Assets::datatablesLanguage() }}' },
         ajax: {
             url: path,
             data: function (d) {
@@ -88,11 +86,11 @@ $(function () {
             { data: @json('f_'.$field->key), title: @json($field->label) },
             @endforeach
             { data: 'creator_name', title: '建立人', className: 'text-center' },
-            { data: 'id', title: '{{ __('option') }}', className: 'text-center text-nowrap', render: function (id, type, row) {
-                var html = `<a class="read btn btn-sm btn-primary" href="${path}/${id}">{{ __('read') }}</a>`;
+            { data: 'id', title: '{{ __('document-builder::ui.option') }}', className: 'text-center text-nowrap', render: function (id, type, row) {
+                var html = `<a class="read btn btn-sm btn-primary" href="${path}/${id}">{{ __('document-builder::ui.read') }}</a>`;
                 if (row.revision_locked) html += '<span class="badge bg-warning text-dark ms-2">舊版</span>';
-                if (buttons.edit && !row.status_locks_editing && !row.revision_locked) html += `<a class="edit btn btn-sm btn-warning ms-2" href="${path}/${id}/edit">{{ __('edit') }}</a>`;
-                if (buttons.delete && !row.status_locks_editing && !row.revision_locked) html += `<a class="delete btn btn-sm btn-danger ms-2" data-id="${id}" href="javascript:;">{{ __('delete') }}</a>`;
+                if (buttons.edit && !row.status_locks_editing && !row.revision_locked) html += `<a class="edit btn btn-sm btn-warning ms-2" href="${path}/${id}/edit">{{ __('document-builder::ui.edit') }}</a>`;
+                if (buttons.delete && !row.status_locks_editing && !row.revision_locked) html += `<a class="delete btn btn-sm btn-danger ms-2" data-id="${id}" href="javascript:;">{{ __('document-builder::ui.delete') }}</a>`;
                 return html;
             } },
         ]
@@ -109,11 +107,11 @@ $(function () {
     $('#data-table').on('click', '.delete', function () {
         var id = $(this).data('id');
         Swal.fire({
-            text: '{{ __('confirm_delete') }}',
+            text: '{{ __('document-builder::ui.confirm_delete') }}',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: '{{ __('sure') }}',
-            cancelButtonText: '{{ __('cancel') }}'
+            confirmButtonText: '{{ __('document-builder::ui.sure') }}',
+            cancelButtonText: '{{ __('document-builder::ui.cancel') }}'
         }).then(function (result) {
             if (!result.isConfirmed) return;
             $.ajax({ url: `${path}/${id}`, type: 'DELETE', dataType: 'json' }).done(function (data) {

@@ -22,15 +22,20 @@ class DocumentBuilderServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // 預設沒有人是超級管理員；宿主在自己的 AuthServiceProvider 重新定義（宿主的 provider 比套件晚啟動，會蓋過這裡）
+        // 預設：沒有人是超級管理員，只有超級管理員能設計單據。
+        // 宿主在自己的 AuthServiceProvider 重新定義即可（宿主的 provider 比套件晚啟動，會蓋過這裡）
         if (! Gate::has(DocumentBuilder::SUPER_ADMIN_ABILITY)) {
             Gate::define(DocumentBuilder::SUPER_ADMIN_ABILITY, fn (): bool => false);
+        }
+        if (! Gate::has(DocumentBuilder::DESIGN_ABILITY)) {
+            Gate::define(DocumentBuilder::DESIGN_ABILITY, fn ($user): bool => DocumentBuilder::isSuperAdmin($user));
         }
 
         $this->loadRoutesFrom(__DIR__.'/../routes/document-builder.php');
         // migration 以檔名記錄是否執行過，從專案搬進套件的檔案不會重跑
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'document-builder');
+        $this->loadTranslationsFrom(__DIR__.'/../lang', 'document-builder');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

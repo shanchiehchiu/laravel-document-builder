@@ -43,9 +43,14 @@ class InstallCommand extends Command
         }
 
         $this->newLine();
-        $this->line('最後一步：在 app/Providers/AuthServiceProvider.php 的 boot() 定義誰是超級管理員，例如：');
+        $this->line('最後一步：在 app/Providers/AuthServiceProvider.php 的 boot() 定義權限，例如：');
         $this->line("    Gate::define('document-builder.super-admin', fn (\$user) => \$user->is_admin);");
         $this->line('超級管理員才能發布、審核、還原版本與透過 MCP 修改草稿；沒有定義時沒有人能做這些事。');
+        $this->line('選用：document-builder.design 決定誰能設計單據（預設等於超級管理員），');
+        $this->line('document-builder.view-type 決定誰能填寫某種單據（預設登入者都可以）。');
+        $this->newLine();
+        $this->line('介面網址：'.url(trim((string) config('document_builder.route.prefix'), '/').'/document_builder'));
+        $this->line('套件更新後執行 php artisan vendor:publish --tag=document-builder-assets --force 更新前端資產。');
 
         return self::SUCCESS;
     }

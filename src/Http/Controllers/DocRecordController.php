@@ -85,7 +85,7 @@ class DocRecordController extends Controller
 
         $record = $this->service->create($docType, $request->validate($rules, [], $attributes), $this->userId($request));
 
-        return response()->json(['message' => __('create').__('success'), 'id' => $record->id]);
+        return response()->json(['message' => __('document-builder::ui.create').__('document-builder::ui.success'), 'id' => $record->id]);
     }
 
     public function show(DocType $docType, DocRecord $record)
@@ -114,7 +114,7 @@ class DocRecordController extends Controller
 
         $this->service->update($docType, $record, $request->validate($rules, [], $attributes), $this->userId($request));
 
-        return response()->json(['message' => __('edit').__('success'), 'id' => $record->id]);
+        return response()->json(['message' => __('document-builder::ui.edit').__('document-builder::ui.success'), 'id' => $record->id]);
     }
 
     public function destroy(DocType $docType, DocRecord $record): JsonResponse
@@ -124,7 +124,7 @@ class DocRecordController extends Controller
         $this->ensureUnlocked($record);
         $this->service->delete($record);
 
-        return response()->json(['message' => __('delete').__('success')]);
+        return response()->json(['message' => __('document-builder::ui.delete').__('document-builder::ui.success')]);
     }
 
     public function changeStatus(Request $request, DocType $docType, DocRecord $record): JsonResponse
@@ -168,10 +168,11 @@ class DocRecordController extends Controller
         ));
     }
 
-    /** 停用的單據種類整個不能進入；關掉的按鈕連網址一起擋下，不只是隱藏 */
+    /** 停用的單據種類整個不能進入；沒有檢視權限回 403；關掉的按鈕連網址一起擋下，不只是隱藏 */
     private function ensureActive(DocType $docType, ?string $button = null): void
     {
         abort_unless($docType->status, 404);
+        abort_unless(DocumentBuilder::canViewType($docType), 403);
         abort_if($button !== null && ! $docType->hasButton($button), 404);
     }
 

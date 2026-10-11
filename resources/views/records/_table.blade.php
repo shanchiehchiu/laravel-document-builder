@@ -60,7 +60,7 @@
         </table>
     </div>
     @unless($show)
-    <button type="button" class="btn btn-sm btn-alt-primary doc-item-add"><i class="fa fa-plus me-1"></i>新增一列</button>
+    <button type="button" class="btn btn-sm btn-outline-primary doc-item-add">＋ {{ __('document-builder::ui.add_row') }}</button>
     <template class="doc-item-template">
         @include('document-builder::records._item_row', ['index' => '__INDEX__', 'item' => null])
     </template>

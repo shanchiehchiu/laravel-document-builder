@@ -73,7 +73,7 @@
         </form>
         @endif
         <h4 class="fs-6">不可變 Schema 快照</h4>
-        <pre class="bg-body-light p-3 rounded"><code>{{ json_encode($revision->schema_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}</code></pre>
+        <pre class="bg-light p-3 rounded"><code>{{ json_encode($revision->schema_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}</code></pre>
     </div>
 </div>
 @endsection

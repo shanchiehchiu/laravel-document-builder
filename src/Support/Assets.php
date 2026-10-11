@@ -26,14 +26,30 @@ final class Assets
         return preg_match('#^(https?:)?//#', $pathOrUrl) ? $pathOrUrl : asset($pathOrUrl);
     }
 
-    /** 設計器畫布要載入的樣式：宿主的版面樣式（讓畫布長得和填單畫面一樣）＋套件的畫布樣式 */
+    /**
+     * 設計器畫布要載入的樣式：填單畫面的版面樣式（讓畫布長得和填單畫面一樣）＋套件的畫布樣式。
+     * 沒設定 canvas_styles 時用套件自帶的 Bootstrap，和自帶版型的填單畫面一致。
+     */
     public static function canvasStyles(): array
     {
-        $host = array_values(array_filter(array_map(
-            [self::class, 'external'],
-            (array) config('document_builder.assets.canvas_styles', [])
-        )));
+        $configured = config('document_builder.assets.canvas_styles');
+        $host = $configured === null
+            ? [self::url('vendor/bootstrap-5.3.3/bootstrap.min.css')]
+            : array_values(array_filter(array_map([self::class, 'external'], (array) $configured)));
 
         return [...$host, self::url('designer-canvas.css')];
+    }
+
+    /** DataTables 的語系檔：有設定就用設定的，沒設定時依 app 語系用套件附的繁中或英文 */
+    public static function datatablesLanguage(): string
+    {
+        $configured = self::external(config('document_builder.assets.datatables_language'));
+        if ($configured !== null) {
+            return $configured;
+        }
+
+        $file = str_starts_with((string) app()->getLocale(), 'zh') ? 'zh-Hant.json' : 'en.json';
+
+        return self::url('vendor/datatables-1.13.8/i18n/'.$file);
     }
 }

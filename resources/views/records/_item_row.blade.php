@@ -15,7 +15,7 @@
     @unless($show)
     <td class="text-center">
         <input type="hidden" name="{{ $prefix }}[_id]" value="{{ $item?->id }}">
-        <button type="button" class="btn btn-sm btn-alt-danger doc-item-remove" title="刪除這一列"><i class="fa fa-times"></i></button>
+        <button type="button" class="btn btn-sm btn-outline-danger doc-item-remove" title="{{ __('document-builder::ui.remove_row') }}" aria-label="{{ __('document-builder::ui.remove_row') }}">×</button>
     </td>
     @endunless
 </tr>

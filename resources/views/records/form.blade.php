@@ -3,7 +3,7 @@
 @php
     $isCreate = $record === null;
     $values = $record?->data ?? [];
-    $title = $isCreate ? __('create') : ($show ? __('detail_info') : __('edit'));
+    $title = $isCreate ? __('document-builder::ui.create') : ($show ? __('document-builder::ui.detail_info') : __('document-builder::ui.edit'));
 @endphp
 
 @section('content')
@@ -12,17 +12,17 @@
         <h3 class="block-title">{{ $docType->name }}－{{ $title }}</h3>
         @unless($isCreate)
             @if($docType->hasButton('create'))
-            <a href="{{ route(document_builder_route_name('doc_records.create'), $docType->code) }}" class="btn btn-primary me-2 create">{{ __('create') }}</a>
+            <a href="{{ route(document_builder_route_name('doc_records.create'), $docType->code) }}" class="btn btn-primary me-2 create">{{ __('document-builder::ui.create') }}</a>
             @endif
             @if($show)
                 @if($docType->hasButton('edit') && ! $record->status?->locks_editing && ! $isOutdated)
-                <a href="{{ route(document_builder_route_name('doc_records.edit'), [$docType->code, $record]) }}" class="btn btn-warning me-2 edit">{{ __('edit') }}</a>
+                <a href="{{ route(document_builder_route_name('doc_records.edit'), [$docType->code, $record]) }}" class="btn btn-warning me-2 edit">{{ __('document-builder::ui.edit') }}</a>
                 @endif
             @else
-            <a href="{{ route(document_builder_route_name('doc_records.show'), [$docType->code, $record]) }}" class="btn btn-info me-2 read">{{ __('read') }}</a>
+            <a href="{{ route(document_builder_route_name('doc_records.show'), [$docType->code, $record]) }}" class="btn btn-info me-2 read">{{ __('document-builder::ui.read') }}</a>
             @endif
         @endunless
-        <a href="{{ route(document_builder_route_name('doc_records.index'), $docType->code) }}" class="btn btn-secondary">{{ __('back_list') }}</a>
+        <a href="{{ route(document_builder_route_name('doc_records.index'), $docType->code) }}" class="btn btn-secondary">{{ __('document-builder::ui.back_list') }}</a>
         @if($record)
         <span class="badge bg-{{ $record->status?->color ?? 'secondary' }} ms-2">{{ $record->status?->name ?? '未設定' }}</span>
         @if($formRevision)
@@ -75,8 +75,8 @@
             @csrf
             @unless($isCreate) @method('PUT') @endunless
             @include('document-builder::records._runtime_fields')
-            <button type="submit" class="btn btn-primary">{{ __('save') }}</button>
-            <a href="{{ route(document_builder_route_name('doc_records.index'), $docType->code) }}" class="btn btn-secondary">{{ __('back_list') }}</a>
+            <button type="submit" class="btn btn-primary">{{ __('document-builder::ui.save') }}</button>
+            <a href="{{ route(document_builder_route_name('doc_records.index'), $docType->code) }}" class="btn btn-secondary">{{ __('document-builder::ui.back_list') }}</a>
         </form>
     </div>
 </div>
@@ -90,11 +90,12 @@ $(function () {
     var showUrl = '{{ route(document_builder_route_name('doc_records.show'), [$docType->code, '___ID___']) }}';
 
     // 明細表：新增列從 <template> 複製，列索引用不重複的遞增值（刪列後不回收，送出時後端重新編號）
-    // 頁面載入時主檔下拉已由全域（main.blade.php）初始化，只有新增的列要連主檔一起處理
-    function initSelects($scope, withMaster) {
+    // 宿主版型若已有全域的 select2 初始化（例如 c11305-1 的 main.blade.php），已初始化的下拉會跳過，不重複處理
+    function initSelects($scope) {
         // 固定選項：選項不多時不顯示搜尋框
         $scope.find('select.js-choice').each(function () {
             var $select = $(this);
+            if ($select.hasClass('select2-hidden-accessible')) return;
             $select.select2({
                 allowClear: true,
                 width: '100%',
@@ -102,9 +103,9 @@ $(function () {
                 minimumResultsForSearch: 10
             });
         });
-        if (!withMaster) return;
         $scope.find('.js-select2[data-url]').each(function () {
             var $select = $(this);
+            if ($select.hasClass('select2-hidden-accessible')) return;
             $select.select2({
                 allowClear: true,
                 width: '100%',
@@ -119,7 +120,7 @@ $(function () {
             });
         });
     }
-    initSelects($form, false);
+    initSelects($form);
     var $statusForm = $('#form-status');
     if ($statusForm.length) {
         $statusForm.find('select').select2({ width: '12rem', minimumResultsForSearch: 10 });
@@ -147,7 +148,7 @@ $(function () {
         $table.attr('data-next', index + 1);
         var html = $table.find('template.doc-item-template').html().replace(/__INDEX__/g, index);
         var $row = $(html).appendTo($table.find('tbody'));
-        initSelects($row, true);
+        initSelects($row);
         renumber($table);
         $row.find('input:not([type=hidden]), select, textarea').first().trigger('focus');
     });

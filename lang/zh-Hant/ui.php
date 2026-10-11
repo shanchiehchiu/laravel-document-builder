@@ -1,0 +1,30 @@
+<?php
+
+// 套件頁面的共用按鈕與訊息文字；宿主可在 lang/vendor/document-builder/{locale}/ui.php 覆寫
+return [
+    'create' => '新增',
+    'edit' => '修改',
+    'delete' => '刪除',
+    'read' => '查看',
+    'save' => '送出',
+    'cancel' => '取消',
+    'sure' => '確定',
+    'list' => '列表',
+    'back_list' => '返回列表',
+    'option' => '操作',
+    'status' => '狀態',
+    'active' => '啟用',
+    'inactive' => '停用',
+    'detail_info' => '詳情',
+    'success' => '成功',
+    'confirm_delete' => '確定要刪除嗎?',
+    'my_documents' => '我的單據',
+    'type_settings' => '單據設定',
+    'new_type' => '新增單據種類',
+    'no_types' => '目前沒有可以填寫的單據。',
+    'record_count' => ':count 筆',
+    'back_to_app' => '回到系統',
+    'logout' => '登出',
+    'add_row' => '新增一列',
+    'remove_row' => '刪除這一列',
+];
