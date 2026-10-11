@@ -6,6 +6,7 @@ namespace DocumentBuilder\Http\Controllers;
 
 use DocumentBuilder\DocumentBuilder;
 use DocumentBuilder\Support\Assets;
+use DocumentBuilder\Support\Theme;
 use DocumentBuilder\Models\DocType;
 use DocumentBuilder\Services\DocTypeService;
 use DocumentBuilder\Services\DocumentBuilderSchemaAdapter;
@@ -157,6 +158,7 @@ class DocDesignerController extends Controller
             'masters' => $this->masters->options(),
             'widths' => config('document_builder.widths'),
             'canvasStyles' => Assets::canvasStyles(),
+            'themeCss' => Theme::css(),
             'revisionInfo' => $this->revisionInfo($type),
             // 頂部的單據切換下拉：其他單據直接跳到各自的設計器
             'switcher' => DocType::query()->orderBy('seq')->orderBy('id')->get(['id', 'name', 'status'])

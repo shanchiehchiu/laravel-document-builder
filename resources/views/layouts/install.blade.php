@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ $asset('vendor/bootstrap-5.3.3/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ $asset('vendor/select2-4.1.0-rc.0/select2.min.css') }}">
     <link rel="stylesheet" href="{{ $asset('css/install.css') }}">
+    {!! \DocumentBuilder\Support\Theme::style() !!}
 </head>
 <body class="db-install">
 <main class="db-install-shell">

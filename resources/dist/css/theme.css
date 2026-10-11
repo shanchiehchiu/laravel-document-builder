@@ -4,6 +4,8 @@
     --db-bg: #eef0f4;
     --db-header: #f6f7f9;
     --db-primary: #0665d0;
+    --db-primary-rgb: 6, 101, 208;
+    --db-primary-text: #fff;
     --db-primary-dark: #0553ab;
     --db-warning: #e07b12;
     --db-warning-dark: #c56a0c;
@@ -47,3 +49,17 @@
 .form-control:disabled, .form-select:disabled, .form-control[readonly] { background-color: #e9ecef; border-color: #e9ecef; }
 .select2-container--default.select2-container--disabled .select2-selection--single { background-color: #e9ecef; border-color: #e9ecef; }
 .pagination { --bs-pagination-active-bg: var(--db-primary); --bs-pagination-active-border-color: var(--db-primary); --bs-pagination-color: var(--db-primary); }
+
+/* 自訂主色：文字色依對比度決定（深色底白字、淺色底深字），聚焦光暈跟著主色 */
+.btn-primary {
+    --bs-btn-color: var(--db-primary-text);
+    --bs-btn-hover-color: var(--db-primary-text);
+    --bs-btn-active-color: var(--db-primary-text);
+    --bs-btn-disabled-color: var(--db-primary-text);
+    --bs-btn-focus-shadow-rgb: var(--db-primary-rgb);
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:active {
+    --bs-btn-hover-color: var(--db-primary-text);
+    --bs-btn-active-color: var(--db-primary-text);
+}

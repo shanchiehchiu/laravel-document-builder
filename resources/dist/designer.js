@@ -1989,6 +1989,12 @@
         // 畫布在 iframe 裡，鍵盤事件要另外聽（復原快捷鍵）
         canvasDoc = editor.Canvas.getDocument();
         if (canvasDoc) canvasDoc.addEventListener('keydown', onHistoryKey);
+        // 自訂按鈕主色：放在畫布 CSS 之後，才能蓋過預設色
+        if (canvasDoc && C.themeCss) {
+            var themeStyle = canvasDoc.createElement('style');
+            themeStyle.textContent = C.themeCss;
+            canvasDoc.head.appendChild(themeStyle);
+        }
         // 畫布在 iframe 裡，點畫布不會傳到外層 document，要另外關掉頂部下拉選單
         if (canvasDoc) canvasDoc.addEventListener('mousedown', function () { closeMenus(); });
 

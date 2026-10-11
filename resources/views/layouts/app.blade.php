@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="{{ $asset('vendor/datatables-1.13.8/dataTables.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="{{ $asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ $asset('css/theme.css') }}">
+    {!! \DocumentBuilder\Support\Theme::style() !!}
     @stack('styles')
 </head>
 <body class="db-app">

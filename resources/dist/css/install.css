@@ -354,3 +354,6 @@
 .db-check-list.js-checks .db-row-icon { width: 22px; height: 22px; font-size: 0.6875rem; box-shadow: none; }
 .db-check-list.js-checks .db-row-title { font-size: 0.875rem; }
 .db-check-list.js-checks .db-row.is-ok .db-row-status { display: none; }
+
+/* 按鈕主色的色塊 */
+.db-swatch { display: inline-block; width: 0.875rem; height: 0.875rem; border-radius: 50%; vertical-align: -2px; margin-right: 0.375rem; border: 1px solid rgba(15, 23, 42, 0.15); }
