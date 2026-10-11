@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use DocumentBuilder\Http\Controllers\AppearanceController;
 use DocumentBuilder\Http\Controllers\AssetController;
 use DocumentBuilder\Http\Controllers\DocDesignerController;
 use DocumentBuilder\Http\Controllers\DocRecordController;
@@ -65,6 +66,10 @@ Route::middleware(config('document_builder.route.middleware'))
                     Route::post('types/{type}/publish', [FormRevisionController::class, 'publish'])->name('revisions.publish');
                     Route::post('types/{type}/revisions/{revision}/restore', [FormRevisionController::class, 'restore'])->name('revisions.restore');
                     Route::match(['GET', 'POST', 'DELETE', 'OPTIONS'], 'mcp', [FormPlatformMcpController::class, 'handle'])->name('mcp');
+
+                    // 外觀設定：按鈕主色（控制器內再檢查超級管理員）
+                    Route::get('appearance', [AppearanceController::class, 'edit'])->name('appearance.edit');
+                    Route::put('appearance', [AppearanceController::class, 'update'])->name('appearance.update');
 
                     // 來源庫：主檔下拉的資料來源
                     Route::get('sources/columns', [SourceController::class, 'columns'])->name('sources.columns');

@@ -136,7 +136,6 @@ composer require document-builder/document-builder
 | `guard`／`user_model`／`users_table` | 登入者從哪個 guard 取得、用哪個 model、使用者資料表；null 表示自動偵測 |
 | `user_key_type`／`user_name_column` | 使用者主鍵型別（int／uuid／ulid）與顯示名稱的欄位；null 表示自動偵測 |
 | `setup.token`／`setup.open_environments` | 安裝精靈的 token（讀 `.env` 的 `DOCUMENT_BUILDER_SETUP_TOKEN`）與不需要 token 的環境（預設 `local`） |
-| `theme.primary` | 按鈕主色（hex，例如 `#2563eb`）；null 為預設色（c11305-1 的藍）。hover、按下與文字色（深字或白字，依對比度）會自動算出 |
 | `layout` | 頁面版型；預設是套件自帶的完整介面；嵌進自家後台時，改成自己的版型 |
 | `ui.brand`／`ui.home_url`／`ui.logout_route` | 自帶介面左上角名稱、「回到系統」連結、登出路由 |
 | `integration` | 宿主後台整合；預設 `NullIntegration`（不處理選單，檢視權限看 `view-type` Gate） |
@@ -145,6 +144,10 @@ composer require document-builder/document-builder
 | `sources.drivers`／`sources.models`／`sources.hidden_columns` | 來源庫的驅動、資料模型可以選的 model（null 表示自動找）、不開放的欄位 |
 
 這些設定都可以在安裝精靈裡調整。沒有寫在宿主設定檔裡的頂層鍵沿用套件預設值。`config/form_platform.php`（元件與欄位型別規格）一般不需要發布。
+
+## 外觀
+
+超級管理員可以在單據設定列表的「外觀設定」調整按鈕主色（預設與 c11305-1 相同的藍）。hover、按下與文字色（深字或白字，依對比度）會自動算出。設定存在資料庫的 `doc_settings` 表。
 
 ## 嵌進自家後台
 

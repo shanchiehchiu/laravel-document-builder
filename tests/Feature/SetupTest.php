@@ -44,7 +44,7 @@ class SetupTest extends TestCase
     {
         $files = collect(glob(__DIR__.'/../../database/migrations/*.php'))->map(fn (string $f): string => basename($f, '.php'));
         Schema::disableForeignKeyConstraints();
-        foreach (['doc_admins', 'doc_sources', 'doc_type_revision_reviews', 'doc_mcp_operations', 'doc_record_items', 'doc_records', 'doc_sequences', 'doc_statuses', 'doc_fields', 'doc_type_revisions', 'doc_types'] as $table) {
+        foreach (['doc_settings', 'doc_admins', 'doc_sources', 'doc_type_revision_reviews', 'doc_mcp_operations', 'doc_record_items', 'doc_records', 'doc_sequences', 'doc_statuses', 'doc_fields', 'doc_type_revisions', 'doc_types'] as $table) {
             Schema::dropIfExists($table);
         }
         Schema::enableForeignKeyConstraints();

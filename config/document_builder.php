@@ -68,14 +68,6 @@ return [
     ],
 
     /*
-     * 按鈕主色。primary：hex 色碼（例如 #059669）；null 表示預設藍。
-     * 只存這一個色，hover、按下與文字色由套件自動算出；設定格式不對時沿用預設色。
-     */
-    'theme' => [
-        'primary' => null,
-    ],
-
-    /*
      * 前端資產。url：套件資產在 public 底下的位置（vendor:publish --tag=document-builder-assets 發布到這裡）。
      * canvas_styles：設計器畫布要載入的版面樣式，讓畫布長得和填單畫面一樣；可填完整網址或 public 底下的路徑。
      *   null 表示用套件自帶的 Bootstrap（和自帶介面一致）；改用自家版型時填自家的樣式。

@@ -4,6 +4,9 @@
 <div class="block block-rounded">
     <div class="block-header block-header-default">
         <h3 class="block-title">{{ __('document-builder::ui.list') }}</h3>
+        @if(\DocumentBuilder\DocumentBuilder::isSuperAdmin())
+        <a href="{{ route(document_builder_route_name('document_builder.appearance.edit')) }}" class="btn btn-outline-primary me-2">外觀設定</a>
+        @endif
         <a href="{{ route(document_builder_route_name('document_builder.types.create')) }}" class="btn btn-primary create">{{ __('document-builder::ui.create') }}</a>
     </div>
     <div class="block-content block-content-full">

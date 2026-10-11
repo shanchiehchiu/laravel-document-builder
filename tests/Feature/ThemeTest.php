@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DocumentBuilder\Tests\Feature;
 
+use DocumentBuilder\Models\DocSetting;
 use DocumentBuilder\Support\Theme;
 use DocumentBuilder\Tests\TestCase;
 
@@ -13,31 +14,32 @@ class ThemeTest extends TestCase
     public function test_沒有設定或設成預設色時_不注入任何覆寫(): void
     {
         $this->assertSame('', Theme::style());
+        $this->assertSame(Theme::DEFAULT_PRIMARY, Theme::primary());
 
-        config(['document_builder.theme.primary' => '#0284C7']);
+        DocSetting::query()->updateOrCreate(['key' => Theme::KEY], ['value' => '#0284C7']);
         $this->assertSame('', Theme::css(), '和預設色相同時沿用 theme.css，不重複輸出');
     }
 
     public function test_格式不對的色碼退回預設色(): void
     {
-        foreach (['red', '#abc', '#zzzzzz', '  #059669', 123] as $bad) {
-            config(['document_builder.theme.primary' => $bad]);
-            $this->assertSame(Theme::DEFAULT_PRIMARY, Theme::primary(), var_export($bad, true));
+        foreach (['red', '#abc', '#zzzzzz', '  #059669'] as $bad) {
+            DocSetting::query()->updateOrCreate(['key' => Theme::KEY], ['value' => $bad]);
+            $this->assertSame(Theme::DEFAULT_PRIMARY, Theme::primary(), $bad);
         }
     }
 
     public function test_深色主色配白字_淺色主色配深字(): void
     {
-        config(['document_builder.theme.primary' => '#2563eb']);
+        DocSetting::query()->updateOrCreate(['key' => Theme::KEY], ['value' => '#2563eb']);
         $this->assertStringContainsString('--db-primary-text: #ffffff;', Theme::css());
 
-        config(['document_builder.theme.primary' => '#fde047']);
+        DocSetting::query()->updateOrCreate(['key' => Theme::KEY], ['value' => '#fde047']);
         $this->assertStringContainsString('--db-primary-text: #1f2937;', Theme::css());
     }
 
     public function test_hover_色比主色深_並輸出_rgb_給聚焦光暈(): void
     {
-        config(['document_builder.theme.primary' => '#059669']);
+        DocSetting::query()->updateOrCreate(['key' => Theme::KEY], ['value' => '#059669']);
         $css = Theme::css();
 
         $this->assertStringContainsString('--db-primary: #059669;', $css);
@@ -48,7 +50,7 @@ class ThemeTest extends TestCase
 
     public function test_自帶版型的頁面與設計器畫布都帶上主色(): void
     {
-        config(['document_builder.theme.primary' => '#059669']);
+        DocSetting::query()->updateOrCreate(['key' => Theme::KEY], ['value' => '#059669']);
         $admin = $this->makeAdmin();
         $this->makeType('leave', [['key' => 'reason', 'label' => '事由', 'type' => 'text']]);
 

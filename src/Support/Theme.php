@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DocumentBuilder\Support;
 
+use DocumentBuilder\Models\DocSetting;
+use Illuminate\Database\QueryException;
+
 /**
  * 自訂按鈕主色：宿主只存一個 hex，其餘狀態在 PHP 算好，不依賴瀏覽器支援 color-mix()。
  * 文字色依 WCAG 對比度選深字或白字，確保按鈕上的字看得清楚。
@@ -12,14 +15,20 @@ final class Theme
 {
     public const DEFAULT_PRIMARY = '#0284c7';
 
+    public const KEY = 'theme.primary';
+
     private const DARK_TEXT = '#1f2937';
 
-    /** 目前的主色（格式不對或沒設定時用預設色） */
+    /** 目前的主色：超級管理員在外觀設定頁存的值；沒設定、格式不對或還沒安裝時用預設色 */
     public static function primary(): string
     {
-        $configured = config('document_builder.theme.primary');
+        try {
+            $stored = DocSetting::get(self::KEY);
+        } catch (QueryException) {
+            return self::DEFAULT_PRIMARY;
+        }
 
-        return self::valid($configured) ? strtolower((string) $configured) : self::DEFAULT_PRIMARY;
+        return self::valid($stored) ? strtolower((string) $stored) : self::DEFAULT_PRIMARY;
     }
 
     /** 是否和預設色不同；相同時不需要覆寫 */
