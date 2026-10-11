@@ -100,7 +100,7 @@
         </select>
     </div>
     @php
-        $themePresets = ['' => '預設藍', '#2563eb' => '科技藍', '#4f46e5' => '靛青', '#1e293b' => '商務灰黑', '#ea580c' => '活力橙'];
+        $themePresets = ['' => '預設', '#2563eb' => '科技藍', '#4f46e5' => '靛青', '#1e293b' => '商務灰黑', '#ea580c' => '活力橙'];
         $currentTheme = (string) ($values['theme']['primary'] ?? '');
         $isCustomTheme = $currentTheme !== '' && ! array_key_exists($currentTheme, $themePresets);
     @endphp

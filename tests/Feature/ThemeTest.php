@@ -14,7 +14,7 @@ class ThemeTest extends TestCase
     {
         $this->assertSame('', Theme::style());
 
-        config(['document_builder.theme.primary' => '#0665D0']);
+        config(['document_builder.theme.primary' => '#0284C7']);
         $this->assertSame('', Theme::css(), '和預設色相同時沿用 theme.css，不重複輸出');
     }
 

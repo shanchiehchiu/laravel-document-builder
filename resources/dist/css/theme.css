@@ -3,14 +3,16 @@
 :root, .db-app {
     --db-bg: #eef0f4;
     --db-header: #f6f7f9;
-    --db-primary: #0665d0;
-    --db-primary-rgb: 6, 101, 208;
+    --db-primary: #0284c7;
+    --db-primary-rgb: 2, 132, 199;
     --db-primary-text: #fff;
-    --db-primary-dark: #0553ab;
-    --db-warning: #e07b12;
-    --db-warning-dark: #c56a0c;
-    --db-dark: #343a40;
-    --db-dark-hover: #23272b;
+    --db-primary-dark: #026a9f;
+    --db-warning: #d97706;
+    --db-warning-dark: #b45309;
+    --db-danger: #dc2626;
+    --db-danger-dark: #b91c1c;
+    --db-dark: #454c53;
+    --db-dark-hover: #343a40;
 }
 .block { border: 0; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); overflow: hidden; }
 /* 標題在左、按鈕在右，排在同一列；按鈕多時換行 */
@@ -62,4 +64,11 @@
 .btn-outline-primary:active {
     --bs-btn-hover-color: var(--db-primary-text);
     --bs-btn-active-color: var(--db-primary-text);
+}
+
+/* 刪除：和 c11305-1 的危險色一致 */
+.btn-danger {
+    --bs-btn-color: #fff; --bs-btn-bg: var(--db-danger); --bs-btn-border-color: var(--db-danger);
+    --bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--db-danger-dark); --bs-btn-hover-border-color: var(--db-danger-dark);
+    --bs-btn-active-color: #fff; --bs-btn-active-bg: var(--db-danger-dark); --bs-btn-active-border-color: var(--db-danger-dark);
 }

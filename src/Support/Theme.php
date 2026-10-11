@@ -10,7 +10,7 @@ namespace DocumentBuilder\Support;
  */
 final class Theme
 {
-    public const DEFAULT_PRIMARY = '#0665d0';
+    public const DEFAULT_PRIMARY = '#0284c7';
 
     private const DARK_TEXT = '#1f2937';
 

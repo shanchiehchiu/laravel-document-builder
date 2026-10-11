@@ -147,7 +147,7 @@ class InstallWizard
     /** Step 2＋3 送出的設定：驗證後回傳整理好的值 */
     public function validate(array $input): array
     {
-        // 空白的主色視為沒設定（預設藍）
+        // 空白的主色視為沒設定（預設色）
         $input['theme']['primary'] = trim((string) ($input['theme']['primary'] ?? '')) ?: null;
 
         $guards = collect($this->guards())->pluck('name')->all();
