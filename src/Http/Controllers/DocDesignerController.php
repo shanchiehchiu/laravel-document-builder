@@ -194,9 +194,9 @@ class DocDesignerController extends Controller
         } elseif ($working->latestReview === null) {
             $reason = '草稿還沒審核，請先到「版本紀錄」審核';
         } elseif ($working->latestReview->decision !== 'approved') {
-            $reason = '草稿審核結果為「需要修改」，修改並重新審核後才能發布';
+            $reason = '草稿審核結果為「需要修改」，修改並重新審核後才可以發布';
         } elseif ((string) $working->latestReview->reviewer_id === (string) DocumentBuilder::user()?->getKey()) {
-            $reason = '你是這份草稿的審核者，需由另一位超級管理員發布';
+            $reason = '你是這份草稿的審核者，必須由另一位超級管理員發布';
         }
 
         return [

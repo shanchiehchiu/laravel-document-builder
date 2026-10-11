@@ -63,7 +63,7 @@ class SetupController extends Controller
             if (! $this->setup->canBootstrap($token)) {
                 throw ValidationException::withMessages(['token' => $this->setup->tokenConfigured()
                     ? '初始化 token 不正確'
-                    : '這個環境要先在 .env 設定 DOCUMENT_BUILDER_SETUP_TOKEN']);
+                    : '這個環境必須先在 .env 設定 DOCUMENT_BUILDER_SETUP_TOKEN']);
             }
             $request->session()->put(self::SESSION.'.token', $token);
         }
@@ -150,7 +150,7 @@ class SetupController extends Controller
     private function runAdmin(Request $request): JsonResponse
     {
         if (DocumentBuilder::hostDefinesSuperAdmin()) {
-            return response()->json(['ok' => true, 'log' => '超級管理員由專案的程式定義（document-builder.super-admin Gate），略過']);
+            return response()->json(['ok' => true, 'log' => '超級管理員由專案的程式定義（document-builder.super-admin Gate），跳過']);
         }
         if (DocumentBuilder::isSuperAdmin()) {
             return response()->json(['ok' => true, 'log' => '你已經是超級管理員']);

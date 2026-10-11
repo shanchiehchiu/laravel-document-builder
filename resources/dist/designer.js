@@ -97,7 +97,7 @@
         setSaveState('有未儲存的修改', 'dirty');
         $('#wfb-save').disabled = false;
         // 每次儲存都會產生新草稿，新草稿要重新審核，所以有修改時一定不能直接發布
-        setPublishState(false, '有未儲存的修改；儲存後會產生新草稿，需重新審核才能發布');
+        setPublishState(false, '有未儲存的修改；儲存後會產生新草稿，必須重新審核後才可以發布');
     }
 
     function setPublishState(ready, reason) {
@@ -313,7 +313,7 @@
     function wrapperTraits() {
         var list = [
             { type: 'text', name: 'docName', label: '單據名稱', changeProp: true },
-            { type: 'db-info', name: 'docCode', label: '單據代碼', text: C.settings.code, hint: '用在網址，建立後不能改' },
+            { type: 'db-info', name: 'docCode', label: '單據代碼', text: C.settings.code, hint: '用在網址，建立後不得修改' },
             { type: 'text', name: 'noPrefix', label: '單號前綴', changeProp: true, maxLength: 20 },
             {
                 type: 'select', name: 'noDateFormat', label: '日期格式與歸零週期', changeProp: true,
@@ -362,7 +362,7 @@
         var item = inTable(m);
         var type = m.get('ftype');
         var list = [
-            { type: 'db-info', name: 'ftype', label: '型別', text: C.fieldTypes[type], hint: '建立後不能改，要換型別請刪掉重拉' },
+            { type: 'db-info', name: 'ftype', label: '型別', text: C.fieldTypes[type], hint: '建立後不得修改；換型別必須刪除後重新拖入' },
             { type: 'text', name: 'label', label: '欄位名稱', changeProp: true }
         ];
         if (!item) list.push(widthTrait());
@@ -378,7 +378,7 @@
         }
         if (type === 'master') {
             if (m.get('fieldId') && C.hasRecords) {
-                list.push({ type: 'db-info', name: 'source', label: '主檔來源', text: C.masters[m.get('source')] || '', hint: '已有單據資料，不能改' });
+                list.push({ type: 'db-info', name: 'source', label: '主檔來源', text: C.masters[m.get('source')] || '', hint: '已有單據資料，不得修改' });
             } else {
                 list.push({
                     type: 'select', name: 'source', label: '主檔來源', changeProp: true,
@@ -388,7 +388,7 @@
         }
         // 新欄位可以自訂代碼（預設依欄位名稱自動產生）；存檔後鎖定，因為舊單據資料以代碼為鍵
         if (!m.get('fieldId')) list.push({ type: 'db-key', name: 'key', label: '欄位代碼', changeProp: true });
-        else if (m.get('key')) list.push({ type: 'db-info', name: 'key', label: '欄位代碼', text: m.get('key'), hint: '建立後不能改' });
+        else if (m.get('key')) list.push({ type: 'db-info', name: 'key', label: '欄位代碼', text: m.get('key'), hint: '建立後不得修改' });
 
         return list;
     }
@@ -397,9 +397,9 @@
         return [
             { type: 'text', name: 'title', label: '明細表名稱', changeProp: true },
             m.get('tableKey')
-                ? { type: 'db-info', name: 'tableKey', label: '明細表代碼', text: m.get('tableKey'), hint: '建立後不能改' }
+                ? { type: 'db-info', name: 'tableKey', label: '明細表代碼', text: m.get('tableKey'), hint: '建立後不得修改' }
                 : { type: 'db-info', name: 'tableKeyNote', label: '明細表代碼', note: true, text: '存檔時自動編號' },
-            { type: 'db-info', name: 'tableNote', label: '說明', note: true, text: '把欄位拖進表格成為一欄，左右拖曳調整順序。刪除明細表會把它的欄位一起封存，可從「已封存」整張拖回。' }
+            { type: 'db-info', name: 'tableNote', label: '說明', note: true, text: '把欄位拖進表格成為一欄，左右拖曳調整順序。刪除明細表會把它的欄位一起封存，可以從「已封存」整張拖回。' }
         ];
     }
 
@@ -578,7 +578,7 @@
                     classes: ['row', 'db-fixed'],
                     draggable: false, droppable: false, removable: false, copyable: false,
                     stylable: false, editable: false, layerable: false,
-                    traits: [{ type: 'db-info', name: 'dateNote', label: '單據日期', note: true, text: '固定欄位：列表依它排序與篩選，所以不能移動、刪除或改名。' }]
+                    traits: [{ type: 'db-info', name: 'dateNote', label: '單據日期', note: true, text: '固定欄位：列表依它排序與篩選，所以不得移動、刪除或改名。' }]
                 }
             },
             view: {
@@ -610,7 +610,7 @@
                         + '<button type="button" class="db-table-more" hidden></button></div>'
                         + '<div class="db-table-scroll"><div class="db-table-body"><div class="db-table-no"><div class="db-th">#</div><div class="db-td">1</div><div class="db-tf"></div></div>'
                         + '<div class="db-table-cols"></div></div><div class="db-shade db-shade-l"></div><div class="db-shade db-shade-r"></div></div>'
-                        + '<div class="db-table-foot">填單時可新增、刪除列</div>';
+                        + '<div class="db-table-foot">填單時可以新增、刪除列</div>';
                     this.listenTo(this.model, 'change:title', this.renderTitle);
                     this.bindScroll();
                 },
@@ -786,7 +786,7 @@
                 hint.classList.toggle('is-error', !!bad);
                 hint.textContent = bad
                     ? '只能用小寫英文、數字、底線，開頭須為英文'
-                    : (KEY_VIA[o.component.get('keyVia')] || '') + '存檔後就不能改。';
+                    : (KEY_VIA[o.component.get('keyVia')] || '') + '存檔後不得修改。';
             }
         });
 
@@ -1366,7 +1366,7 @@
         translate: '依 Chrome 內建翻譯產生。',
         pinyin: '依拼音產生（這個瀏覽器沒有內建翻譯）。',
         pinyinInsecure: '依拼音產生（Chrome 翻譯只能在 https 網址使用）。',
-        pinyinDownloadable: '依拼音產生；按「自動產生」可下載 Chrome 翻譯模型改用英文。',
+        pinyinDownloadable: '依拼音產生；按「自動產生」可以下載 Chrome 翻譯模型改用英文。',
         pinyinFailed: '依拼音產生（Chrome 翻譯模型無法下載或啟用）。',
         text: '依欄位名稱產生。',
         manual: '自訂代碼。'
@@ -1802,7 +1802,7 @@
         publishButton.addEventListener('click', function () {
             // 有修改時按鈕已停用（見 markDirty），這裡發布的一定是已審核的草稿
             if (!window.confirm('發布目前已審核的草稿？審核者與發布者必須是不同管理員。')) return;
-            var summary = window.prompt('發布摘要（可留空）', '') || '';
+            var summary = window.prompt('發布摘要（可以留空）', '') || '';
 
             publishButton.disabled = true;
             request(C.urls.publish, 'POST', { summary: summary }).then(function (result) {
@@ -1880,7 +1880,7 @@
     var leaving = false;
     document.querySelectorAll('[data-leave]').forEach(function (a) {
         a.addEventListener('click', function (e) {
-            if (isDirty() && !window.confirm('有未儲存的修改，確定要離開嗎？')) {
+            if (isDirty() && !window.confirm('有未儲存的修改，確定離開？')) {
                 e.preventDefault();
                 return;
             }

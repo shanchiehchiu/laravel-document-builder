@@ -179,7 +179,7 @@ class SourceLibraryTest extends TestCase
 
         $this->assertSame(['customer' => '客戶', 'supplier' => '供應商'], app(MasterSourceRegistry::class)->options());
         $this->actingAs($this->admin)->get(route('document_builder.sources.index'))
-            ->assertOk()->assertSee('程式設定，不能在這裡修改')->assertSee('供應商');
+            ->assertOk()->assertSee('程式設定，不得在這裡修改')->assertSee('供應商');
     }
 
     public function test_一般使用者不能管理來源庫(): void

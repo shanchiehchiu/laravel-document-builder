@@ -164,7 +164,7 @@ class FormSchemaValidator
                 $this->error($path.'.table_key', '欄位定義必須包含 table_key，表頭欄位請填 null');
             }
             if ($section === 'header' && $tableKey !== null) {
-                $this->error($path.'.table_key', '表頭欄位不能指定明細表代碼');
+                $this->error($path.'.table_key', '表頭欄位不得指定明細表代碼');
             }
             if ($section === 'item' && (! is_string($tableKey) || preg_match('/^[a-z][a-z0-9_]{0,29}$/', $tableKey) !== 1)) {
                 $this->error($path.'.table_key', '明細欄位必須指定有效的明細表代碼');

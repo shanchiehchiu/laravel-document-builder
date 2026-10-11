@@ -3,7 +3,7 @@
 @php
     $route = fn (string $name, $params = []) => route(document_builder_route_name('document_builder.setup'.$name), $params);
     $route_ = fn (string $name, $params = []) => route(document_builder_route_name($name), $params);
-    $levels = ['ok' => ['is-ok', '通過'], 'error' => ['is-error', '未通過'], 'warn' => ['is-warn', '注意']];
+    $levels = ['ok' => ['is-ok', '通過'], 'error' => ['is-error', '失敗'], 'warn' => ['is-warn', '注意']];
     $packageLayout = 'document-builder::layouts.app';
 @endphp
 
@@ -17,13 +17,13 @@
 {{-- Step 1：環境檢查 --}}
 <section class="db-install-card db-step" data-step="1">
     <div class="db-step-title">環境與相依性檢查</div>
-    <div class="db-step-desc">先確認執行環境，避免安裝到一半失敗。</div>
+    <div class="db-step-desc">先檢查執行環境，防止安裝到一半失敗。</div>
 
     @if($needsToken)
         <div class="js-token-box">
             <div class="alert alert-warning small">
                 @if($tokenConfigured)
-                    這不是本機開發環境，請輸入 <code>.env</code> 裡 <code>DOCUMENT_BUILDER_SETUP_TOKEN</code> 的值才能繼續，避免被別人搶先安裝。
+                    這不是本機開發環境，請輸入 <code>.env</code> 裡 <code>DOCUMENT_BUILDER_SETUP_TOKEN</code> 的值才可以繼續，防止別人搶先安裝。
                 @else
                     這不是本機開發環境。請先在 <code>.env</code> 加上 <code>DOCUMENT_BUILDER_SETUP_TOKEN=自訂的一串密碼</code>，重新整理這一頁後輸入它。
                 @endif
@@ -89,7 +89,7 @@
                 <label><input type="radio" name="user_key_type" value="{{ $key }}" @checked($values['user_key_type'] === $key)>{{ $label }}</label>
             @endforeach
         </div>
-        <div class="form-text">單據建置的資料表指向使用者的欄位依這個型別建立，安裝後就不能改。</div>
+        <div class="form-text">單據建置的資料表指向使用者的欄位依這個型別建立，安裝後不得修改。</div>
     </div>
     <div class="mb-3">
         <label class="form-label">顯示名稱的欄位</label>
@@ -107,7 +107,7 @@
         </label>
         <label class="db-option">
             <input type="radio" name="layout_mode" value="custom" class="form-check-input me-2" @checked($values['layout'] !== $packageLayout)>嵌進專案的後台版型
-            <small>填寫版型名稱，例如 <code>layouts.admin</code>；版型要提供 content 區塊與 scripts 堆疊。</small>
+            <small>填寫版型名稱，例如 <code>layouts.admin</code>；版型必須提供 content 區塊與 scripts 堆疊。</small>
             <input type="text" class="form-control form-control-sm mt-2 js-custom-layout" placeholder="layouts.admin"
                    value="{{ $values['layout'] !== $packageLayout ? $values['layout'] : '' }}">
         </label>
@@ -137,7 +137,7 @@
         <div class="col-md-7 mb-3">
             <label class="form-label">中介層</label>
             <input type="text" name="route_middleware" class="form-control js-middleware" value="{{ $values['route']['middleware'] }}">
-            <div class="form-text">逗號分隔，要包含登入檢查，例如 <code>web,auth</code> 或 <code>web,auth:admin</code>。</div>
+            <div class="form-text">逗號分隔，必須包含登入檢查，例如 <code>web,auth</code> 或 <code>web,auth:admin</code>。</div>
         </div>
     </div>
     <div class="mb-1">
@@ -165,17 +165,17 @@
         <li class="db-row is-wait" data-task="migrate">
             <span class="db-row-icon" aria-hidden="true"></span>
             <div class="db-row-body"><div class="db-row-title">建立資料表結構</div><div class="db-row-sub">只執行單據建置自己的 migration，不會動到專案其他資料表</div></div>
-            <span class="db-row-status">等待中</span>
+            <span class="db-row-status">未開始</span>
         </li>
         <li class="db-row is-wait" data-task="admin">
             <span class="db-row-icon" aria-hidden="true"></span>
             <div class="db-row-body"><div class="db-row-title">指派超級管理員</div><div class="db-row-sub">將目前登入的帳號設為單據建置的超級管理員</div></div>
-            <span class="db-row-status">等待中</span>
+            <span class="db-row-status">未開始</span>
         </li>
         <li class="db-row is-wait" data-task="config">
             <span class="db-row-icon" aria-hidden="true"></span>
             <div class="db-row-body"><div class="db-row-title">產生設定檔</div><div class="db-row-sub"><code>config/document_builder.php</code></div></div>
-            <span class="db-row-status">等待中</span>
+            <span class="db-row-status">未開始</span>
         </li>
     </ul>
     <details class="mt-3">
@@ -286,7 +286,7 @@ $(function () {
     $('.js-next, .js-prev').on('click', function () { go(+$(this).data('to')); });
 
     // Step 1：環境檢查（正式環境同時驗證 token）
-    var levels = { ok: ['is-ok', '通過'], error: ['is-error', '未通過'], warn: ['is-warn', '注意'] };
+    var levels = { ok: ['is-ok', '通過'], error: ['is-error', '失敗'], warn: ['is-warn', '注意'] };
     $('.js-check').on('click', function () {
         $.post(urls.check, { token: $('.js-token').val() }).done(function (data) {
             var $list = $('.js-checks').empty();
@@ -368,16 +368,16 @@ $(function () {
                 return;
             }
             var task = tasks[i];
-            setTask(task, 'is-run', '執行中…');
+            setTask(task, 'is-run', '進行中…');
             $.post(urls.run.replace('___TASK___', task)).done(function (data) {
                 log('[' + task + '] ' + data.log);
                 if (data.url) nextUrl = data.url;
                 if (data.ok === false && data.config) {
-                    setTask(task, 'is-warn', '需手動');
+                    setTask(task, 'is-warn', '部分完成');
                     $('.js-config').text(data.config);
                     $('.js-manual-config').attr('hidden', false);
                 } else {
-                    setTask(task, 'is-ok', '完成');
+                    setTask(task, 'is-ok', '已完成');
                 }
                 next(i + 1);
             }).fail(function () {
@@ -430,7 +430,7 @@ $(function () {
     });
     $('.js-remove-admin').on('click', function () {
         var url = $(this).data('url');
-        Swal.fire({ icon: 'warning', text: '確定要移除這位超級管理員嗎？', showCancelButton: true, confirmButtonText: '確定', cancelButtonText: '取消' })
+        Swal.fire({ icon: 'warning', text: '確定移除這位超級管理員？', showCancelButton: true, confirmButtonText: '確定', cancelButtonText: '取消' })
             .then(function (result) {
                 if (result.isConfirmed) $.ajax({ url: url, type: 'DELETE' }).done(reloadDone);
             });

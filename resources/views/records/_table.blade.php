@@ -14,7 +14,7 @@
 <div class="col-12 mb-4 doc-items" data-table="{{ $tableKey }}" data-next="{{ $list->count() + $startRows }}">
     <h4 class="fs-5 fw-semibold border-bottom pb-2 mb-3">{{ $col['title'] }}</h4>
     @if($fields->isEmpty())
-    <div class="text-muted">這個明細表還沒有欄位，請到單據建置的設計器把欄位拖進明細表。</div>
+    <div class="text-muted">這個明細表還沒有欄位。請到單據建置的設計器把欄位拖進明細表。</div>
     @else
     <div class="table-responsive">
         <table class="table table-bordered table-vcenter table-sm mb-2">

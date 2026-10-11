@@ -123,7 +123,7 @@ class SetupTest extends TestCase
 
         $this->actingAs($user)->get(route('document_builder.setup'))->assertOk()->assertSee('DOCUMENT_BUILDER_SETUP_TOKEN');
         $this->actingAs($user)->postJson(route('document_builder.setup.check'))
-            ->assertStatus(422)->assertJsonPath('errors.token.0', '這個環境要先在 .env 設定 DOCUMENT_BUILDER_SETUP_TOKEN');
+            ->assertStatus(422)->assertJsonPath('errors.token.0', '這個環境必須先在 .env 設定 DOCUMENT_BUILDER_SETUP_TOKEN');
 
         config()->set('document_builder.setup.token', 's3cret-token');
         $this->actingAs($user)->postJson(route('document_builder.setup.check'), ['token' => 'wrong'])
@@ -228,7 +228,7 @@ class SetupTest extends TestCase
         $this->actingAs($this->makeUser())->get(route('document_builder.setup'))->assertNotFound();
         $this->actingAs($boss)->get(route('document_builder.setup'))->assertOk()->assertSee('由專案的程式定義');
         $this->actingAs($boss)->postJson(route('document_builder.setup.settings'), $this->settings())->assertOk();
-        $this->actingAs($boss)->postJson(route('document_builder.setup.run', 'admin'))->assertOk()->assertJsonPath('log', '超級管理員由專案的程式定義（document-builder.super-admin Gate），略過');
+        $this->actingAs($boss)->postJson(route('document_builder.setup.run', 'admin'))->assertOk()->assertJsonPath('log', '超級管理員由專案的程式定義（document-builder.super-admin Gate），跳過');
         $this->assertSame(0, DocAdmin::query()->count());
     }
 

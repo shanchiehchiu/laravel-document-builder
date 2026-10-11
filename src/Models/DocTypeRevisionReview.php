@@ -26,11 +26,11 @@ class DocTypeRevisionReview extends Model
     protected static function booted(): void
     {
         static::updating(static function (): never {
-            throw new LogicException('表單審核紀錄不可原地更新');
+            throw new LogicException('表單審核紀錄不得原地更新');
         });
 
         static::deleting(static function (): never {
-            throw new LogicException('表單審核紀錄不可刪除');
+            throw new LogicException('表單審核紀錄不得刪除');
         });
     }
 

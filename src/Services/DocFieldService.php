@@ -65,10 +65,10 @@ class DocFieldService
 
         if ($field->docType->records()->withTrashed()->exists()) {
             if ($data['type'] !== $field->type) {
-                throw ValidationException::withMessages(['type' => '這種單據已經有資料，欄位不能改型別']);
+                throw ValidationException::withMessages(['type' => '這種單據已經有資料，欄位不得修改型別']);
             }
             if ($field->type === 'master' && ($options['source'] ?? null) !== $field->masterSource()) {
-                throw ValidationException::withMessages(['source' => '這種單據已經有資料，主檔欄位不能改來源']);
+                throw ValidationException::withMessages(['source' => '這種單據已經有資料，主檔欄位不得修改來源']);
             }
         }
 
@@ -115,7 +115,7 @@ class DocFieldService
             ->all();
 
         if ($choices === []) {
-            throw ValidationException::withMessages(['choices' => '固定選項至少要有一個選項']);
+            throw ValidationException::withMessages(['choices' => '固定選項必須至少有一個選項']);
         }
 
         return $choices;

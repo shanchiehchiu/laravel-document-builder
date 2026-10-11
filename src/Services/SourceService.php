@@ -41,7 +41,7 @@ class SourceService
                     fn (string $key): bool => ($data['settings'][$key] ?? null) !== ($source->settings[$key] ?? null)
                 );
             if ($changed) {
-                throw ValidationException::withMessages(['driver' => '已有欄位使用這個來源，不能換驅動或資料來源；可以另外新增一個來源']);
+                throw ValidationException::withMessages(['driver' => '已有欄位使用這個來源，不得換驅動或資料來源；可以另外新增一個來源']);
             }
         }
 
@@ -54,7 +54,7 @@ class SourceService
     public function delete(DocSource $source): void
     {
         if ($this->usageCount($source->code) > 0) {
-            throw ValidationException::withMessages(['source' => '已有欄位使用這個來源，不能刪除；不想再被選用時請改成停用']);
+            throw ValidationException::withMessages(['source' => '已有欄位使用這個來源，不得刪除；不再使用時請改成停用']);
         }
 
         $source->delete();

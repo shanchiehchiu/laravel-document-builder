@@ -32,7 +32,7 @@ class DocTypeRevision extends Model
     protected static function booted(): void
     {
         static::updating(static function (): never {
-            throw new LogicException('表單修訂不可原地更新，請建立新的草稿修訂');
+            throw new LogicException('表單修訂不得原地更新，請建立新的草稿修訂');
         });
     }
 

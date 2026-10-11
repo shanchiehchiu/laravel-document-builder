@@ -228,16 +228,16 @@ class FormLayoutService
             'rows.*.cols.*.item.key' => ['nullable', 'string'],
             'rows.*.cols.*.item.fields' => ['nullable', 'array', 'max:30'],
         ], [
-            'rows.*.cols.*.item.title.required_if' => '明細表名稱不能空白',
+            'rows.*.cols.*.item.title.required_if' => '明細表名稱不得空白',
             'rows.*.cols.*.item.title.max' => '明細表名稱最多 50 字',
             'rows.*.cols.*.item.fields.max' => '一個明細表最多 30 個欄位',
             'rows.*.cols.*.item.bg.regex' => '區段標題背景顏色必須是 #RRGGBB 色碼',
             'rows.*.cols.*.item.border.regex' => '區段標題外框顏色必須是 #RRGGBB 色碼',
             'rows.*.cols.*.width.in' => '欄寬只能是 '.implode('、', array_keys(config('document_builder.widths'))),
             'rows.*.cols.*.item.kind.in' => "不支援的元件類型（只能是 {$kinds}）",
-            'rows.*.cols.*.item.text.required_if' => '區段標題與說明文字的文字不能空白',
+            'rows.*.cols.*.item.text.required_if' => '區段標題與說明文字的內容不得空白',
             'rows.*.cols.*.item.text.max' => '區段標題與說明文字最多 500 字',
-            'rows.*.cols.required' => '每一列至少要有一格',
+            'rows.*.cols.required' => '每一列必須至少有一格',
         ])->validate();
 
         return array_values($rows);
@@ -265,11 +265,11 @@ class FormLayoutService
             // 換區塊或換明細表，舊單據存的值就對不上了
             if ($field->section !== $section) {
                 throw ValidationException::withMessages(['id' => $section === DocField::SECTION_ITEM
-                    ? '表頭欄位不能拖進明細表，請在明細表裡新增欄位'
-                    : '明細表的欄位不能拖到表頭，請在表頭新增欄位']);
+                    ? '表頭欄位不得拖進明細表，請在明細表裡新增欄位'
+                    : '明細表的欄位不得拖到表頭，請在表頭新增欄位']);
             }
             if ($section === DocField::SECTION_ITEM && $field->table_key !== $tableKey) {
-                throw ValidationException::withMessages(['id' => '欄位不能換到別的明細表']);
+                throw ValidationException::withMessages(['id' => '欄位不得換到別的明細表']);
             }
 
             return $this->fields->update($field, $data);

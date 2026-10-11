@@ -49,7 +49,7 @@
                         <td class="small">{{ $row['summary'] }}</td>
                         <td class="text-center">{{ $row['usage'] }}</td>
                         <td class="text-center"><span class="badge bg-success">{{ __('document-builder::ui.active') }}</span></td>
-                        <td class="text-center small text-muted">程式設定，不能在這裡修改</td>
+                        <td class="text-center small text-muted">程式設定，不得在這裡修改</td>
                     </tr>
                 @endforeach
                 @if($sources->isEmpty() && $configured->isEmpty())

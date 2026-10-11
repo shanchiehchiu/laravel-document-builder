@@ -36,7 +36,7 @@ class InstallWizard
     public function checks(): array
     {
         $checks = [];
-        $checks[] = $this->check('PHP 版本', version_compare(PHP_VERSION, '8.1.0', '>='), PHP_VERSION, '需要 PHP 8.1 以上');
+        $checks[] = $this->check('PHP 版本', version_compare(PHP_VERSION, '8.1.0', '>='), PHP_VERSION, '必須是 PHP 8.1 以上');
         foreach (['pdo', 'mbstring', 'json'] as $extension) {
             $checks[] = $this->check("PHP 擴充 {$extension}", extension_loaded($extension), extension_loaded($extension) ? '已載入' : '未載入', "請安裝或啟用 {$extension} 擴充");
         }

@@ -78,7 +78,7 @@ class DocumentSourceDriver implements SourceDriver
 
         $field = $settings['text_field'] ?? null;
         if ($field !== null && $field !== '' && ! array_key_exists($field, $this->textFields($type))) {
-            throw ValidationException::withMessages(['settings.text_field' => '顯示欄位要是這種單據的表頭欄位']);
+            throw ValidationException::withMessages(['settings.text_field' => '顯示欄位必須是這種單據的表頭欄位']);
         }
 
         return ['doc_type' => $type->code, 'text_field' => $field ?: null];

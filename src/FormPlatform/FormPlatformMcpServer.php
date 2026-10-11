@@ -64,8 +64,8 @@ class FormPlatformMcpServer
                 [FormPlatformMcpResources::class, 'resourceCatalog'],
                 'form-platform://data-sources',
                 'data-sources',
-                '可綁定資料來源',
-                '可供表單使用的唯讀主檔資源及搜尋契約。',
+                '可以綁定的資料來源',
+                '表單可以使用的唯讀主檔資源及搜尋契約。',
                 'application/json',
                 annotations: new Annotations(priority: 0.8),
             )
@@ -74,7 +74,7 @@ class FormPlatformMcpServer
                 'form-platform://schema/v1',
                 'schema-v1-template',
                 '表單 Schema v1 範本',
-                '建立停用草稿時可複製的完整 Schema 範本，狀態定義由平台固定提供。',
+                '建立停用草稿時可以複製的完整 Schema 範本，狀態定義由平台固定提供。',
                 'application/json',
                 annotations: new Annotations(priority: 0.9),
             )
@@ -179,7 +179,7 @@ class FormPlatformMcpServer
                 [FormPlatformMcpTools::class, 'listResources'],
                 'list_resources',
                 '列出可用資源',
-                '列出表單可綁定的受控唯讀資源，不公開後端資料表資訊。',
+                '列出表單可以綁定的受控唯讀資源，不公開後端資料表資訊。',
                 $readOnly,
                 self::emptyInputSchema(),
             )
@@ -197,7 +197,7 @@ class FormPlatformMcpServer
                 [FormPlatformMcpTools::class, 'searchResource'],
                 'search_resource',
                 '搜尋表單資源',
-                '只搜尋目前使用者可檢視且已綁定該主檔資源的表單；回傳欄位僅含識別碼與顯示名稱。',
+                '只搜尋目前使用者可以檢視且已綁定該主檔資源的表單；回傳欄位僅含識別碼與顯示名稱。',
                 $readOnly,
                 self::objectInputSchema([
                     'form_code' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 50],
@@ -221,7 +221,7 @@ class FormPlatformMcpServer
                 [FormPlatformMcpTools::class, 'applyFormPlan'],
                 'apply_form_plan',
                 '原子套用表單草稿',
-                '一次驗證並套用完整 Schema v1；新表單會建立為停用草稿，既有草稿需提供 expected_revision。操作具冪等性。',
+                '一次驗證並套用完整 Schema v1；新表單會建立為停用草稿，既有草稿必須提供 expected_revision。操作具冪等性。',
                 $draftWrite,
                 self::objectInputSchema([
                     'form_code' => ['type' => 'string', 'minLength' => 2, 'maxLength' => 30],
@@ -234,7 +234,7 @@ class FormPlatformMcpServer
                 [FormPlatformMcpTools::class, 'addComponent'],
                 'add_component',
                 '加入表單元件',
-                '在建立者自己的停用草稿末尾新增欄位、標題、說明、空白格或明細表；欄位可指定 section=item 與 table_key 加入明細表，數字明細欄可設定 options.sum；只接受登錄型別及受控屬性，並附冪等鍵。',
+                '在建立者自己的停用草稿末尾新增欄位、標題、說明、空白格或明細表；欄位可以指定 section=item 與 table_key 加入明細表，數字明細欄可以設定 options.sum；只接受登錄型別及受控屬性，並附冪等鍵。',
                 $draftWrite,
                 self::objectInputSchema([
                     'form_code' => ['type' => 'string', 'minLength' => 2, 'maxLength' => 30],

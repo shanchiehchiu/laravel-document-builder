@@ -89,7 +89,7 @@ class SetupService
         if (! $this->canBootstrap($token)) {
             throw ValidationException::withMessages(['token' => $this->tokenConfigured()
                 ? '初始化 token 不正確'
-                : '這個環境要先在 .env 設定 DOCUMENT_BUILDER_SETUP_TOKEN']);
+                : '這個環境必須先在 .env 設定 DOCUMENT_BUILDER_SETUP_TOKEN']);
         }
         if (! $this->installed()) {
             $this->migrate();
@@ -117,7 +117,7 @@ class SetupService
     public function removeAdmin(DocAdmin $admin): void
     {
         if (DocAdmin::query()->count() <= 1) {
-            throw ValidationException::withMessages(['admin' => '至少要留一位超級管理員']);
+            throw ValidationException::withMessages(['admin' => '必須至少保留一位超級管理員']);
         }
         $admin->delete();
     }

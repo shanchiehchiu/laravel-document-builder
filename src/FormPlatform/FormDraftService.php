@@ -114,7 +114,7 @@ class FormDraftService
                         throw new ToolCallException('只有超級管理員可以建立表單草稿');
                     }
                     if ($expectedRevision !== null) {
-                        throw new ToolCallException('建立新草稿時不可提供 expected_revision');
+                        throw new ToolCallException('建立新草稿時不得提供 expected_revision');
                     }
                     $schema['statuses'] ??= array_map(static fn (array $status): array => [
                         'code' => $status['code'],
@@ -135,7 +135,7 @@ class FormDraftService
                     throw new ToolCallException('草稿 Schema 無效：'.implode('；', $messages));
                 }
                 if ($schema['form']['enabled']) {
-                    throw new ToolCallException('MCP 只能建立或修改停用草稿；啟用需經人工審核與發布');
+                    throw new ToolCallException('MCP 只可以建立或修改停用草稿；啟用必須經人工審核與發布');
                 }
 
                 if ($type === null) {
@@ -167,7 +167,7 @@ class FormDraftService
                 $savedSchema = $this->adapter->export($type);
                 $savedValidation = $this->schemaValidator->validate($savedSchema, $formCode);
                 if (! $savedValidation['valid']) {
-                    throw new ToolCallException('儲存後的草稿未通過 Schema 驗證');
+                    throw new ToolCallException('儲存後的草稿 Schema 驗證失敗');
                 }
 
                 $revision = $this->revisions->saveDraft(
@@ -249,7 +249,7 @@ class FormDraftService
                     fn (array $error): string => $error['path'].': '.$error['message'],
                     $validation['errors']
                 );
-                throw new ToolCallException('儲存後的草稿未通過 Schema 驗證：'.implode('；', $messages));
+                throw new ToolCallException('儲存後的草稿 Schema 驗證失敗：'.implode('；', $messages));
             }
 
             $operation->doc_type_id = $type->id;
@@ -283,7 +283,7 @@ class FormDraftService
                     fn (array $error): string => $error['path'].': '.$error['message'],
                     $validation['errors']
                 );
-                throw new ToolCallException('事件未通過 Schema 驗證：'.implode('；', $messages));
+                throw new ToolCallException('事件 Schema 驗證失敗：'.implode('；', $messages));
             }
 
             $type->forceFill(['event_schema' => $events])->save();
@@ -443,7 +443,7 @@ class FormDraftService
         $section = $input['section'];
         $tableKey = $section === DocField::SECTION_ITEM ? $input['table_key'] : null;
         if ($section === DocField::SECTION_HEADER && isset($input['table_key'])) {
-            throw new ToolCallException('表頭欄位不可指定 table_key');
+            throw new ToolCallException('表頭欄位不得指定 table_key');
         }
         if ($section === DocField::SECTION_ITEM && ! $this->tableExists($schema, (string) $tableKey)) {
             throw new ToolCallException('找不到指定明細表，請先新增明細表元件');

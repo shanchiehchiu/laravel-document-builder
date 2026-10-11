@@ -16,7 +16,7 @@
                 <div class="col-md-4 mb-4">
                     <label class="form-label">單據代碼<span class="text-danger">*</span></label>
                     <input type="text" name="code" class="form-control" maxlength="30" placeholder="例如：repair">
-                    <div class="form-text">用在網址，只能用小寫英文、數字、底線，建立後不可修改</div>
+                    <div class="form-text">用在網址，只可以用小寫英文、數字、底線，建立後不得修改</div>
                 </div>
                 <div class="col-md-4 mb-4">
                     <label class="form-label">選單排序</label>

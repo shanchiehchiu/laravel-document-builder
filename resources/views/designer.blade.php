@@ -116,7 +116,7 @@
                     <li>單號可選每日、每月或每年歸零，下方會即時預覽下一張的範例單號。</li>
                     <li>從左邊把欄位拖到畫面上；放在兩列之間會自動多一列。</li>
                     <li>點一下畫面上的欄位，在這裡改名稱、必填、欄寬。</li>
-                    <li>選取表頭欄位可設定欄位變更連動；只接受另一欄的允許固定值。</li>
+                    <li>選取表頭欄位可以設定欄位變更連動；只接受另一欄的允許固定值。</li>
                     <li>一列共 12 格寬：1/2 是 6 格、1/3 是 4 格、整列是 12 格。</li>
                     <li>刪掉的欄位會移到左邊「已封存」，資料不會不見，拖回來就恢復。</li>
                     <li>按「儲存」一次存版面與單據設定，填單畫面就會照這個版面顯示。</li>
@@ -128,7 +128,7 @@
                     <div id="wfb-traits"></div>
                     <section id="db-event-editor" class="db-event-editor" hidden aria-labelledby="db-event-title">
                         <h3 id="db-event-title">欄位變更連動</h3>
-                        <p class="db-event-help">此欄位變更時，可依條件將另一個欄位設為固定值。規則會在填單與預覽中執行。</p>
+                        <p class="db-event-help">此欄位變更時，可以依條件將另一個欄位設為固定值。規則會在填單與預覽中執行。</p>
                         <label for="db-event-condition">觸發條件</label>
                         <select id="db-event-condition" class="db-event-control">
                             <option value="always">每次變更</option>

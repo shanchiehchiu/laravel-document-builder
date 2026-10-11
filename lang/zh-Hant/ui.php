@@ -17,7 +17,7 @@ return [
     'inactive' => '停用',
     'detail_info' => '詳情',
     'success' => '成功',
-    'confirm_delete' => '確定要刪除嗎?',
+    'confirm_delete' => '確定刪除？',
     'my_documents' => '我的單據',
     'type_settings' => '單據設定',
     'sources' => '來源庫',

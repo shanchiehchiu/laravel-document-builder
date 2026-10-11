@@ -21,7 +21,7 @@
         </dl>
         @if($isWorkingDraft && \DocumentBuilder\DocumentBuilder::isSuperAdmin())
         <div class="alert alert-info">
-            草稿須先通過審核，再由另一位超級管理員發布。審核者不能發布自己審核的版本。
+            草稿必須先通過審核，再由另一位超級管理員發布。審核者不得發布自己審核的版本。
         </div>
         <div class="row g-3 mb-4">
             <div class="col-lg-6">
@@ -72,7 +72,7 @@
             <span class="text-muted ms-2">不會改變目前發布版本；回復後須重新審核，並由不同管理員發布。</span>
         </form>
         @endif
-        <h4 class="fs-6">不可變 Schema 快照</h4>
+        <h4 class="fs-6">唯讀 Schema 快照</h4>
         <pre class="bg-light p-3 rounded"><code>{{ json_encode($revision->schema_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}</code></pre>
     </div>
 </div>

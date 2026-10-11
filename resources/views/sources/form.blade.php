@@ -13,7 +13,7 @@
     </div>
     <div class="block-content block-content-full">
         @if($locked)
-            <div class="alert alert-info small">已有 {{ $usage }} 個欄位使用這個來源，不能換類型或資料來源（避免舊單據對到別的資料）。顯示欄位、條件仍可調整；不想再被選用時改成停用。</div>
+            <div class="alert alert-info small">已有 {{ $usage }} 個欄位使用這個來源，不得換類型或資料來源，以防舊單據對到別的資料。顯示欄位與條件仍可以調整；不再使用這個來源時，改成停用。</div>
         @endif
 
         <form id="form-source" data-method="{{ $source->exists ? 'PUT' : 'POST' }}"
@@ -27,7 +27,7 @@
                 <div class="col-md-4 mb-3">
                     <label class="form-label">來源代碼<span class="text-danger">*</span></label>
                     <input type="text" name="code" class="form-control" maxlength="50" value="{{ $source->code }}" placeholder="例如：project" @disabled($source->exists)>
-                    <div class="form-text">小寫英文、數字、底線，建立後不能改</div>
+                    <div class="form-text">小寫英文、數字、底線，建立後不得修改</div>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">{{ __('document-builder::ui.status') }}</label>
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    @foreach(['where' => ['身分條件', '搜尋與存檔都套用，例如「類型 = 客戶」，客戶欄位就不能存廠商'], 'active' => ['可選條件', '只在搜尋時套用，例如「狀態 = 1」，停用的資料不出現在下拉，但舊單據引用到仍可存檔']] as $group => [$title, $hint])
+                    @foreach(['where' => ['身分條件', '搜尋與存檔都套用，例如「類型 = 客戶」，客戶欄位就不得存廠商'], 'active' => ['搜尋條件', '只在搜尋時套用，例如「狀態 = 1」，停用的資料不出現在下拉，但舊單據引用到的資料仍可以存檔']] as $group => [$title, $hint])
                         <div class="col-md-6 mb-2 js-conditions" data-group="{{ $group }}" data-value="{{ json_encode((object) ($settings[$group] ?? []), JSON_UNESCAPED_UNICODE) }}">
                             <label class="form-label mb-1">{{ $title }}</label>
                             <div class="form-text mt-0 mb-2">{{ $hint }}</div>

@@ -59,7 +59,7 @@ class DocTypeService
     public function delete(DocType $type): void
     {
         if ($type->records()->withTrashed()->exists()) {
-            throw ValidationException::withMessages(['type' => '這種單據已經有資料，不能刪除，請改為停用']);
+            throw ValidationException::withMessages(['type' => '這種單據已經有資料，不得刪除，請改為停用']);
         }
 
         $this->transaction(function () use ($type): void {

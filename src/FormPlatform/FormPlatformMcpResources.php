@@ -78,7 +78,7 @@ class FormPlatformMcpResources
             'tool' => 'validate_form_requirements',
             'workflow' => [
                 '保留使用者提示詞全文，原樣傳入 original_prompt。',
-                '將每個可獨立驗收的要求拆成一筆 requirement，不要把多個要求合併成籠統描述。',
+                '將每個可獨立驗收的要求拆成一筆 requirement，不得把多個要求合併成籠統描述。',
                 '每筆 requirement 的 source_quote 必須是提示詞中的原文片段，statement 則以繁體中文整理該要求。',
                 '已反映在 Schema 的要求標記 mapped，並以 RFC 6901 JSON Pointer 指向一個或多個 Schema 路徑。',
                 '目前無法反映或含意不明的要求標記 unresolved，提出能讓使用者選擇的具體問題。',
@@ -98,7 +98,7 @@ class FormPlatformMcpResources
                 'schema_path' => '受此假設影響且存在於 Schema 的 JSON Pointer。',
                 'statement' => '清楚描述原文未指定、由 AI 推定的內容。',
                 'impact' => ['low', 'high'],
-                'question' => '高影響假設必填；低影響假設可省略。',
+                'question' => '高影響假設必填；低影響假設可以省略。',
             ],
             'json_pointer' => [
                 'format' => 'RFC 6901；路徑以 / 開頭，陣列索引用十進位索引。',
@@ -113,7 +113,7 @@ class FormPlatformMcpResources
             ],
             'limits' => [
                 'MCP 工具不會自行解讀自然語言，也無法證明 AI 拆出的需求完整；AI 必須逐句檢查原文並忠實列出需求。',
-                '結構驗證通過只代表 Schema 符合平台契約，不代表原始需求的語意已完整實現。',
+                '結構驗證通過只代表 Schema 符合平台契約，不代表原始需求的語意已全部滿足。',
                 '使用者明確要求的內容不得改列為假設；無法判定時應標記 unresolved 並詢問。',
             ],
         ];

@@ -75,7 +75,7 @@ class ComponentRegistry
     ): void {
         $definition = $this->component($type);
         if ($parentType !== null && ! in_array($parentType, $definition['allowed_parents'], true)) {
-            throw new InvalidArgumentException("元件 {$type} 不允許放在 {$parentType} 之下");
+            throw new InvalidArgumentException("元件 {$type} 不得放在 {$parentType} 之下");
         }
 
         $props = array_replace($definition['default_props'], $props);
@@ -87,7 +87,7 @@ class ComponentRegistry
 
         foreach ($children as $childType) {
             if (! in_array($childType, $definition['allowed_children'], true)) {
-                throw new InvalidArgumentException("元件 {$type} 不允許包含 {$childType} 子元件");
+                throw new InvalidArgumentException("元件 {$type} 不得包含 {$childType} 子元件");
             }
         }
     }
@@ -97,7 +97,7 @@ class ComponentRegistry
     {
         $definition = $this->fieldType($type);
         if (! in_array($section, $definition['allowed_sections'], true)) {
-            throw new InvalidArgumentException("欄位型別 {$type} 不允許用於 {$section} 區塊");
+            throw new InvalidArgumentException("欄位型別 {$type} 不得用於 {$section} 區塊");
         }
 
         $properties = $definition['options'] + ($definition['section_options'][$section] ?? []);
@@ -132,7 +132,7 @@ class ComponentRegistry
             if (is_string($value)) {
                 $length = mb_strlen($value);
                 if (($definition['required'] ?? false) && trim($value) === '') {
-                    throw new InvalidArgumentException("{$context}的 {$name} 不能空白");
+                    throw new InvalidArgumentException("{$context}的 {$name} 不得空白");
                 }
                 if (isset($definition['min_length']) && $length < $definition['min_length']) {
                     throw new InvalidArgumentException("{$context}的 {$name} 長度不足");
@@ -156,7 +156,7 @@ class ComponentRegistry
 
             if (is_array($value)) {
                 if (isset($definition['min_items']) && count($value) < $definition['min_items']) {
-                    throw new InvalidArgumentException("{$context}的 {$name} 至少需要 {$definition['min_items']} 項");
+                    throw new InvalidArgumentException("{$context}的 {$name} 必須至少有 {$definition['min_items']} 項");
                 }
                 if (isset($definition['max_items']) && count($value) > $definition['max_items']) {
                     throw new InvalidArgumentException("{$context}的 {$name} 超過項目數量限制");

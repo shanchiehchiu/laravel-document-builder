@@ -61,7 +61,7 @@ class EventSchemaValidator
 
             $actions = $event['actions'] ?? null;
             if (! is_array($actions) || ! array_is_list($actions) || $actions === []) {
-                $errors[] = ['path' => $path.'.actions', 'message' => '事件至少要有一個動作'];
+                $errors[] = ['path' => $path.'.actions', 'message' => '事件必須至少有一個動作'];
 
                 continue;
             }
@@ -89,7 +89,7 @@ class EventSchemaValidator
                 } elseif ($sourceKey !== null) {
                     $graph[$sourceKey][] = $targetKey;
                     if ($sourceKey === $targetKey) {
-                        $errors[] = ['path' => $actionPath.'.field', 'message' => '事件不能設定自己的觸發欄位'];
+                        $errors[] = ['path' => $actionPath.'.field', 'message' => '事件不得設定自己的觸發欄位'];
                     }
                 }
 
@@ -99,16 +99,16 @@ class EventSchemaValidator
                 if ($targetField !== null && ($emptyRequiredValue || ! $this->validValue($targetField, $actionValue))) {
                     $errors[] = ['path' => $actionPath.'.value', 'message' => '動作值不符合目標欄位型別或允許選項'];
                 } elseif (! array_key_exists('value', $action)) {
-                    $errors[] = ['path' => $actionPath.'.value', 'message' => '設定值不可省略'];
+                    $errors[] = ['path' => $actionPath.'.value', 'message' => '設定值不得省略'];
                 }
             }
         }
 
         if ($actionCount > self::MAX_TOTAL_ACTIONS) {
-            $errors[] = ['path' => 'events', 'message' => '事件總動作數不可超過 50 個'];
+            $errors[] = ['path' => 'events', 'message' => '事件總動作數不得超過 50 個'];
         }
         if ($this->hasCycle($graph)) {
-            $errors[] = ['path' => 'events', 'message' => '欄位變更事件不可形成循環依賴'];
+            $errors[] = ['path' => 'events', 'message' => '欄位變更事件不得形成循環依賴'];
         }
 
         return $this->result($errors);
@@ -131,7 +131,7 @@ class EventSchemaValidator
         }
         if ($operator === 'is_empty') {
             if (array_key_exists('value', $condition)) {
-                $errors[] = ['path' => $path.'.value', 'message' => 'is_empty 條件不可提供比較值'];
+                $errors[] = ['path' => $path.'.value', 'message' => 'is_empty 條件不得提供比較值'];
             }
 
             return;

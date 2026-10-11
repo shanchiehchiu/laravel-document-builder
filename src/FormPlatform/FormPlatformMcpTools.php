@@ -191,7 +191,7 @@ class FormPlatformMcpTools
     public function searchResource(string $form_code, string $resource_code, string $query): array
     {
         if (mb_strlen($query) > 100) {
-            throw new ToolCallException('搜尋文字不可超過 100 個字元');
+            throw new ToolCallException('搜尋文字不得超過 100 個字元');
         }
 
         $type = $this->findAccessibleType($form_code);

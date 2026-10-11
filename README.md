@@ -76,7 +76,7 @@ composer require document-builder/document-builder
 
 登入專案後打開 `/document_builder`，會自動進入**安裝引導精靈**：
 
-1. **環境檢查**：PHP 版本與擴充、資料庫連線、storage 與 config 目錄能不能寫入。
+1. **環境檢查**：PHP 版本與擴充、資料庫連線、storage 與 config 目錄是否可以寫入。
 2. **帳號與版型**：自動偵測 guard、使用者 model、資料表、主鍵型別（int／UUID／ULID）與名稱欄位；選擇套件內建版型或嵌進專案的後台版型。
 3. **路由與整合**：路由前綴（即時預覽網址）、名稱前綴、中介層；側選單整合會列出專案裡實作 `Integration` 的類別。
 4. **執行安裝**：只執行單據建置自己的 migration、把你設為第一位超級管理員、寫入 `config/document_builder.php`，每一步顯示進度與執行記錄。
@@ -90,11 +90,11 @@ composer require document-builder/document-builder
 | **5. 完成** | |
 | ![完成](docs/screenshots/setup-5-done.png) | |
 
-**安全**：本機開發環境（`APP_ENV=local`）可以直接安裝；其他環境要先在 `.env` 加上
-`DOCUMENT_BUILDER_SETUP_TOKEN=自訂的一串密碼`，在精靈第一步輸入它，避免被別人搶先安裝成為超級管理員。
+**安全**：本機開發環境（`APP_ENV=local`）可以直接安裝；其他環境必須先在 `.env` 加上
+`DOCUMENT_BUILDER_SETUP_TOKEN=自訂的一串密碼`，在精靈第一步輸入它，防止別人搶先安裝成為超級管理員。
 安裝完成後，精靈只開放給超級管理員（一般使用者會看到 404）。
 
-> 注意：`APP_ENV=local` 時精靈不需要 token。正式環境務必設成 `production`，否則任何登入者都可能在安裝前搶先成為超級管理員。
+> 注意：`APP_ENV=local` 時精靈不需要 token。正式環境必須設成 `production`。設成 `local` 時，任何登入者都可以在安裝前搶先成為超級管理員。
 
 其他說明：
 
@@ -121,35 +121,35 @@ composer require document-builder/document-builder
 
 - **資料模型**：宿主專案的 Eloquent model。預設自動找出 `app/Models` 底下的 model；
   欄位排除 model 的 `$hidden` 與 `sources.hidden_columns`（密碼這類欄位碰不到）。
-  可以設「身分條件」（搜尋與存檔都套用，例如客戶欄位不能存廠商）與「可選條件」（只在搜尋時套用，例如排除停用的資料）。
+  可以設「身分條件」（搜尋與存檔都套用，例如客戶欄位不得存廠商）與「搜尋條件」（只在搜尋時套用，例如排除停用的資料）。
 - **單據**：拿單據工廠自己建立的單據當來源，例如請假單引用「專案單」，不需要宿主有任何 model。
 
-已經被欄位使用的來源不能換資料來源、不能刪除，只能停用；停用後舊單據沿用原本的值仍可存檔。
-開發者也可以把來源寫在設定的 `masters`（畫面上不能改），和來源庫合併使用。
-要接其他資料（例如外部 API），實作 `DocumentBuilder\Contracts\SourceDriver` 後加進 `sources.drivers`。
+已經被欄位使用的來源不得換資料來源，也不得刪除，只可以停用；停用後，舊單據沿用原本的值仍可以存檔。
+開發者也可以把來源寫在設定的 `masters`（不得在畫面上修改），和來源庫合併使用。
+接其他資料（例如外部 API）時，實作 `DocumentBuilder\Contracts\SourceDriver` 後加進 `sources.drivers`。
 
 ## 設定（config/document_builder.php）
 
 | 鍵 | 說明 |
 |---|---|
-| `route.prefix`／`route.name`／`route.middleware` | 套件路由的網址前綴、名稱前綴與中介層；中介層要包含登入檢查 |
+| `route.prefix`／`route.name`／`route.middleware` | 套件路由的網址前綴、名稱前綴與中介層；中介層必須包含登入檢查 |
 | `guard`／`user_model`／`users_table` | 登入者從哪個 guard 取得、用哪個 model、使用者資料表；null 表示自動偵測 |
 | `user_key_type`／`user_name_column` | 使用者主鍵型別（int／uuid／ulid）與顯示名稱的欄位；null 表示自動偵測 |
 | `setup.token`／`setup.open_environments` | 安裝精靈的 token（讀 `.env` 的 `DOCUMENT_BUILDER_SETUP_TOKEN`）與不需要 token 的環境（預設 `local`） |
-| `layout` | 頁面版型；預設是套件自帶的完整介面，要嵌進自家後台時改成自己的版型 |
+| `layout` | 頁面版型；預設是套件自帶的完整介面；嵌進自家後台時，改成自己的版型 |
 | `ui.brand`／`ui.home_url`／`ui.logout_route` | 自帶介面左上角名稱、「回到系統」連結、登出路由 |
 | `integration` | 宿主後台整合；預設 `NullIntegration`（不處理選單，檢視權限看 `view-type` Gate） |
 | `assets.canvas_styles` | 設計器畫布的樣式；null 表示用套件自帶的 Bootstrap |
-| `masters` | 程式定義的主檔來源（畫面上不能改） |
-| `sources.drivers`／`sources.models`／`sources.hidden_columns` | 來源庫的驅動、資料模型可選的 model（null 表示自動找）、不開放的欄位 |
+| `masters` | 程式定義的主檔來源（不得在畫面上修改） |
+| `sources.drivers`／`sources.models`／`sources.hidden_columns` | 來源庫的驅動、資料模型可以選的 model（null 表示自動找）、不開放的欄位 |
 
 這些設定都可以在安裝精靈裡調整。沒有寫在宿主設定檔裡的頂層鍵沿用套件預設值。`config/form_platform.php`（元件與欄位型別規格）一般不需要發布。
 
 ## 嵌進自家後台
 
-把 `layout` 改成自己的版型。版型要提供 `content` 區塊、`styles` 與 `scripts` 堆疊，並載入
+把 `layout` 改成自己的版型。版型必須提供 `content` 區塊、`styles` 與 `scripts` 堆疊，並載入
 Bootstrap 5、jQuery、jQuery Form、select2、SweetAlert2、DataTables，以及顯示 AJAX 錯誤的全域處理
-（可參考套件的 `resources/views/layouts/app.blade.php`）。`assets.canvas_styles` 填自家的樣式，
+（可以參考套件的 `resources/views/layouts/app.blade.php`）。`assets.canvas_styles` 填自家的樣式，
 讓設計器畫布和填單畫面長得一樣。
 
 ## 主要路由（名稱前綴依 `route.name`）
@@ -164,7 +164,7 @@ Bootstrap 5、jQuery、jQuery Form、select2、SweetAlert2、DataTables，以及
 
 ## MCP
 
-- HTTP：`document_builder.mcp` 路由，需要 `document-builder.design` 權限。非 localhost 的網址要在 `FORM_PLATFORM_MCP_ALLOWED_HOSTS` 加入主機。
+- HTTP：`document_builder.mcp` 路由，需要 `document-builder.design` 權限。非 localhost 的網址必須在 `FORM_PLATFORM_MCP_ALLOWED_HOSTS` 加入主機。
 - stdio（只限 local 環境）：`php artisan form-platform:mcp-stdio --admin-id=<超級管理員主鍵>`
 
 ## 更新
@@ -178,10 +178,12 @@ composer update document-builder/document-builder
 部署流程原本就會執行 `php artisan migrate` 的專案，也會一併建立套件的資料表。
 
 選用的發布內容：`vendor:publish --tag=document-builder-views`（視圖，發布到 `resources/views/vendor/document-builder`
-後可覆寫）、`--tag=document-builder-assets`（想交給網頁伺服器提供靜態檔時）。按鈕文字可在
+後可以覆寫）、`--tag=document-builder-assets`（交給網頁伺服器提供靜態檔時）。按鈕文字可以在
 `lang/vendor/document-builder/{locale}/ui.php` 覆寫。
 
-宿主的驗證訊息與登入畫面要中文時，可安裝 [Laravel-Lang](https://laravel-lang.com)：
+> 注意：發布前端資產後，`public/` 裡的是複本。套件更新後必須重新執行 `vendor:publish --tag=document-builder-assets --force`，否則畫面停在舊版。不發布時，資產由套件路由提供，不會有這個問題。
+
+宿主的驗證訊息與登入畫面改成中文時，可以安裝 [Laravel-Lang](https://laravel-lang.com)：
 `composer require laravel-lang/common --dev`、`php artisan lang:add zh_TW`，再把 `app.locale` 設成 `zh_TW`。
 
 ## 開發
@@ -194,7 +196,7 @@ bin/test-all-versions.sh 11                 # 只跑 Laravel 13（參數是 test
 PHP_BIN=/path/to/php8.4 bin/test-all-versions.sh 11   # 指定 PHP
 ```
 
-Laravel 13 需要 PHP 8.3 以上；目前的 PHP 不夠新時，腳本會標示「略過」該版本，換 PHP 再跑一次。
+Laravel 13 必須用 PHP 8.3 以上；目前的 PHP 版本太舊時，腳本會標示「跳過」該版本，換 PHP 再跑一次。
 
 測試用 orchestra/testbench 在乾淨的 Laravel 環境裡安裝套件，涵蓋自帶介面、權限、填單、UUID 使用者與來源庫。
 

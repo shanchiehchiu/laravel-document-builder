@@ -47,13 +47,13 @@ class FormRequirementValidator
                 $errors[] = ['path' => $path.'.id', 'message' => '需求必須有識別碼'];
                 $id = (string) $index;
             } elseif (isset($seenRequirementIds[$id])) {
-                $errors[] = ['path' => $path.'.id', 'message' => '需求識別碼不可重複'];
+                $errors[] = ['path' => $path.'.id', 'message' => '需求識別碼不得重複'];
             }
             $seenRequirementIds[$id] = true;
 
             $statement = $requirement['statement'] ?? null;
             if (! is_string($statement) || trim($statement) === '') {
-                $errors[] = ['path' => $path.'.statement', 'message' => '需求描述不可空白'];
+                $errors[] = ['path' => $path.'.statement', 'message' => '需求描述不得空白'];
                 $statement = '';
             }
 
@@ -74,7 +74,7 @@ class FormRequirementValidator
             if ($status === 'mapped') {
                 $mappedCount++;
                 if ($schemaPaths === []) {
-                    $errors[] = ['path' => $path.'.schema_paths', 'message' => '已對應需求至少需要一個 Schema JSON Pointer'];
+                    $errors[] = ['path' => $path.'.schema_paths', 'message' => '已對應需求必須至少有一個 Schema JSON Pointer'];
                 }
                 foreach ($schemaPaths as $pathIndex => $schemaPath) {
                     if (! is_string($schemaPath) || ! $this->pointerExists($schema, $schemaPath)) {
@@ -90,7 +90,7 @@ class FormRequirementValidator
             } elseif ($status === 'unresolved') {
                 $unresolvedCount++;
                 if ($schemaPaths !== []) {
-                    $errors[] = ['path' => $path.'.schema_paths', 'message' => '未釐清需求不可同時宣稱已對應 Schema'];
+                    $errors[] = ['path' => $path.'.schema_paths', 'message' => '未釐清需求不得同時宣稱已對應 Schema'];
                 }
                 $question = $requirement['question'] ?? null;
                 if (! is_string($question) || trim($question) === '') {
@@ -124,7 +124,7 @@ class FormRequirementValidator
 
             $statement = $assumption['statement'] ?? null;
             if (! is_string($statement) || trim($statement) === '') {
-                $errors[] = ['path' => $path.'.statement', 'message' => '假設理由不可空白'];
+                $errors[] = ['path' => $path.'.statement', 'message' => '假設理由不得空白'];
                 $statement = '';
             }
 

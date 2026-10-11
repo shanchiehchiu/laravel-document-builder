@@ -91,7 +91,7 @@ class FormRevisionController extends Controller
 
         $validation = $this->revisions->validateForPublish($type);
         if (! $validation['valid']) {
-            return response()->json(['message' => '表單尚未通過發布驗證', 'validation' => $validation], 422);
+            return response()->json(['message' => '表單發布驗證失敗', 'validation' => $validation], 422);
         }
 
         $revision = $this->revisions->publish($type, $actor, $data['summary'] ?? null);
@@ -111,7 +111,7 @@ class FormRevisionController extends Controller
         $restored = $this->revisions->restore($type, $revision, $actor);
 
         $data = [
-            'message' => '已建立第 '.$restored->revision.' 版草稿，檢查後需再次發布',
+            'message' => '已建立第 '.$restored->revision.' 版草稿，檢查後必須再次發布',
             'revision' => $this->revisionData($restored),
         ];
 
