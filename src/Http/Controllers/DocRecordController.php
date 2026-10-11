@@ -48,6 +48,17 @@ class DocRecordController extends Controller
             ->when($request->filled('status_id'), fn (Builder $q) => $q->where('status_id', (int) $request->input('status_id')))
             ->when($request->filled('date_from'), fn (Builder $q) => $q->where('doc_date', '>=', $request->input('date_from')))
             ->when($request->filled('date_to'), fn (Builder $q) => $q->where('doc_date', '<=', $request->input('date_to')))
+            ->when(is_array($request->input('field')), function (Builder $query) use ($request, $listFields): void {
+                // 欄位值篩選只接受「列表顯示」的表頭欄位代碼，避免任意鍵進入查詢
+                $allowed = $listFields->pluck('key')->all();
+                foreach ((array) $request->input('field') as $key => $value) {
+                    if (! in_array($key, $allowed, true) || ! is_scalar($value) || trim((string) $value) === '') {
+                        continue;
+                    }
+                    // Laravel 會依資料庫產生對應的 JSON 取值語法（MySQL/MariaDB 與 SQLite）
+                    $query->where("data->{$key}", trim((string) $value));
+                }
+            })
             ->when($request->filled('keyword'), function (Builder $query) use ($request): void {
                 $keyword = '%'.$request->input('keyword').'%';
                 $query->where(fn (Builder $query) => $query->where('no', 'like', $keyword)->orWhere('data', 'like', $keyword));

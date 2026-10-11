@@ -108,4 +108,29 @@ class StandaloneTest extends TestCase
         $this->actingAs($user)->get(route('doc_records.edit', ['leave', $id]))->assertOk()
             ->assertSee($save, false)->assertDontSee("find('[name]').not('[name=_token], [name=_method]').prop('disabled', true)", false);
     }
+
+    public function test_列表可依列表欄位的值篩選_非列表欄位會被忽略(): void
+    {
+        $this->makeType('leave', [
+            ['key' => 'reason', 'label' => '事由', 'type' => 'text', 'show_in_list' => true],
+            ['key' => 'days', 'label' => '天數', 'type' => 'number', 'decimals' => 1],
+        ]);
+        $user = $this->makeUser();
+        $store = fn (string $reason) => $this->actingAs($user)->postJson(route('doc_records.store', 'leave'), [
+            'doc_date' => '2026-10-12', 'data' => ['reason' => $reason, 'days' => '1'],
+        ])->assertOk();
+        $store('家庭因素');
+        $store('身體不適');
+
+        $url = route('doc_records.index', 'leave').'?draw=1&start=0&length=10';
+        $ajax = ['X-Requested-With' => 'XMLHttpRequest'];
+
+        // 事由是列表欄位時，只回傳完全相符的那一筆
+        $this->actingAs($user)->getJson($url.'&'.http_build_query(['field' => ['reason' => '身體不適']]), $ajax)
+            ->assertOk()->assertJsonPath('recordsFiltered', 1)->assertJsonPath('data.0.f_reason', '身體不適');
+
+        // 不在列表欄位內的代碼不進查詢，等同未篩選
+        $this->actingAs($user)->getJson($url.'&field[no_such_key]=x', $ajax)
+            ->assertOk()->assertJsonPath('recordsFiltered', 2);
+    }
 }

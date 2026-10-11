@@ -31,6 +31,12 @@
                 <label class="form-label">關鍵字</label>
                 <input type="text" name="keyword" class="form-control" placeholder="搜尋任一欄位內容">
             </div>
+            @foreach($listFields as $listField)
+            <div class="col-md-2">
+                <label class="form-label">{{ $listField->label }}</label>
+                <input type="text" name="field[{{ $listField->key }}]" class="form-control" placeholder="完全相符">
+            </div>
+            @endforeach
             <div class="col-md-3">
                 <button type="submit" class="btn btn-primary">查詢</button>
                 <button type="reset" class="btn btn-secondary">清除</button>
