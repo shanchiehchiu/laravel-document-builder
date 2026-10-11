@@ -42,7 +42,10 @@ return new class extends Migration
 
         Schema::table('doc_records', function (Blueprint $table) {
             $table->string('no', 60)->nullable()->after('doc_date')->comment('建立後固定不變的單號');
-            $table->foreignId('status_id')->nullable()->after('no')->constrained('doc_statuses')->restrictOnDelete();
+            // SQLite 回滾時會保留這個欄位（見 down），重新執行時不要重複建立
+            if (! Schema::hasColumn('doc_records', 'status_id')) {
+                $table->foreignId('status_id')->nullable()->after('no')->constrained('doc_statuses')->restrictOnDelete();
+            }
             $table->unique(['doc_type_id', 'no']);
         });
 
@@ -96,8 +99,13 @@ return new class extends Migration
     {
         Schema::table('doc_records', function (Blueprint $table) {
             $table->dropUnique('doc_records_doc_type_id_no_unique');
-            $table->dropForeign('doc_records_status_id_foreign');
-            $table->dropColumn(['no', 'status_id']);
+            // SQLite 不能刪外鍵，也不能刪帶外鍵的欄位：保留 status_id（可為空），up 時會略過已存在的欄位
+            if (Schema::getConnection()->getDriverName() === 'sqlite') {
+                $table->dropColumn('no');
+            } else {
+                $table->dropForeign('doc_records_status_id_foreign');
+                $table->dropColumn(['no', 'status_id']);
+            }
         });
 
         Schema::dropIfExists('doc_sequences');

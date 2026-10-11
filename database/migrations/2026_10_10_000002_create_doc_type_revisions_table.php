@@ -33,15 +33,21 @@ return new class extends Migration
             $table->unsignedBigInteger('published_revision_id')->nullable()->index();
         });
 
-        Schema::table('doc_records', function (Blueprint $table): void {
-            $table->foreignId('form_revision_id')->nullable()->constrained('doc_type_revisions')->nullOnDelete();
-        });
+        // SQLite 回滾時會保留這個欄位（見 down），重新執行時不要重複建立
+        if (! Schema::hasColumn('doc_records', 'form_revision_id')) {
+            Schema::table('doc_records', function (Blueprint $table): void {
+                $table->foreignId('form_revision_id')->nullable()->constrained('doc_type_revisions')->nullOnDelete();
+            });
+        }
     }
 
     public function down(): void
     {
         Schema::table('doc_records', function (Blueprint $table): void {
-            $table->dropConstrainedForeignId('form_revision_id');
+            // SQLite 不能刪外鍵，也不能刪帶外鍵的欄位：保留 form_revision_id（可為空），up 時會略過已存在的欄位
+            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+                $table->dropConstrainedForeignId('form_revision_id');
+            }
         });
 
         Schema::table('doc_types', function (Blueprint $table): void {

@@ -20,6 +20,10 @@
 
 ![來源設定](docs/screenshots/05-source-form.png)
 
+**安裝引導精靈**：`composer require` 之後全部在網頁上完成，不需要下任何指令（完整 5 步見[安裝](#安裝)）
+
+![安裝精靈：執行安裝](docs/screenshots/setup-4-run.png)
+
 <details>
 <summary>其他畫面</summary>
 
@@ -78,11 +82,13 @@ composer require document-builder/document-builder
 4. **執行安裝**：只執行單據建置自己的 migration、把你設為第一位超級管理員、寫入 `config/document_builder.php`，每一步顯示進度與執行記錄。
 5. **完成**：一鍵匯入範本（樣品申請單）直接進設計器；管理超級管理員名單。
 
-| 環境檢查 | 帳號與版型 |
+| 1. 環境檢查 | 2. 帳號與版型 |
 |---|---|
 | ![環境檢查](docs/screenshots/setup-1-check.png) | ![帳號與版型](docs/screenshots/setup-2-auth.png) |
-| **執行安裝** | **完成** |
-| ![執行安裝](docs/screenshots/setup-4-run.png) | ![完成](docs/screenshots/setup-5-done.png) |
+| **3. 路由與整合** | **4. 執行安裝** |
+| ![路由與整合](docs/screenshots/setup-3-route.png) | ![執行安裝](docs/screenshots/setup-4-run.png) |
+| **5. 完成** | |
+| ![完成](docs/screenshots/setup-5-done.png) | |
 
 **安全**：本機開發環境（`APP_ENV=local`）可以直接安裝；其他環境要先在 `.env` 加上
 `DOCUMENT_BUILDER_SETUP_TOKEN=自訂的一串密碼`，在精靈第一步輸入它，避免被別人搶先安裝成為超級管理員。
