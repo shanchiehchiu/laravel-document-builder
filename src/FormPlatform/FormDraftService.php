@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DocumentBuilder\FormPlatform;
 
 use DocumentBuilder\DocumentBuilder;
+use DocumentBuilder\Services\MasterSourceRegistry;
 use Illuminate\Contracts\Auth\Authenticatable;
 use DocumentBuilder\Models\DocField;
 use DocumentBuilder\Models\DocMcpOperation;
@@ -434,7 +435,7 @@ class FormDraftService
             'options.choices' => ['sometimes', 'array', 'min:1', 'max:50'],
             'options.choices.*' => ['string', 'max:100'],
             'options.decimals' => ['sometimes', 'integer', 'min:0', 'max:6'],
-            'options.source' => ['sometimes', Rule::in(array_keys(config('document_builder.masters')))],
+            'options.source' => ['sometimes', Rule::in(array_keys(app(MasterSourceRegistry::class)->options()))],
             'options.sum' => ['sometimes', 'boolean'],
             'show_in_list' => ['sometimes', 'boolean'],
         ], ['key.regex' => '欄位代碼只能用小寫英文、數字及底線，開頭須為英文'])->validate();

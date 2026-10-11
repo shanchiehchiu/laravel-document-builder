@@ -84,9 +84,24 @@ class RecordValidator
             'date' => ['date_format:Y-m-d'],
             'checkbox' => ['boolean'],
             'select' => [Rule::in($field->choices())],
-            'master' => ['integer', $this->masterRule($field, $current)],
+            // 主檔 id 依來源而定：整數主鍵或 UUID／ULID 字串
+            'master' => [...$this->masterKeyRules($field), $this->masterRule($field, $current)],
             default => [],
         });
+    }
+
+    /**
+     * 主檔 id 的型別規則。來源目前不可用（例如在來源庫被停用）時不檢查型別，
+     * 交給 masterRule：沿用舊單據原本的值可以存檔，選新的值會回報「選擇的資料不存在」。
+     */
+    private function masterKeyRules(DocField $field): array
+    {
+        $source = (string) $field->masterSource();
+        if (! $this->masters->has($source)) {
+            return [];
+        }
+
+        return $this->masters->keyType($source) === 'integer' ? ['integer'] : ['string', 'max:64'];
     }
 
     private function masterRule(DocField $field, mixed $current): Closure
@@ -94,10 +109,11 @@ class RecordValidator
         return function (string $attribute, mixed $value, Closure $fail) use ($field, $current): void {
             // 沿用原本選的資料：即使主檔已停用或刪除也允許存檔（明細表傳入的是這張單據原本各列的值）
             $kept = is_array($current) && array_key_exists('id', $current) ? [$current] : (array) $current;
-            if (collect($kept)->contains(fn (mixed $old): bool => is_array($old) && (int) ($old['id'] ?? 0) === (int) $value)) {
+            if (collect($kept)->contains(fn (mixed $old): bool => is_array($old) && (string) ($old['id'] ?? '') === (string) $value)) {
                 return;
             }
-            if ($this->masters->find((string) $field->masterSource(), (int) $value) === null) {
+            if (! $this->masters->has((string) $field->masterSource())
+                || $this->masters->find((string) $field->masterSource(), $value) === null) {
                 $fail("{$field->label}選擇的資料不存在");
             }
         };

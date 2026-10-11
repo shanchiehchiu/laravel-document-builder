@@ -9,6 +9,7 @@ use DocumentBuilder\Http\Controllers\FormPlatform\FormPlatformMcpController;
 use DocumentBuilder\Http\Controllers\FormPlatform\FormRevisionController;
 use DocumentBuilder\Http\Controllers\FormPlatform\FormSchemaController;
 use DocumentBuilder\Http\Controllers\HomeController;
+use DocumentBuilder\Http\Controllers\SourceController;
 use DocumentBuilder\Http\Middleware\EnsureCanDesign;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,12 @@ Route::middleware(config('document_builder.route.middleware'))
                 Route::post('types/{type}/publish', [FormRevisionController::class, 'publish'])->name('revisions.publish');
                 Route::post('types/{type}/revisions/{revision}/restore', [FormRevisionController::class, 'restore'])->name('revisions.restore');
                 Route::match(['GET', 'POST', 'DELETE', 'OPTIONS'], 'mcp', [FormPlatformMcpController::class, 'handle'])->name('mcp');
+
+                // 來源庫：主檔下拉的資料來源
+                Route::get('sources/columns', [SourceController::class, 'columns'])->name('sources.columns');
+                Route::get('sources/document-fields/{type:code}', [SourceController::class, 'documentFields'])->name('sources.document_fields');
+                Route::post('sources/preview', [SourceController::class, 'preview'])->name('sources.preview');
+                Route::resource('sources', SourceController::class)->except(['show']);
             });
         });
 

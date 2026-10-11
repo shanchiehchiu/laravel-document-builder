@@ -20,6 +20,7 @@ return [
     'confirm_delete' => '確定要刪除嗎?',
     'my_documents' => '我的單據',
     'type_settings' => '單據設定',
+    'sources' => '來源庫',
     'new_type' => '新增單據種類',
     'no_types' => '目前沒有可以填寫的單據。',
     'record_count' => ':count 筆',

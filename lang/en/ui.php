@@ -20,6 +20,7 @@ return [
     'confirm_delete' => 'Are you sure you want to delete this?',
     'my_documents' => 'My documents',
     'type_settings' => 'Document types',
+    'sources' => 'Data sources',
     'new_type' => 'New document type',
     'no_types' => 'There are no documents you can fill in yet.',
     'record_count' => ':count records',

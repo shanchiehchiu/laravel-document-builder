@@ -99,6 +99,21 @@ return [
      */
     'masters' => [],
 
+    /*
+     * 來源庫：管理員在後台「來源庫」頁面新增主檔來源，和上面的 masters 合併使用（同代碼時以 masters 為準）。
+     * drivers：可用的來源驅動（實作 DocumentBuilder\Contracts\SourceDriver），可加上自己寫的驅動。
+     * models：「資料模型」驅動可以選的 model；null 表示自動找出 app/Models 底下的所有 Eloquent model。
+     * hidden_columns：任何 model 都不開放的欄位；model 的 $hidden 也一律不開放。
+     */
+    'sources' => [
+        'drivers' => [
+            DocumentBuilder\Sources\ModelSourceDriver::class,
+            DocumentBuilder\Sources\DocumentSourceDriver::class,
+        ],
+        'models' => null,
+        'hidden_columns' => ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'api_token'],
+    ],
+
     // 主檔下拉每次搜尋最多回傳筆數
     'master_search_limit' => 20,
 ];

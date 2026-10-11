@@ -6,6 +6,7 @@ namespace DocumentBuilder\Services;
 
 use DocumentBuilder\Models\DocField;
 use DocumentBuilder\Models\DocType;
+use DocumentBuilder\Services\MasterSourceRegistry;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -34,7 +35,7 @@ class DocFieldService
             'show_in_list' => ['nullable', 'boolean'],
             'choices' => ['nullable', 'string', 'required_if:type,select'],
             'decimals' => ['nullable', 'integer', 'min:0', 'max:6'],
-            'source' => ['nullable', 'required_if:type,master', Rule::in(array_keys(config('document_builder.masters')))],
+            'source' => ['nullable', 'required_if:type,master', Rule::in(array_keys(app(MasterSourceRegistry::class)->options()))],
             'sum' => ['nullable', 'boolean'],
         ];
     }

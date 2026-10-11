@@ -143,9 +143,9 @@ class DocRecordService
         return match ($field->type) {
             'number' => round((float) $value, $field->decimals()),
             // 仍是原本那筆主檔時沿用存檔當時的名稱，主檔之後改名、刪除都不影響舊單據
-            'master' => is_array($old) && (int) ($old['id'] ?? 0) === (int) $value
+            'master' => is_array($old) && (string) ($old['id'] ?? '') === (string) $value
                 ? $old
-                : $this->masters->find((string) $field->masterSource(), (int) $value),
+                : $this->masters->find((string) $field->masterSource(), $value),
             default => (string) $value,
         };
     }

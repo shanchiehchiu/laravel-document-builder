@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DocumentBuilder\FormPlatform;
 
+use DocumentBuilder\Services\MasterSourceRegistry;
 use InvalidArgumentException;
 use LogicException;
 
@@ -173,7 +174,10 @@ class ComponentRegistry
                 throw new InvalidArgumentException("{$context}的 {$name} 不在允許清單內");
             }
             if (isset($definition['enum_from'])) {
-                $allowed = array_keys((array) config($definition['enum_from'], []));
+                // 主檔來源除了設定檔，還有來源庫裡管理員新增的，一律從來源註冊取得
+                $allowed = $definition['enum_from'] === 'document_builder.masters'
+                    ? array_keys(app(MasterSourceRegistry::class)->options())
+                    : array_keys((array) config($definition['enum_from'], []));
                 if (! in_array($value, $allowed, true)) {
                     throw new InvalidArgumentException("{$context}的 {$name} 不在允許清單內");
                 }

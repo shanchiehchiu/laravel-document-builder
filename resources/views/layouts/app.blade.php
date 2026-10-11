@@ -44,6 +44,10 @@
                         <a class="nav-link {{ request()->routeIs(document_builder_route_name('document_builder.types.*'), document_builder_route_name('document_builder.revisions.*')) ? 'active' : '' }}"
                            href="{{ route(document_builder_route_name('document_builder.types.index')) }}">{{ __('document-builder::ui.type_settings') }}</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs(document_builder_route_name('document_builder.sources.*')) ? 'active' : '' }}"
+                           href="{{ route(document_builder_route_name('document_builder.sources.index')) }}">{{ __('document-builder::ui.sources') }}</a>
+                    </li>
                 @endif
             </ul>
             <div class="d-flex align-items-center gap-2">
