@@ -209,4 +209,29 @@ class SourceLibraryTest extends TestCase
         $this->actingAs($this->admin)->get(route('document_builder.sources.create'))
             ->assertOk()->assertSee('資料模型')->assertSee('Customer');
     }
+
+    public function test_列表可依主檔欄位篩選_比對主檔的_id(): void
+    {
+        $alice = Customer::query()->create(['no' => 'C001', 'name' => '艾莉絲貿易']);
+        $bob = Customer::query()->create(['no' => 'C002', 'name' => '鮑伯工作室']);
+        $this->storeSource([
+            'code' => 'customer', 'label' => '客戶', 'driver' => 'model',
+            'settings' => ['model' => Customer::class, 'code' => 'no', 'text' => 'name'],
+        ])->assertOk();
+        $this->makeType('visit', [['key' => 'customer', 'label' => '客戶', 'type' => 'master', 'source' => 'customer', 'show_in_list' => true]], '拜訪單');
+
+        foreach ([$alice, $bob] as $customer) {
+            $this->actingAs($this->admin)->postJson(route('doc_records.store', 'visit'), [
+                'doc_date' => '2026-10-12', 'data' => ['customer' => $customer->id],
+            ])->assertOk();
+        }
+
+        $url = route('doc_records.index', 'visit').'?draw=1&start=0&length=10&'.http_build_query(['field' => ['customer' => $alice->id]]);
+        $this->actingAs($this->admin)->getJson($url, ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()->assertJsonPath('recordsFiltered', 1)->assertJsonPath('data.0.f_customer', 'C001 艾莉絲貿易');
+
+        // 主檔的 id 必須是整數，不是整數的值直接忽略
+        $this->actingAs($this->admin)->getJson(route('doc_records.index', 'visit').'?draw=1&start=0&length=10&field[customer]=abc', ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()->assertJsonPath('recordsFiltered', 2);
+    }
 }

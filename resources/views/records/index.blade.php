@@ -34,7 +34,14 @@
             @foreach($listFields as $listField)
             <div class="col-md-2">
                 <label class="form-label">{{ $listField->label }}</label>
+                @if($listField->type === 'master')
+                <select name="field[{{ $listField->key }}]" class="js-select2 form-select"
+                    data-url="{{ route(document_builder_route_name('document_builder.masters'), $listField->masterSource()) }}"
+                    data-placeholder="全部">
+                </select>
+                @else
                 <input type="text" name="field[{{ $listField->key }}]" class="form-control" placeholder="完全相符">
+                @endif
             </div>
             @endforeach
             <div class="col-md-3">
@@ -60,6 +67,22 @@ $(function () {
     var $filter = $('#form-filter');
     var $statusFilter = $filter.find('[name="status_id"]');
     $statusFilter.select2({ allowClear: true, width: '100%', placeholder: '全部狀態' });
+    // 主檔欄位的篩選與填單頁使用同一個搜尋端點（回傳 id、name）
+    $filter.find('select.js-select2[data-url]').each(function () {
+        var $select = $(this);
+        $select.select2({
+            allowClear: true,
+            width: '100%',
+            placeholder: $select.data('placeholder'),
+            ajax: {
+                url: $select.data('url'),
+                data: function (params) { return { search: params.term }; },
+                processResults: function (data) {
+                    return { results: data.map(function (item) { return { id: item.id, text: item.name }; }) };
+                }
+            }
+        });
+    });
     var table = $('#data-table').DataTable({
         autoWidth: false,
         processing: true,

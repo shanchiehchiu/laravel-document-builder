@@ -50,13 +50,33 @@ class DocRecordController extends Controller
             ->when($request->filled('date_to'), fn (Builder $q) => $q->where('doc_date', '<=', $request->input('date_to')))
             ->when(is_array($request->input('field')), function (Builder $query) use ($request, $listFields): void {
                 // 欄位值篩選只接受「列表顯示」的表頭欄位代碼，避免任意鍵進入查詢
-                $allowed = $listFields->pluck('key')->all();
+                $fields = $listFields->keyBy('key');
                 foreach ((array) $request->input('field') as $key => $value) {
-                    if (! in_array($key, $allowed, true) || ! is_scalar($value) || trim((string) $value) === '') {
+                    $field = $fields->get($key);
+                    if ($field === null || ! is_scalar($value) || trim((string) $value) === '') {
                         continue;
                     }
+                    $value = trim((string) $value);
+
+                    if ($field->type === 'master') {
+                        // 主檔值存成 {"id": …, "label": …}，只比對 id；依主鍵型別轉型，SQLite 整數與字串不相等
+                        $source = (string) $field->masterSource();
+                        if (! $this->masters->has($source)) {
+                            continue;
+                        }
+                        if ($this->masters->keyType($source) === 'integer') {
+                            if (! ctype_digit($value)) {
+                                continue;
+                            }
+                            $value = (int) $value;
+                        }
+                        $query->where("data->{$key}->id", $value);
+
+                        continue;
+                    }
+
                     // Laravel 會依資料庫產生對應的 JSON 取值語法（MySQL/MariaDB 與 SQLite）
-                    $query->where("data->{$key}", trim((string) $value));
+                    $query->where("data->{$key}", $value);
                 }
             })
             ->when($request->filled('keyword'), function (Builder $query) use ($request): void {
