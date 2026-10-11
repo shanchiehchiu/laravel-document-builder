@@ -133,4 +133,27 @@ class StandaloneTest extends TestCase
         $this->actingAs($user)->getJson($url.'&field[no_such_key]=x', $ajax)
             ->assertOk()->assertJsonPath('recordsFiltered', 2);
     }
+
+    public function test_關鍵字只比對值不比對鍵名_百分號與底線照字面比對(): void
+    {
+        $this->makeType('leave', [
+            ['key' => 'reason', 'label' => '事由', 'type' => 'text', 'show_in_list' => true],
+        ]);
+        $user = $this->makeUser();
+        $this->actingAs($user)->postJson(route('doc_records.store', 'leave'), [
+            'doc_date' => '2026-10-12', 'data' => ['reason' => '家庭 100% 因素'],
+        ])->assertOk();
+        $this->actingAs($user)->postJson(route('doc_records.store', 'leave'), [
+            'doc_date' => '2026-10-12', 'data' => ['reason' => '身體不適'],
+        ])->assertOk();
+
+        $url = route('doc_records.index', 'leave').'?draw=1&start=0&length=10&';
+        $ajax = ['X-Requested-With' => 'XMLHttpRequest'];
+
+        // 鍵名 reason 不是值，不得命中任何單據
+        $this->actingAs($user)->getJson($url.'keyword=reason', $ajax)->assertOk()->assertJsonPath('recordsFiltered', 0);
+        // 百分號照字面比對：只命中含 100% 的那一筆，不會變成萬用字元
+        $this->actingAs($user)->getJson($url.'keyword='.urlencode('%'), $ajax)->assertOk()->assertJsonPath('recordsFiltered', 1);
+        $this->actingAs($user)->getJson($url.'keyword='.urlencode('身體'), $ajax)->assertOk()->assertJsonPath('recordsFiltered', 1);
+    }
 }
