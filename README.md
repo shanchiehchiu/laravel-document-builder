@@ -6,6 +6,41 @@
 可以裝進任何 Laravel 專案：套件自帶完整介面（導覽列、樣式、前端函式庫都在套件裡，不從 CDN 載入），
 不依賴宿主的畫面；和宿主之間只有四個接點：登入（guard）、權限（Gate）、使用者 model、資料來源。
 
+## 畫面
+
+**表單設計器**：左側拖曳欄位與主檔下拉，右側設定整張單據或選取的欄位
+
+![表單設計器](docs/screenshots/03-designer.png)
+
+**填單**：使用者照設計好的表單填寫，主檔欄位可以搜尋
+
+![填單畫面](docs/screenshots/07-record-form.png)
+
+**來源庫**：管理員在畫面上設定主檔下拉的資料來源，可以先試搜尋
+
+![來源設定](docs/screenshots/05-source-form.png)
+
+<details>
+<summary>其他畫面</summary>
+
+我的單據（首頁）
+
+![我的單據](docs/screenshots/01-home.png)
+
+單據設定
+
+![單據設定](docs/screenshots/02-types.png)
+
+來源庫列表
+
+![來源庫](docs/screenshots/04-sources.png)
+
+單據列表
+
+![單據列表](docs/screenshots/06-records.png)
+
+</details>
+
 ## 支援版本
 
 | Laravel | PHP |
