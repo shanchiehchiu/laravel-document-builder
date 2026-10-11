@@ -84,7 +84,7 @@ class StandaloneTest extends TestCase
         ]);
         $user = $this->makeUser(['name' => '王小明']);
 
-        $this->actingAs($user)->get(route('doc_records.create', 'leave'))->assertOk()->assertSee('事由');
+        $this->actingAs($user)->get(route('doc_records.create', 'leave'))->assertOk()->assertSee('事由')->assertSee('存檔時自動產生');
 
         $this->actingAs($user)->postJson(route('doc_records.store', 'leave'), ['doc_date' => '2026-10-12', 'data' => ['days' => '1']])
             ->assertStatus(422)->assertJsonValidationErrors('data.reason');
