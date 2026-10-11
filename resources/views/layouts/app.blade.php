@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="{{ $asset('vendor/select2-4.1.0-rc.0/select2.min.css') }}">
     <link rel="stylesheet" href="{{ $asset('vendor/datatables-1.13.8/dataTables.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="{{ $asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ $asset('css/theme.css') }}">
     @stack('styles')
 </head>
 <body class="db-app">

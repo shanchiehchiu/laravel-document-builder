@@ -125,11 +125,9 @@ body {
     pointer-events: none;
 }
 
-/* 標題列的前台按鈕示意：灰階線框，只是版面示意，不是可以按的按鈕 */
+/* 標題列的前台按鈕示意：沿用宿主佈景主題的按鈕顏色，只是示意，不能按 */
 .db-head .db-preview-btn {
-    background: #fff;
-    border: 1px solid #d1d5db;
-    color: #6b7280;
+    cursor: default;
 }
 
 /* 關掉的按鈕 */

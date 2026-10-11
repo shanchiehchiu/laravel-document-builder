@@ -18,6 +18,7 @@ class StandaloneTest extends TestCase
 
         $this->assertStringContainsString('/document_builder/assets/vendor/jquery-3.7.1/jquery.min.js', $html);
         $this->assertStringContainsString('/document_builder/assets/css/app.css', $html);
+        $this->assertStringContainsString('/document_builder/assets/css/theme.css', $html);
         $this->assertStringNotContainsString('cdn.', $html);
         $this->assertStringContainsString('我的單據', $html);
     }

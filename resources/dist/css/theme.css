@@ -1,0 +1,47 @@
+/* 套件自帶的後台風格：灰底標題列、主題色按鈕（配色參考常見的 Bootstrap 後台主題，樣式為套件自寫）。
+ * 自帶版型與設計器畫布（沒設定 assets.canvas_styles 時）都會載入，所以兩邊外觀一致；嵌進宿主後台時不載入。 */
+:root, .db-app {
+    --db-bg: #eef0f4;
+    --db-header: #f6f7f9;
+    --db-primary: #0665d0;
+    --db-primary-dark: #0553ab;
+    --db-warning: #e07b12;
+    --db-warning-dark: #c56a0c;
+    --db-dark: #343a40;
+    --db-dark-hover: #23272b;
+}
+.block { border: 0; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); overflow: hidden; }
+.block-header,
+.block-header-default { background: var(--db-header); border-bottom: 0; padding: 0.875rem 1.75rem; }
+.block-title { font-size: 1rem; font-weight: 600; color: #2b2f33; }
+.block-content { padding: 1.5rem 1.75rem; }
+.form-label, label.col-form-label { font-weight: 600; color: #34383c; }
+
+.btn { font-weight: 600; border-radius: 0.375rem; }
+.btn-primary {
+    --bs-btn-bg: var(--db-primary); --bs-btn-border-color: var(--db-primary);
+    --bs-btn-hover-bg: var(--db-primary-dark); --bs-btn-hover-border-color: var(--db-primary-dark);
+    --bs-btn-active-bg: var(--db-primary-dark); --bs-btn-active-border-color: var(--db-primary-dark);
+    --bs-btn-disabled-bg: var(--db-primary); --bs-btn-disabled-border-color: var(--db-primary);
+}
+.btn-warning {
+    --bs-btn-color: #fff; --bs-btn-bg: var(--db-warning); --bs-btn-border-color: var(--db-warning);
+    --bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--db-warning-dark); --bs-btn-hover-border-color: var(--db-warning-dark);
+    --bs-btn-active-color: #fff; --bs-btn-active-bg: var(--db-warning-dark); --bs-btn-active-border-color: var(--db-warning-dark);
+}
+.btn-secondary {
+    --bs-btn-bg: var(--db-dark); --bs-btn-border-color: var(--db-dark);
+    --bs-btn-hover-bg: var(--db-dark-hover); --bs-btn-hover-border-color: var(--db-dark-hover);
+    --bs-btn-active-bg: var(--db-dark-hover); --bs-btn-active-border-color: var(--db-dark-hover);
+}
+.btn-outline-primary {
+    --bs-btn-color: var(--db-primary); --bs-btn-border-color: var(--db-primary);
+    --bs-btn-hover-bg: var(--db-primary); --bs-btn-hover-border-color: var(--db-primary);
+    --bs-btn-active-bg: var(--db-primary); --bs-btn-active-border-color: var(--db-primary);
+    background: #fff;
+}
+.btn-outline-secondary { --bs-btn-color: #6c757d; --bs-btn-border-color: #ced4da; --bs-btn-hover-bg: #f1f3f5; --bs-btn-hover-color: #343a40; --bs-btn-hover-border-color: #ced4da; background: #fff; }
+.badge.bg-secondary, .badge.text-bg-secondary { background-color: #5c636a !important; }
+.form-control:disabled, .form-select:disabled, .form-control[readonly] { background-color: #e9ecef; border-color: #e9ecef; }
+.select2-container--default.select2-container--disabled .select2-selection--single { background-color: #e9ecef; border-color: #e9ecef; }
+.pagination { --bs-pagination-active-bg: var(--db-primary); --bs-pagination-active-border-color: var(--db-primary); --bs-pagination-color: var(--db-primary); }

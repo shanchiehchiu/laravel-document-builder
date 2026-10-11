@@ -294,19 +294,26 @@
 
     function headPreview(m) {
         var on = function (key) { return m.get(BUTTON_PROP(key)) ? '' : ' db-off'; };
-        // 這些按鈕只是前台動作列的示意，不能做任何事，所以統一灰階線框，不用藍橘紅搶表單的焦點
+        // 前台動作列的示意：用和填單頁相同的主題色 class，顏色交給宿主的佈景主題決定，畫面和實際填單頁一致
         return '<h3 class="block-title">' + esc(m.get('docName') || '未命名單據') + '</h3>'
-            + '<span class="btn db-preview-btn me-2' + on('create') + '">新增</span>'
-            + '<span class="btn db-preview-btn me-2' + on('edit') + '">修改</span>'
-            + '<span class="btn db-preview-btn me-2' + on('delete') + '" title="刪除在列表的每一列上">刪除</span>'
-            + '<span class="btn db-preview-btn">返回列表</span>'
-            + '<span class="btn-group ms-2' + on('navigation') + '"><span class="btn db-preview-btn">← 上一筆</span>'
-            + '<span class="btn db-preview-btn">下一筆 →</span></span>';
+            + '<span class="btn btn-primary db-preview-btn me-2' + on('create') + '">新增</span>'
+            + '<span class="btn btn-warning db-preview-btn me-2' + on('edit') + '">修改</span>'
+            + '<span class="btn btn-danger db-preview-btn me-2' + on('delete') + '" title="刪除在列表的每一列上">刪除</span>'
+            + '<span class="btn btn-secondary db-preview-btn">返回列表</span>'
+            + '<span class="btn-group ms-2' + on('navigation') + '"><span class="btn btn-outline-secondary db-preview-btn">← 上一筆</span>'
+            + '<span class="btn btn-outline-secondary db-preview-btn">下一筆 →</span></span>';
     }
 
-    var DATE_PREVIEW = '<div class="col-md-4 db-cell"><div class="db-badges"><span class="db-badge is-fixed" title="固定欄位" aria-label="固定欄位">' + BADGE_LOCK_ICON + '</span></div>'
-        + '<label class="form-label">單據日期<span class="text-danger">*</span></label>'
-        + '<input type="date" class="form-control" readonly tabindex="-1"></div>';
+    // 固定的第一列：單號（存檔時自動產生）＋單據日期，和填單頁的第一列一樣
+    function fixedRowPreview(example) {
+        var lock = '<div class="db-badges"><span class="db-badge is-fixed" title="固定欄位" aria-label="固定欄位">' + BADGE_LOCK_ICON + '</span></div>';
+        return '<div class="col-md-4 db-cell">' + lock
+            + '<label class="form-label">單號</label>'
+            + '<div class="form-control-plaintext text-muted">存檔時自動產生' + (example ? '，例如 ' + esc(example) : '') + '</div></div>'
+            + '<div class="col-md-4 db-cell">' + lock
+            + '<label class="form-label">單據日期<span class="text-danger">*</span></label>'
+            + '<input type="date" class="form-control" readonly tabindex="-1"></div>';
+    }
 
     /* ───────────────────────── 右側設定（依格子種類不同） ───────────────────────── */
 
@@ -574,15 +581,23 @@
             model: {
                 defaults: {
                     tagName: 'div',
-                    name: '單據日期',
+                    name: '單號與單據日期',
                     classes: ['row', 'db-fixed'],
                     draggable: false, droppable: false, removable: false, copyable: false,
                     stylable: false, editable: false, layerable: false,
-                    traits: [{ type: 'db-info', name: 'dateNote', label: '單據日期', note: true, text: '固定欄位：列表依它排序與篩選，所以不得移動、刪除或改名。' }]
+                    traits: [{ type: 'db-info', name: 'dateNote', label: '單號與單據日期', note: true, text: '固定欄位：單號在存檔時依單號格式自動產生；列表依單據日期排序與篩選。兩者都不得移動、刪除或改名。' }]
                 }
             },
             view: {
-                onRender: function () { this.el.innerHTML = DATE_PREVIEW; }
+                init: function () {
+                    // 單號範例跟著整張單據的單號格式即時更新
+                    var wrapper = editor.getWrapper();
+                    if (wrapper) this.listenTo(wrapper, 'change:noPrefix change:noDateFormat change:noSeqDigits', this.onRender);
+                },
+                onRender: function () {
+                    var wrapper = editor.getWrapper();
+                    this.el.innerHTML = fixedRowPreview(wrapper ? numberExample(wrapper) : '');
+                }
             }
         });
 
@@ -1095,7 +1110,7 @@
             return '一列（' + c.components().length + ' 格，寬度合計 ' + total + '／12' + (total > 12 ? '，超過的會換行' : '') + '）';
         }
         if (c.get('type') === HEAD) return '標題列與按鈕';
-        if (c.get('type') === DATE) return '單據日期（固定欄位）';
+        if (c.get('type') === DATE) return '單號與單據日期（固定欄位）';
         if (c.get('type') === TABLE) return COMPONENTS.table.label + '：' + (c.get('title') || '未命名') + '（' + c.components().length + ' 欄）';
         if (c.get('type') !== CELL) return '整張單據';
         if (c.get('kind') !== 'field') return KIND_NAMES[c.get('kind')];

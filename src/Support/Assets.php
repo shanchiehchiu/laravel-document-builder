@@ -38,13 +38,13 @@ final class Assets
 
     /**
      * 設計器畫布要載入的樣式：填單畫面的版面樣式（讓畫布長得和填單畫面一樣）＋套件的畫布樣式。
-     * 沒設定 canvas_styles 時用套件自帶的 Bootstrap，和自帶版型的填單畫面一致。
+     * 沒設定 canvas_styles 時用套件自帶的 Bootstrap 與後台風格，和自帶版型的填單畫面一致。
      */
     public static function canvasStyles(): array
     {
         $configured = config('document_builder.assets.canvas_styles');
         $host = $configured === null
-            ? [self::url('vendor/bootstrap-5.3.3/bootstrap.min.css')]
+            ? [self::url('vendor/bootstrap-5.3.3/bootstrap.min.css'), self::url('css/theme.css')]
             : array_values(array_filter(array_map([self::class, 'external'], (array) $configured)));
 
         return [...$host, self::url('designer-canvas.css')];
