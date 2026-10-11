@@ -1,0 +1,357 @@
+/* 20261009 表單設計器畫布（iframe 內，和後台一起載入 codebase.min.css，所以格子外觀和填單畫面一樣） */
+
+body {
+    background: #eef1f5;
+}
+
+[data-gjs-type="wrapper"] {
+    max-width: 1100px;
+    min-height: calc(100vh - 48px);
+    margin: 24px auto;
+    padding: 24px 28px 48px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .08);
+}
+
+/* 畫布還沒有任何列時的提示（標題列與單據日期一定在，提示放在它們下面） */
+[data-gjs-type="wrapper"]:not(:has(.db-row, .db-table))::after {
+    content: '從左邊把欄位拖到這裡';
+    display: block;
+    padding: 64px 0;
+    border: 2px dashed #cbd5e1;
+    border-radius: 6px;
+    color: #94a3b8;
+    text-align: center;
+}
+
+.db-row {
+    min-height: 56px;
+}
+
+.db-row:empty::before {
+    content: '空的一列：把欄位拖進來，或選取後刪除';
+    width: 100%;
+    padding: 16px 0;
+    color: #94a3b8;
+    font-size: 13px;
+    text-align: center;
+}
+
+.db-cell {
+    position: relative;
+    padding-top: 10px;
+    padding-bottom: 18px;
+    cursor: pointer;
+}
+
+/* 格子裡的輸入框只是外觀；點擊一律選到整格 */
+.db-cell * {
+    pointer-events: none;
+}
+
+.db-cell .form-control[readonly] {
+    background-color: #fff;
+}
+
+.db-badges {
+    position: absolute;
+    top: 8px;
+    right: 14px;
+    display: flex;
+}
+
+.db-badge {
+    margin-left: 4px;
+    padding: 0 6px;
+    border-radius: 3px;
+    background: #e8f1fb;
+    color: #2563eb;
+    font-size: 11px;
+    line-height: 18px;
+}
+
+/* 小圖示徽章（列表、固定欄位）：圖示置中，hover 看 title */
+.db-badge.is-list,
+.db-badge.is-fixed {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 4px;
+}
+
+.db-badge.is-list {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* 主檔徽章平時淡化，選取該欄位（GrapesJS 會加 gjs-selected）才高亮 */
+.db-badge.is-master {
+    background: #f8fafc;
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+.gjs-selected .db-badge.is-master {
+    background: #e8f1fb;
+    color: #2563eb;
+    font-size: 11px;
+}
+
+.db-badge.is-new {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.db-spacer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 62px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 4px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* 標題列：貼齊卡片上緣，和後台頁面的區塊標題一樣 */
+.db-head {
+    margin: -24px -28px 20px;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+}
+
+.db-head *,
+.db-fixed * {
+    pointer-events: none;
+}
+
+/* 標題列的前台按鈕示意：灰階線框，只是版面示意，不是可以按的按鈕 */
+.db-head .db-preview-btn {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #6b7280;
+}
+
+/* 關掉的按鈕 */
+.db-off {
+    opacity: .3;
+    text-decoration: line-through;
+}
+
+.db-fixed {
+    cursor: pointer;
+}
+
+.db-badge.is-fixed {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* 明細表：外框＋橫向排列的欄（每欄 = 表頭格、示範輸入格、合計格），和填單畫面的表格同樣由左而右 */
+.db-table {
+    margin: 8px 0 20px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.db-table-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.db-table-head .db-badge {
+    position: static;
+}
+
+.db-table-body {
+    display: flex;
+    overflow-x: auto;
+}
+
+/* 捲軸加深加粗；Mac 預設「捲動時才顯示」的捲軸也會因此常駐，看得出可以左右捲 */
+.db-table-body::-webkit-scrollbar {
+    height: 10px;
+}
+
+.db-table-body::-webkit-scrollbar-track {
+    background: #eef2f6;
+}
+
+.db-table-body::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border: 2px solid #eef2f6;
+    border-radius: 5px;
+}
+
+.db-table-body::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* 兩側陰影：哪一邊還有被遮住的欄位就顯示哪一邊（不擋滑鼠操作） */
+.db-table-scroll {
+    position: relative;
+}
+
+.db-shade {
+    position: absolute;
+    top: 0;
+    bottom: 10px;
+    width: 28px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+}
+
+.db-shade-l {
+    left: 44px;
+    background: linear-gradient(to right, rgba(15, 23, 42, .14), rgba(15, 23, 42, 0));
+}
+
+.db-shade-r {
+    right: 0;
+    background: linear-gradient(to left, rgba(15, 23, 42, .14), rgba(15, 23, 42, 0));
+}
+
+.db-table-scroll.can-left .db-shade-l,
+.db-table-scroll.can-right .db-shade-r {
+    opacity: 1;
+}
+
+.db-table-more {
+    margin-left: auto;
+    padding: 2px 10px;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.db-table-more:hover {
+    background: #dbeafe;
+}
+
+.db-table-no {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    flex: 0 0 44px;
+    background: #fff;
+    text-align: center;
+    color: #64748b;
+}
+
+.db-table-cols {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 96px;
+}
+
+/* 還沒有欄位的明細表 */
+.db-table-cols:empty {
+    align-items: center;
+    justify-content: center;
+}
+
+.db-table-cols:empty::before {
+    content: '把欄位拖進來，成為明細表的一欄';
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* 明細表裡的欄位不用欄寬，蓋掉 col-md-* */
+.db-table-cols > .db-cell {
+    flex: 1 0 150px;
+    max-width: none;
+    width: auto;
+    padding: 0;
+    border-left: 1px solid #e2e8f0;
+}
+
+.db-th,
+.db-td,
+.db-tf {
+    padding: 6px 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.db-th {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    min-height: 36px;
+    background: #f8fafc;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.db-th .db-badges {
+    position: static;
+}
+
+.db-tf {
+    min-height: 32px;
+    background: #f8fafc;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    border-bottom: 0;
+}
+
+.db-table-foot {
+    padding: 6px 12px;
+    border-top: 1px solid #e2e8f0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* 拖曳時的 12 欄參考線：每一列上淡淡的 12 等分直線，讓使用者看得出欄寬怎麼對齊 */
+.db-dragging .db-row {
+    position: relative;
+}
+.db-dragging .db-row::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 4px;
+    background: repeating-linear-gradient(to right, transparent 0, transparent calc(100% / 12 - 1px), rgba(37, 99, 235, .14) calc(100% / 12 - 1px), rgba(37, 99, 235, .14) calc(100% / 12));
+}
+
+/* 拖曳時在最下面顯示一塊虛線放置區：拖到這裡會自成新的一列 */
+body.db-dragging::after {
+    content: '＋ 拖曳欄位至此（放在這裡會自成新的一列）';
+    display: block;
+    margin: 12px 14px 20px;
+    padding: 18px;
+    border: 1.5px dashed #93c5fd;
+    border-radius: 6px;
+    background: rgba(239, 246, 255, .6);
+    color: #2563eb;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* 預覽模式：不顯示標示與選取框，只看填單的樣子 */
+.db-preview .db-badges {
+    display: none;
+}
+.db-preview .db-cell,
+.db-preview .db-row,
+.db-preview .db-head,
+.db-preview .db-table {
+    outline: none !important;
+}
+.db-preview .gjs-selected,
+.db-preview .gjs-hovered {
+    outline: none !important;
+}

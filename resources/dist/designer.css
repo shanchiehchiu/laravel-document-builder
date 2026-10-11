@@ -1,0 +1,234 @@
+/* 20261009 表單設計器：外殼沿用 webfoundry/css/builder.css，這裡只補設計器自己的部分 */
+
+/* 錯誤訊息可能有多行（第 N 列「欄位」：…） */
+.wfb-toast { white-space: pre-line; }
+
+/* 儲存中不能再改畫布（存完會整個換成後端回傳的版面） */
+.wfb.is-saving .wfb-canvas-wrap { pointer-events: none; opacity: .6; }
+
+.db-trait-textarea {
+    width: 100%;
+    min-height: 84px;
+    resize: vertical;
+    font: inherit;
+    line-height: 1.5;
+}
+
+/* 右側設定：可以改的欄位白底加框；WebFoundry 原本的灰底無框會和鎖定的唯讀資訊長得一樣 */
+/* 文字在內層 .gjs-label，builder.css 直接指定了灰色，要指定到這一層才蓋得過 */
+#wfb-traits .gjs-label-wrp,
+#wfb-traits .gjs-label { color: #1f2937; font-weight: 500; }
+/* grapes.min.css 替 .gjs-trt-trait 設了 font-weight: lighter，蘋方會繼承成字重 100，深色字也細得像灰色 */
+#wfb-traits .gjs-trt-trait { font-weight: 400; }
+#wfb-traits .gjs-field:not(.gjs-field-checkbox) { background: #fff; border-color: #d1d5db; }
+#wfb-traits .gjs-field:not(.gjs-field-checkbox):focus-within { border-color: var(--wfb-primary); }
+
+/* 鎖定的唯讀資訊（型別、欄位代碼、已有資料的主檔來源）：拿掉輸入框外觀，前面加鎖頭 */
+#wfb-traits .gjs-trt-trait--db-info .gjs-field { background: transparent; border-color: transparent; }
+.db-trait-info {
+    display: flex;
+    gap: 6px;
+    padding: 6px 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #64748b;
+    word-break: break-all;
+}
+.db-trait-info::before {
+    content: '';
+    flex: 0 0 12px;
+    height: 12px;
+    margin-top: 2px;
+    background: currentColor;
+    /* 鎖頭圖示 */
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* 分段按鈕（欄寬）：外層不要輸入框外觀，四個選項平分寬度 */
+#wfb-traits .gjs-trt-trait--db-radio .gjs-field { background: transparent; border-color: transparent; padding: 0; }
+.db-trait-radio {
+    display: flex;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+.db-trait-radio label {
+    flex: 1;
+    margin: 0;
+    cursor: pointer;
+}
+.db-trait-radio label + label { border-left: 1px solid #d1d5db; }
+.db-trait-radio input { position: absolute; opacity: 0; pointer-events: none; }
+.db-trait-radio span {
+    display: block;
+    padding: 6px 0;
+    text-align: center;
+    font-size: 12px;
+    color: #374151;
+}
+.db-trait-radio label:hover span { background: #f3f4f6; }
+.db-trait-radio input:checked + span { background: var(--wfb-primary); color: #fff; font-weight: 500; }
+.db-trait-radio input:focus-visible + span { outline: 2px solid var(--wfb-primary); outline-offset: -2px; }
+
+/* 鎖定的值：值本身要看得清楚，灰色只留給說明 */
+.db-info-value { color: #1f2937; font-size: 12.5px; }
+.db-info-hint { margin-top: 2px; color: #94a3b8; font-size: 11.5px; }
+.db-trait-info.is-note { color: #64748b; }
+.db-trait-info.is-note::before { display: none; }
+
+/* 小按鈕（清除、自動產生） */
+.db-trait-btn {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+    color: #1f2937;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.db-trait-btn:hover:not(:disabled) { border-color: var(--wfb-primary); color: var(--wfb-primary); }
+.db-trait-btn:disabled { color: #94a3b8; cursor: progress; }
+
+/* 顏色：色塊 + 色碼 + 清除；沒設定時色塊顯示斜線 */
+#wfb-traits .gjs-trt-trait--db-color .gjs-field,
+#wfb-traits .gjs-trt-trait--db-key .gjs-field { background: transparent; border-color: transparent; padding: 0; }
+.db-trait-color { display: flex; gap: 6px; align-items: center; }
+.db-color-pick {
+    flex: 0 0 30px;
+    width: 30px;
+    height: 28px;
+    padding: 2px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+}
+.db-trait-color.is-empty .db-color-pick {
+    background: linear-gradient(135deg, #fff 45%, #dc2626 45%, #dc2626 55%, #fff 55%);
+}
+.db-trait-color.is-empty .db-color-pick::-webkit-color-swatch { opacity: 0; }
+.db-color-text,
+.db-key-input {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+    color: #1f2937;
+    font: inherit;
+    font-size: 12.5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.db-color-text:focus,
+.db-key-input:focus { outline: none; border-color: var(--wfb-primary); }
+
+/* 欄位代碼：輸入框 + 自動產生，下面一行說明 */
+.db-key-row { display: flex; gap: 6px; align-items: center; }
+.db-key-hint.is-error { color: #dc2626; }
+
+.db-event-editor {
+    margin: 20px 0 16px;
+    padding: 14px;
+    border: 1px solid #dbe3ef;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+.db-event-editor[hidden] { display: none; }
+.db-event-editor h3 { margin: 0 0 6px; color: #1f2937; font-size: 14px; font-weight: 650; }
+.db-event-help { margin: 0 0 12px; color: #64748b; font-size: 11.5px; line-height: 1.5; }
+.db-event-editor label { display: block; margin: 10px 0 4px; color: #334155; font-size: 12px; font-weight: 600; }
+.db-event-control,
+.db-event-value {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 34px;
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    color: #1f2937;
+    font: inherit;
+    font-size: 12px;
+}
+.db-event-control:focus,
+.db-event-value:focus { outline: 2px solid #bfdbfe; border-color: var(--wfb-primary); }
+.db-event-actions { display: flex; gap: 7px; margin-top: 12px; }
+.db-event-actions button {
+    flex: 1;
+    min-height: 32px;
+    padding: 5px 7px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    color: #334155;
+    font: inherit;
+    font-size: 11.5px;
+    cursor: pointer;
+}
+.db-event-actions button:hover { border-color: var(--wfb-primary); color: var(--wfb-primary); }
+.db-event-actions .db-event-primary { border-color: var(--wfb-primary); background: var(--wfb-primary); color: #fff; }
+.db-event-actions .db-event-primary:hover { filter: brightness(.94); color: #fff; }
+.db-event-message { min-height: 18px; margin: 8px 0 0; color: #64748b; font-size: 11px; line-height: 1.4; }
+.db-event-message.is-error { color: #b91c1c; }
+
+/* 右上角 ? 操作說明：平時收起，點了才以浮層顯示（不佔右側的設定空間） */
+.wfb-help-btn {
+    font-weight: 700;
+    font-size: 15px;
+}
+.wfb-help-pop {
+    position: absolute;
+    top: 46px;
+    left: 8px;
+    right: 8px;
+    z-index: 20;
+    margin: 0;
+    max-height: calc(100% - 60px);
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .14);
+}
+.wfb-help-pop[hidden] {
+    display: none;
+}
+
+/* 拖曳落點線畫在設計器外層（不在畫布 iframe 裡），改成和主色一致，並加粗讓落點更清楚 */
+.gjs-placeholder {
+    --gjs-placeholder-background-color: #2563eb;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .18);
+    border-radius: 2px;
+}
+.gjs-placeholder-int {
+    background-color: #2563eb;
+}
+
+/* 預覽模式：收起左右面板，畫布置中 */
+.wfb.is-preview .wfb-left,
+.wfb.is-preview .wfb-right {
+    display: none;
+}
+
+/* 編輯／預覽切換（頂部中間） */
+.wfb-mode button {
+    width: auto;
+    padding: 4px 12px;
+    font-size: 13px;
+    color: #4b5563;
+}
+.wfb-mode button.is-active {
+    background: #fff;
+    color: #1f2937;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .08);
+}
+
+/* 填入範例資料只在預覽時出現；.wfb-btn 的 display 會蓋過 hidden，所以要明確指定 */
+#wfb-fill-dummy[hidden] {
+    display: none;
+}
