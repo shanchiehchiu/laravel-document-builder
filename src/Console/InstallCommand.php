@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace DocumentBuilder\Console;
 
+use DocumentBuilder\DocumentBuilder;
 use DocumentBuilder\Integrations\NullIntegration;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * 安裝精靈：詢問宿主的使用者、版型、路由與選單整合方式，寫出 config/document_builder.php，
@@ -32,6 +34,11 @@ class InstallCommand extends Command
         } else {
             $files->put($path, $this->buildConfig($files->get(__DIR__.'/../../config/document_builder.php')));
             $this->info("已寫入設定檔：{$path}");
+
+            // 這次執行（包括接下來的 migrate）就要用新設定，否則 migration 會照預設的 int 建立使用者欄位
+            if ($path === config_path('document_builder.php')) {
+                config()->set('document_builder', array_replace((array) config('document_builder'), require $path));
+            }
         }
 
         if (! $this->option('no-assets')) {
@@ -41,6 +48,7 @@ class InstallCommand extends Command
         if (! $this->option('no-migrate') && $this->confirm('現在執行 migration 嗎？', true)) {
             $this->call('migrate');
         }
+        $this->warnIfUserColumnsMismatch();
 
         $this->newLine();
         $this->line('最後一步：在 AuthServiceProvider（Laravel 11 以後是 AppServiceProvider）的 boot() 定義權限，例如：');
@@ -94,6 +102,26 @@ class InstallCommand extends Command
         }
 
         return $template;
+    }
+
+    /**
+     * 套件資料表若在設定 user_key_type 之前就建好了（例如先跑了 php artisan migrate），
+     * 指向使用者的欄位型別會不對，存檔時才會出錯，所以在這裡先提醒。
+     */
+    private function warnIfUserColumnsMismatch(): void
+    {
+        if (! Schema::hasTable('doc_records')) {
+            return;
+        }
+
+        $isInteger = str_contains(strtolower(Schema::getColumnType('doc_records', 'created_by')), 'int');
+        if ($isInteger === (DocumentBuilder::userKeyType() === 'int')) {
+            return;
+        }
+
+        $this->newLine();
+        $this->error('單據建置的資料表已經用另一種使用者主鍵型別建立，和設定的 user_key_type（'.DocumentBuilder::userKeyType().'）不一致。');
+        $this->line('還沒有單據資料時，請 rollback 單據建置的 migration 後重新執行 php artisan migrate（全新專案可直接 php artisan migrate:fresh）。');
     }
 
     /** 從使用者 model 推測主鍵型別：用了 HasUuids／HasUlids 或主鍵是字串時是 uuid／ulid，否則是 int */
