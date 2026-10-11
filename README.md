@@ -43,6 +43,14 @@
 
 ![單據列表](docs/screenshots/06-records.png)
 
+填單詳情
+
+![填單詳情](docs/screenshots/07-record-form.png)
+
+外觀設定（超級管理員）
+
+![外觀設定](docs/screenshots/08-appearance.png)
+
 </details>
 
 ## 支援版本
