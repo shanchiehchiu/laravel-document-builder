@@ -6,8 +6,26 @@
 可以裝進任何 Laravel 專案：套件自帶完整介面（導覽列、樣式、前端函式庫都在套件裡，不從 CDN 載入），
 不依賴宿主的畫面；和宿主之間只有四個接點：登入（guard）、權限（Gate）、使用者 model、資料來源。
 
-需求：PHP 8.1 以上（Laravel 11、12 需要 8.2）、Laravel 10／11／12。資料庫 MySQL、MariaDB、SQLite 都可以。
-使用者主鍵可以是自動遞增整數、UUID 或 ULID。
+## 支援版本
+
+| Laravel | PHP |
+|---|---|
+| 10 | 8.1 以上 |
+| 11 | 8.2 以上 |
+| 12 | 8.2 以上 |
+| 13 | 8.3 以上 |
+
+資料庫 MySQL、MariaDB、SQLite 都可以。使用者主鍵可以是自動遞增整數、UUID 或 ULID。
+介面文字有繁體中文（`zh_TW`、`zh-Hant` 都可以）與英文，依 `app.locale` 切換。
+
+實際驗證過的組合（全新專案＋Breeze 登入，從安裝、設計單據、建立來源到填單都在瀏覽器操作過；宿主也裝了繁中語系）：
+
+| Laravel | PHP | 使用者主鍵 |
+|---|---|---|
+| 10 | 8.2 | 整數 |
+| 11 | 8.2 | 整數 |
+| 12 | 8.2 | UUID |
+| 13 | 8.4 | ULID |
 
 ## 安裝
 
@@ -101,12 +119,19 @@ php artisan migrate
 其他可發布的內容：`--tag=document-builder-config`（設定檔）、`--tag=document-builder-views`（視圖，發布到
 `resources/views/vendor/document-builder` 後可覆寫）。按鈕文字可在 `lang/vendor/document-builder/{locale}/ui.php` 覆寫。
 
+宿主的驗證訊息與登入畫面要中文時，可安裝 [Laravel-Lang](https://laravel-lang.com)：
+`composer require laravel-lang/common --dev`、`php artisan lang:add zh_TW`，再把 `app.locale` 設成 `zh_TW`。
+
 ## 開發
 
 ```bash
 composer install
-vendor/bin/phpunit                # 目前安裝的 Laravel 版本
-bin/test-all-versions.sh          # Laravel 10、11、12 各跑一次
+vendor/bin/phpunit                          # 目前安裝的 Laravel 版本
+bin/test-all-versions.sh                    # Laravel 10、11、12、13 各跑一次
+bin/test-all-versions.sh 11                 # 只跑 Laravel 13（參數是 testbench 主版本：8／9／10／11）
+PHP_BIN=/path/to/php8.4 bin/test-all-versions.sh 11   # 指定 PHP
 ```
+
+Laravel 13 需要 PHP 8.3 以上；目前的 PHP 不夠新時，腳本會標示「略過」該版本，換 PHP 再跑一次。
 
 測試用 orchestra/testbench 在乾淨的 Laravel 環境裡安裝套件，涵蓋自帶介面、權限、填單、UUID 使用者與來源庫。

@@ -22,6 +22,17 @@ class StandaloneTest extends TestCase
         $this->assertStringContainsString('我的單據', $html);
     }
 
+    public function test_宿主用_zh_TW_或英文語系時介面跟著切換(): void
+    {
+        $user = $this->makeUser();
+
+        app()->setLocale('zh_TW');
+        $this->actingAs($user)->get(route('document_builder.home'))->assertOk()->assertSee('我的單據');
+
+        app()->setLocale('en');
+        $this->actingAs($user)->get(route('document_builder.home'))->assertOk()->assertSee('My documents');
+    }
+
     public function test_未登入會導向宿主的登入頁(): void
     {
         $this->get(route('document_builder.home'))->assertRedirect(route('login'));
