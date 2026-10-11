@@ -212,12 +212,12 @@
     </div>
 
     @if($locked)
-        <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-            <button type="button" class="btn btn-primary js-sample" data-url="{{ $route('.sample') }}">匯入範本並建立第一張單據</button>
-            <a href="{{ $route_('document_builder.types.index') }}" class="btn btn-outline-primary">進入單據設定</a>
-            <a href="{{ $route_('document_builder.home') }}" class="btn btn-outline-secondary">我的單據</a>
+        <div class="text-center mb-4">
+            <button type="button" class="btn btn-primary btn-lg px-4 js-sample" data-url="{{ $route('.sample') }}">匯入範本並建立第一張單據</button>
+            <div class="mt-2"><a href="{{ $route_('document_builder.types.index') }}" class="small">或直接進入單據設定</a></div>
         </div>
 
+        <div class="border-top pt-4 mt-2">
         <h3 class="h6">超級管理員</h3>
         @if($hostDefines)
             <p class="small text-muted">超級管理員由專案的程式定義（<code>document-builder.super-admin</code> Gate），不在這裡設定。</p>
@@ -235,9 +235,10 @@
                 @endforeach
             </ul>
             <form class="d-flex gap-2 js-add-admin" data-url="{{ $route('.admins.store') }}">
-                <select name="user_id" class="form-select js-user-search" data-url="{{ $route('.users') }}" data-placeholder="搜尋使用者名稱或 email"><option></option></select>
-                <button type="submit" class="btn btn-outline-primary text-nowrap">加入</button>
+                <select name="user_id" class="form-select flex-grow-1 js-user-search" data-url="{{ $route('.users') }}" data-placeholder="搜尋使用者名稱或 email"><option></option></select>
+                <button type="submit" class="btn btn-outline-primary text-nowrap px-4">加入</button>
             </form>
+        </div>
         @endif
 
         <details class="mt-4">

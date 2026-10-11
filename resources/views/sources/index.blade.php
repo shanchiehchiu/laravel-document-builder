@@ -4,8 +4,21 @@
 <div class="block block-rounded">
     <div class="block-header block-header-default">
         <h3 class="block-title">來源庫</h3>
+        @if($sources->isNotEmpty() || $configured->isNotEmpty())
         <a href="{{ route(document_builder_route_name('document_builder.sources.create')) }}" class="btn btn-sm btn-primary">{{ __('document-builder::ui.create') }}</a>
+        @endif
     </div>
+    @if($sources->isEmpty() && $configured->isEmpty())
+    {{-- 沒有任何來源：不畫空表格，改為置中的引導 --}}
+    <div class="block-content text-center py-5">
+        <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle bg-light" style="width: 4rem; height: 4rem">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-muted" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>
+        </div>
+        <h4 class="h6 mb-1">尚無任何主檔來源</h4>
+        <p class="text-muted small mb-4">主檔來源供表單的主檔下拉使用，例如客戶、廠商、產品或同事。</p>
+        <a href="{{ route(document_builder_route_name('document_builder.sources.create')) }}" class="btn btn-primary">{{ __('document-builder::ui.create') }}第一個主檔來源</a>
+    </div>
+    @else
     <div class="block-content block-content-full">
         <p class="text-muted small">主檔下拉欄位的資料從這裡來。設計表單時，每個啟用的來源都會出現在左側「主檔下拉」。</p>
         <div class="table-responsive">
@@ -52,13 +65,11 @@
                         <td class="text-center small text-muted">程式設定，不得在這裡修改</td>
                     </tr>
                 @endforeach
-                @if($sources->isEmpty() && $configured->isEmpty())
-                    <tr><td colspan="7" class="text-center text-muted">還沒有任何來源，按右上角「{{ __('document-builder::ui.create') }}」新增。</td></tr>
-                @endif
                 </tbody>
             </table>
         </div>
     </div>
+    @endif
 </div>
 @endsection
 
