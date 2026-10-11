@@ -244,21 +244,4 @@ class SetupTest extends TestCase
         $this->assertStringContainsString('/document_builder/assets/vendor/jquery-3.7.1/jquery.min.js?v=', $html);
         $this->assertStringContainsString('/document_builder/assets/css/install.css?v=', $html);
     }
-
-    public function test_按鈕主色只接受_hex_色碼_空白視為預設(): void
-    {
-        $this->env('local');
-        $admin = $this->makeUser();
-
-        $this->actingAs($admin)->postJson(route('document_builder.setup.settings'), $this->settings(['theme' => ['primary' => 'red']]))
-            ->assertStatus(422)->assertJsonValidationErrors('theme.primary');
-
-        $config = $this->actingAs($admin)->postJson(route('document_builder.setup.settings'), $this->settings(['theme' => ['primary' => '#059669']]))
-            ->assertOk()->json('config');
-        $this->assertStringContainsString("'primary' => '#059669'", $config);
-
-        $config = $this->actingAs($admin)->postJson(route('document_builder.setup.settings'), $this->settings(['theme' => ['primary' => '  ']]))
-            ->assertOk()->json('config');
-        $this->assertStringNotContainsString("'theme'", $config, '預設色不寫進設定檔');
-    }
 }

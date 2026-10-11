@@ -99,23 +99,6 @@
             @endforeach
         </select>
     </div>
-    @php
-        $themePresets = ['' => '預設', '#2563eb' => '科技藍', '#4f46e5' => '靛青', '#1e293b' => '商務灰黑', '#ea580c' => '活力橙'];
-        $currentTheme = (string) ($values['theme']['primary'] ?? '');
-        $isCustomTheme = $currentTheme !== '' && ! array_key_exists($currentTheme, $themePresets);
-    @endphp
-    <div class="mb-3">
-        <label class="form-label d-block">按鈕主色</label>
-        <div class="db-pills js-theme" role="radiogroup" aria-label="按鈕主色">
-            @foreach($themePresets as $hex => $label)
-            <label><input type="radio" name="theme_primary" value="{{ $hex }}" @checked(! $isCustomTheme && $currentTheme === $hex)>
-                <span class="db-swatch" style="background: {{ $hex ?: \DocumentBuilder\Support\Theme::DEFAULT_PRIMARY }}"></span>{{ $label }}</label>
-            @endforeach
-            <label><input type="radio" name="theme_primary" value="custom" @checked($isCustomTheme)>自訂</label>
-        </div>
-        <input type="text" class="form-control form-control-sm mt-2 js-theme-hex" style="max-width: 10rem" placeholder="#RRGGBB" value="{{ $isCustomTheme ? $currentTheme : '' }}" @disabled(! $isCustomTheme)>
-        <div class="form-text">只用於按鈕與標題列。文字會依顏色自動換成白字或深字，確保看得清楚。</div>
-    </div>
     <div class="mb-1">
         <label class="form-label d-block">頁面版型</label>
         <label class="db-option">
@@ -358,13 +341,9 @@ $(function () {
             user_name_column: $('[name=user_name_column]').val(),
             layout: custom ? $('.js-custom-layout').val() : packageLayout,
             route: { prefix: $('[name=route_prefix]').val(), name: $('[name=route_name]').val(), middleware: $('[name=route_middleware]').val() },
-            integration: $('[name=integration]:checked').val(),
-            theme: { primary: $('[name=theme_primary]:checked').val() === 'custom' ? $('.js-theme-hex').val() : $('[name=theme_primary]:checked').val() }
+            integration: $('[name=integration]:checked').val()
         };
     }
-    $('[name=theme_primary]').on('change', function () {
-        $('.js-theme-hex').prop('disabled', $(this).val() !== 'custom');
-    });
     $('.js-save-settings').on('click', function () {
         $.ajax({ url: urls.settings, type: 'POST', contentType: 'application/json', data: JSON.stringify(settings()) })
             .done(function (data) { nextUrl = data.url; go(4); });

@@ -28,7 +28,7 @@ use Throwable;
 class InstallWizard
 {
     /** 精靈可以設定的鍵（其餘設定維持既有設定檔或套件預設） */
-    public const KEYS = ['guard', 'user_model', 'users_table', 'user_key_type', 'user_name_column', 'layout', 'route', 'integration', 'theme'];
+    public const KEYS = ['guard', 'user_model', 'users_table', 'user_key_type', 'user_name_column', 'layout', 'route', 'integration'];
 
     public function __construct(private readonly SetupService $setup, private readonly DocTypeService $types, private readonly DocFieldService $fields) {}
 
@@ -140,16 +140,12 @@ class InstallWizard
                 'middleware' => implode(',', (array) ($route['middleware'] ?? ['web', 'auth'])),
             ],
             'integration' => (string) config('document_builder.integration'),
-            'theme' => ['primary' => config('document_builder.theme.primary')],
         ];
     }
 
     /** Step 2＋3 送出的設定：驗證後回傳整理好的值 */
     public function validate(array $input): array
     {
-        // 空白的主色視為沒設定（預設色）
-        $input['theme']['primary'] = trim((string) ($input['theme']['primary'] ?? '')) ?: null;
-
         $guards = collect($this->guards())->pluck('name')->all();
         $data = Validator::make($input, [
             'guard' => ['required', 'in:'.implode(',', $guards)],
@@ -162,13 +158,10 @@ class InstallWizard
             'route.name' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9_.]*$/'],
             'route.middleware' => ['required', 'string', 'max:200'],
             'integration' => ['required', 'in:'.implode(',', array_keys($this->integrations()))],
-            'theme' => ['nullable', 'array'],
-            'theme.primary' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
         ], [], [
             'guard' => '登入 Guard', 'user_model' => '使用者 Model', 'users_table' => '使用者資料表',
             'user_key_type' => '主鍵型別', 'user_name_column' => '名稱欄位', 'layout' => '頁面版型',
             'route.prefix' => '路由前綴', 'route.name' => '路由名稱前綴', 'route.middleware' => '中介層', 'integration' => '選單整合',
-            'theme.primary' => '按鈕主色',
         ])->after(function ($validator) use ($input): void {
             if (! $this->modelInfo((string) ($input['user_model'] ?? ''))) {
                 $validator->errors()->add('user_model', '找不到這個使用者 Model');
