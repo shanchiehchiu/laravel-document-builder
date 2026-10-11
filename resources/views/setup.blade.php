@@ -377,9 +377,15 @@ $(function () {
             Swal.fire({ icon: 'success', text: '已複製', timer: 1200, showConfirmButton: false });
         });
     });
-    // 路由前綴可能改了，用新網址重新打開精靈的完成頁
+    // 重新打開精靈的完成頁（安裝後才有範本與管理員名單）；路由前綴改了就換到新網址
     $('.js-finish').on('click', function () {
-        if (nextUrl) { location.href = nextUrl + '#done'; } else { go(5); }
+        var target = new URL(nextUrl || location.href, location.href);
+        if (target.pathname === location.pathname) {
+            location.hash = 'done';
+            location.reload();
+        } else {
+            location.href = target.pathname + '#done';
+        }
     });
 
     // Step 5
