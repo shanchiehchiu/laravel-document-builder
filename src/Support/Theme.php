@@ -17,7 +17,10 @@ final class Theme
 
     public const KEY = 'theme.primary';
 
-    private const DARK_TEXT = '#1f2937';
+    private const DARK_TEXT = '#111827';
+
+    /** 白字對比達到這個值就用白字（按鈕字是粗體，3 以上看得清楚）；否則用深字 */
+    private const WHITE_TEXT_MIN_CONTRAST = 3.0;
 
     /** 目前的主色：超級管理員在外觀設定頁存的值；沒設定、格式不對或還沒安裝時用預設色 */
     public static function primary(): string
@@ -47,7 +50,7 @@ final class Theme
         $hex = self::primary();
         $rgb = self::rgb($hex);
         $dark = self::mix($rgb, [0, 0, 0], 0.12);
-        $text = self::contrast($rgb, self::rgb('#ffffff')) >= self::contrast($rgb, self::rgb(self::DARK_TEXT))
+        $text = self::contrast($rgb, self::rgb('#ffffff')) >= self::WHITE_TEXT_MIN_CONTRAST
             ? '#ffffff'
             : self::DARK_TEXT;
 

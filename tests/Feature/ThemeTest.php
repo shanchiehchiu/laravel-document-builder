@@ -33,8 +33,12 @@ class ThemeTest extends TestCase
         DocSetting::query()->updateOrCreate(['key' => Theme::KEY], ['value' => '#2563eb']);
         $this->assertStringContainsString('--db-primary-text: #ffffff;', Theme::css());
 
+        // 活力橙：白字對比約 3.6，粗體按鈕字看得清楚，應該用白字
+        DocSetting::query()->updateOrCreate(['key' => Theme::KEY], ['value' => '#ea580c']);
+        $this->assertStringContainsString('--db-primary-text: #ffffff;', Theme::css());
+
         DocSetting::query()->updateOrCreate(['key' => Theme::KEY], ['value' => '#fde047']);
-        $this->assertStringContainsString('--db-primary-text: #1f2937;', Theme::css());
+        $this->assertStringContainsString('--db-primary-text: #111827;', Theme::css());
     }
 
     public function test_hover_色比主色深_並輸出_rgb_給聚焦光暈(): void

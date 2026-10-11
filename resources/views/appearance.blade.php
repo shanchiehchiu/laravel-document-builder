@@ -58,7 +58,7 @@
     var $form = $('.js-appearance');
     var $preview = $('.js-preview');
 
-    // 和伺服器端 DocumentBuilder\Support\Theme 相同的算法：WCAG 相對亮度與對比度
+    // 和伺服器端 DocumentBuilder\Support\Theme 相同的規則：白字對比 ≥ 3 用白字，否則用深字
     function rgb(hex) {
         return [1, 3, 5].map(function (i) { return parseInt(hex.substr(i, 2), 16); });
     }
@@ -75,7 +75,7 @@
         var c = rgb(hex);
         var dark = c.map(function (x) { return Math.round(x * 0.88); });
         var hexDark = '#' + dark.map(function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
-        var text = contrast(c, [255, 255, 255]) >= contrast(c, rgb('#1f2937')) ? '#ffffff' : '#1f2937';
+        var text = contrast(c, [255, 255, 255]) >= 3 ? '#ffffff' : '#111827';
         $preview.css({
             '--db-primary': hex,
             '--db-primary-dark': hexDark,
