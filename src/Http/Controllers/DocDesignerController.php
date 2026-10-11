@@ -121,6 +121,7 @@ class DocDesignerController extends Controller
             'archivedTables' => $this->layout->archivedTables($projection),
             'settings' => $settings,
             'schema' => $schema,
+            'revisionInfo' => $this->revisionInfo($type),
         ]);
     }
 
@@ -156,13 +157,55 @@ class DocDesignerController extends Controller
             'masters' => $this->masters->options(),
             'widths' => config('document_builder.widths'),
             'canvasStyles' => Assets::canvasStyles(),
+            'revisionInfo' => $this->revisionInfo($type),
+            // 頂部的單據切換下拉：其他單據直接跳到各自的設計器
+            'switcher' => DocType::query()->orderBy('seq')->orderBy('id')->get(['id', 'name', 'status'])
+                ->map(fn (DocType $item): array => [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'enabled' => (bool) $item->status,
+                    'url' => route(document_builder_route_name('document_builder.designer.edit'), $item),
+                ])->all(),
             'urls' => [
+                'home' => route(document_builder_route_name('document_builder.home')),
+                'sources' => route(document_builder_route_name('document_builder.sources.index')),
                 'save' => route(document_builder_route_name('document_builder.designer.update'), $type),
                 'back' => route(document_builder_route_name('document_builder.types.index')),
                 'preview' => route(document_builder_route_name('document_builder.types.preview'), $type),
                 'publish' => route(document_builder_route_name('document_builder.revisions.publish'), $type),
                 'revisions' => route(document_builder_route_name('document_builder.revisions.index'), $type),
             ],
+        ];
+    }
+
+    /**
+     * 頂部顯示的版本標籤與「發布版本」能不能按：規則與 FormRevisionService::publish 相同，
+     * 只是先在畫面上說明原因，不必按了才被拒絕。
+     */
+    private function revisionInfo(DocType $type): array
+    {
+        $type->loadMissing('workingRevision.latestReview');
+        $working = $type->workingRevision;
+        $published = $working !== null && (int) $type->published_revision_id === (int) $working->id;
+
+        $reason = null;
+        if ($working === null || $working->kind !== 'draft') {
+            $reason = '目前沒有等待發布的草稿';
+        } elseif ($working->latestReview === null) {
+            $reason = '草稿還沒審核，請先到「版本紀錄」審核';
+        } elseif ($working->latestReview->decision !== 'approved') {
+            $reason = '草稿審核結果為「需要修改」，修改並重新審核後才能發布';
+        } elseif ((string) $working->latestReview->reviewer_id === (string) DocumentBuilder::user()?->getKey()) {
+            $reason = '你是這份草稿的審核者，需由另一位超級管理員發布';
+        }
+
+        return [
+            'number' => $working?->revision,
+            'label' => $working === null ? '尚未儲存' : ($published ? '已發布' : '草稿').' v'.$working->revision,
+            'published' => $published,
+            'savedAt' => $working?->created_at?->format('H:i'),
+            'canPublish' => $reason === null,
+            'publishReason' => $reason,
         ];
     }
 

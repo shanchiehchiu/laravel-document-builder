@@ -251,7 +251,7 @@ class InstallWizard
             ['key' => 'quantity', 'label' => '數量', 'type' => 'number', 'decimals' => 0, 'required' => true, 'show_in_list' => true, 'width' => 3],
             ['key' => 'need_date', 'label' => '需求日期', 'type' => 'date', 'width' => 3],
             ['key' => 'purpose', 'label' => '用途', 'type' => 'select', 'choices' => "試用\n展示\n檢驗", 'show_in_list' => true, 'width' => 4],
-            ['key' => 'need_return', 'label' => '需歸還', 'type' => 'checkbox', 'width' => 2],
+            ['key' => 'need_return', 'label' => '需歸還', 'type' => 'checkbox', 'width' => 4],
             ['key' => 'note', 'label' => '備註', 'type' => 'textarea', 'width' => 12],
         ];
         foreach ($fields as $field) {

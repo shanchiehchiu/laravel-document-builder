@@ -87,6 +87,38 @@
         el.className = 'wfb-save-state' + (type ? ' is-' + type : '');
     }
 
+    /* 頂部狀態：已儲存（灰點＋時間，儲存鈕停用）／有未儲存的修改（橘點，儲存鈕可按） */
+    function markSaved(timeText) {
+        setSaveState(timeText ? '已儲存 ' + timeText : '已儲存', 'saved');
+        $('#wfb-save').disabled = true;
+    }
+
+    function markDirty() {
+        setSaveState('有未儲存的修改', 'dirty');
+        $('#wfb-save').disabled = false;
+        // 每次儲存都會產生新草稿，新草稿要重新審核，所以有修改時一定不能直接發布
+        setPublishState(false, '有未儲存的修改；儲存後會產生新草稿，需重新審核才能發布');
+    }
+
+    function setPublishState(ready, reason) {
+        var button = $('#dbd-publish');
+        if (!button) return;
+        button.disabled = !ready;
+        var wrap = $('#dbd-publish-wrap');
+        // 停用的按鈕收不到滑鼠事件，原因放在外層的 title 才看得到
+        if (ready) wrap.removeAttribute('title');
+        else wrap.title = reason || '';
+    }
+
+    function applyRevisionInfo(info) {
+        if (!info) return;
+        C.revisionInfo = info;
+        var rev = $('#wfb-rev');
+        rev.textContent = info.label;
+        rev.classList.toggle('is-published', !!info.published);
+        setPublishState(info.canPublish, info.publishReason);
+    }
+
     function request(url, method, json) {
         return fetch(url, {
             method: method,
@@ -1741,7 +1773,8 @@
                     um.clear();
                     updateUndoButtons();
                     renderSelected();
-                    setSaveState('已儲存 ' + nowText());
+                    markSaved(nowText());
+                    applyRevisionInfo(res.revisionInfo);
                     if (!opts.quiet) toast(res.message || '已儲存', 'success');
                     return res;
                 });
@@ -1753,7 +1786,8 @@
             })
             .finally(function () {
                 saving = null;
-                $('#wfb-save').disabled = false;
+                // 存成功後沒有修改就維持停用；存失敗還留著修改，要能再按
+                $('#wfb-save').disabled = !isDirty() && !!(C.revisionInfo && C.revisionInfo.number);
                 $('#wfb').classList.remove('is-saving');
             });
 
@@ -1766,23 +1800,23 @@
     var publishButton = $('#dbd-publish');
     if (publishButton) {
         publishButton.addEventListener('click', function () {
-            var confirmText = isDirty()
-                ? '目前畫布有未儲存修改。繼續後會先儲存草稿；草稿需審核通過，再由另一位超級管理員發布。'
-                : '發布目前已審核的草稿？審核者與發布者必須是不同管理員。';
-            if (!window.confirm(confirmText)) return;
+            // 有修改時按鈕已停用（見 markDirty），這裡發布的一定是已審核的草稿
+            if (!window.confirm('發布目前已審核的草稿？審核者與發布者必須是不同管理員。')) return;
             var summary = window.prompt('發布摘要（可留空）', '') || '';
 
             publishButton.disabled = true;
-            var saveFirst = isDirty() ? save({ quiet: true }) : Promise.resolve();
-            saveFirst.then(function () {
-                return request(C.urls.publish, 'POST', { summary: summary });
-            }).then(function (result) {
-                setSaveState('已發布第 ' + result.revision.revision + ' 版');
+            request(C.urls.publish, 'POST', { summary: summary }).then(function (result) {
+                applyRevisionInfo({
+                    number: result.revision.revision,
+                    label: '已發布 v' + result.revision.revision,
+                    published: true,
+                    canPublish: false,
+                    publishReason: '目前沒有等待發布的草稿'
+                });
                 toast(result.message || '表單版本已發布', 'success');
             }).catch(function (err) {
-                toast(err.message, 'error');
-            }).finally(function () {
                 publishButton.disabled = false;
+                toast(err.message, 'error');
             });
         });
     }
@@ -1808,6 +1842,41 @@
         else go();
     });
 
+    /* ───────────────────────── 頂部下拉選單（全域選單、單據切換） ───────────────────────── */
+
+    function closeMenus(except) {
+        document.querySelectorAll('.wfb-menu').forEach(function (menu) {
+            if (menu === except) return;
+            menu.querySelector('.wfb-menu-list').hidden = true;
+            menu.querySelector('[aria-haspopup]').setAttribute('aria-expanded', 'false');
+        });
+    }
+    document.querySelectorAll('.wfb-menu').forEach(function (menu) {
+        var button = menu.querySelector('[aria-haspopup]');
+        var list = menu.querySelector('.wfb-menu-list');
+        button.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = list.hidden;
+            closeMenus(menu);
+            list.hidden = !open;
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) {
+                var first = list.querySelector('.is-current') || list.querySelector('a');
+                if (first) first.focus();
+            }
+        });
+    });
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.wfb-menu')) closeMenus();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        var open = document.querySelector('.wfb-menu-list:not([hidden])');
+        if (!open) return;
+        closeMenus();
+        open.parentNode.querySelector('[aria-haspopup]').focus();
+    });
+
     var leaving = false;
     document.querySelectorAll('[data-leave]').forEach(function (a) {
         a.addEventListener('click', function (e) {
@@ -1827,7 +1896,7 @@
     });
 
     editor.on('update', function () {
-        if (!saving && isDirty()) setSaveState('有未儲存的修改', 'dirty');
+        if (!saving && isDirty()) markDirty();
         updateUndoButtons();
         scheduleSync();
     });
@@ -1905,6 +1974,8 @@
         // 畫布在 iframe 裡，鍵盤事件要另外聽（復原快捷鍵）
         canvasDoc = editor.Canvas.getDocument();
         if (canvasDoc) canvasDoc.addEventListener('keydown', onHistoryKey);
+        // 畫布在 iframe 裡，點畫布不會傳到外層 document，要另外關掉頂部下拉選單
+        if (canvasDoc) canvasDoc.addEventListener('mousedown', function () { closeMenus(); });
 
         // 最外層只接受列與格子
         var wrapper = editor.getWrapper();
@@ -1929,7 +2000,9 @@
         um.clear();
         updateUndoButtons();
         renderSelected();
-        setSaveState('');
+        // 從沒存過（例如剛匯入的範本）就不顯示「已儲存」，只讓左側的版本標籤說明「尚未儲存」
+        if (C.revisionInfo && C.revisionInfo.number) markSaved(C.revisionInfo.savedAt);
+        else { setSaveState(''); $('#wfb-save').disabled = false; } // 沒存過也要能存，才會有第一個草稿可審核
         $('#wfb-loading').classList.add('is-done');
         setTimeout(function () { var el = $('#wfb-loading'); if (el) el.remove(); }, 400);
     });

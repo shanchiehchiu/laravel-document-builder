@@ -7,7 +7,9 @@ namespace DocumentBuilder\Tests\Feature;
 use DocumentBuilder\DocumentBuilder;
 use DocumentBuilder\Integrations\NullIntegration;
 use DocumentBuilder\Models\DocAdmin;
+use DocumentBuilder\FormPlatform\FormSchemaValidator;
 use DocumentBuilder\Models\DocType;
+use DocumentBuilder\Services\DocumentBuilderSchemaAdapter;
 use DocumentBuilder\Tests\Fixtures\User;
 use DocumentBuilder\Tests\TestCase;
 use Illuminate\Support\Facades\DB;
@@ -170,6 +172,10 @@ class SetupTest extends TestCase
         $this->assertSame('樣品申請單', $type->name);
         $this->assertCount(6, $type->fields);
         $this->actingAs($admin)->get($url)->assertOk();
+
+        // 範本要能直接在設計器存檔：用存檔時同一套 Schema 驗證（欄寬只能是 3、4、6、12）
+        $schema = app(DocumentBuilderSchemaAdapter::class)->export($type->fresh(['fields', 'statuses']));
+        $this->assertSame([], app(FormSchemaValidator::class)->validate($schema, $type->code)['errors']);
 
         // 再匯入一次不會撞代碼
         $this->actingAs($admin)->postJson(route('document_builder.setup.sample'))->assertOk();

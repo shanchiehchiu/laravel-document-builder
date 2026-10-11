@@ -232,3 +232,43 @@
 #wfb-fill-dummy[hidden] {
     display: none;
 }
+
+/* ───────── 頂部列：左側導覽、單據切換、版本標籤 ───────── */
+.wfb-menu { position: relative; }
+.wfb-menu-list { position: absolute; top: calc(100% + 6px); left: 0; min-width: 190px; max-height: 60vh; overflow-y: auto; padding: 4px; background: #fff; border: 1px solid var(--wfb-border); border-radius: 10px; box-shadow: 0 10px 28px rgba(15, 23, 42, .14); z-index: 40; }
+.wfb-menu-list[hidden] { display: none; }
+.wfb-menu-list a { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; color: var(--wfb-text); font-size: 13px; text-decoration: none; white-space: nowrap; }
+.wfb-menu-list a:hover, .wfb-menu-list a:focus-visible { background: #f3f4f6; outline: 0; }
+.wfb-menu-list a.is-current { color: var(--wfb-primary); font-weight: 600; background: var(--wfb-primary-soft); }
+.wfb-menu-note { margin-left: auto; font-size: 11px; color: var(--wfb-muted); }
+.wfb-ext { margin-left: auto; color: var(--wfb-muted); }
+.wfb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.wfb-site-name a { color: inherit; text-decoration: none; }
+.wfb-site-name a:hover { color: var(--wfb-primary); text-decoration: underline; }
+.wfb-doc-switch { display: inline-flex; align-items: center; gap: 4px; max-width: 240px; padding: 0 4px; margin-left: -4px; border: 0; border-radius: 6px; background: transparent; color: var(--wfb-text); font: inherit; cursor: pointer; }
+.wfb-doc-switch:hover, .wfb-doc-switch[aria-expanded="true"] { background: #f3f4f6; }
+.wfb-doc-switch strong { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wfb-doc-switch svg { flex: 0 0 auto; color: var(--wfb-muted); }
+.wfb-rev { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; white-space: nowrap; background: #fef3c7; color: #92400e; }
+.wfb-rev.is-published { background: #dcfce7; color: #166534; }
+.wfb-btn-ghost { border-color: transparent; background: transparent; color: var(--wfb-muted); font-weight: 500; padding: 0 10px; }
+.wfb-btn-ghost:hover { color: var(--wfb-primary); background: var(--wfb-primary-soft); border-color: transparent; }
+
+/* ───────── 頂部列右側：版本｜預覽｜儲存三組 ───────── */
+.wfb-group { display: flex; align-items: center; gap: 6px; }
+.wfb-group + .wfb-group { margin-left: 6px; padding-left: 12px; border-left: 1px solid var(--wfb-border); }
+.wfb-icon-btn-line { border: 1px solid var(--wfb-border); background: #fff; }
+.wfb-icon-btn-line svg { width: 17px; height: 17px; }
+.wfb-publish-wrap { display: inline-flex; }
+.wfb-publish-wrap[title] { cursor: help; }
+.wfb-top-right .wfb-btn:disabled { cursor: not-allowed; }
+.wfb-top-right .wfb-btn-primary:disabled { opacity: .45; }
+/* 狀態燈：已儲存灰點、未儲存橘點、失敗紅點 */
+.wfb-save-state:not(:empty)::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: #9ca3af; vertical-align: 1px; }
+.wfb-save-state.is-saved::before { background: #22c55e; }
+.wfb-save-state.is-dirty::before { background: #f59e0b; }
+.wfb-save-state.is-error::before { background: #dc2626; }
+
+/* 窄螢幕：來源庫捷徑收進全域選單 */
+@media (max-width: 1280px) { .wfb-sources-link { display: none; } }
+a.wfb-btn { text-decoration: none; }

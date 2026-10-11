@@ -20,13 +20,38 @@
 <div class="wfb" id="wfb">
     <header class="wfb-top">
         <div class="wfb-top-left">
-            <a class="wfb-icon-btn wfb-back" href="{{ $config['urls']['back'] }}" title="返回單據設定列表" data-leave>
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            </a>
-            <div class="wfb-doc">
-                <div class="wfb-site-name">設計單據</div>
-                <div class="wfb-doc-row"><strong id="dbd-type-name">{{ $config['settings']['name'] }}</strong></div>
+            {{-- 全域選單：設計器不再是孤島，可直接回到單據建置的其他頁面 --}}
+            <div class="wfb-menu" id="wfb-nav">
+                <button type="button" class="wfb-icon-btn" id="wfb-nav-btn" title="單據建置選單" aria-haspopup="true" aria-expanded="false" aria-controls="wfb-nav-list">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <div class="wfb-menu-list" id="wfb-nav-list" role="menu" hidden>
+                    <a role="menuitem" href="{{ $config['urls']['home'] }}" data-leave>我的單據</a>
+                    <a role="menuitem" href="{{ $config['urls']['back'] }}" data-leave>單據設定列表</a>
+                    <a role="menuitem" href="{{ $config['urls']['sources'] }}" target="_blank" rel="noopener">來源庫 <span class="wfb-ext" aria-hidden="true">↗</span><span class="wfb-sr">（另開分頁）</span></a>
+                </div>
             </div>
+            <div class="wfb-doc">
+                <div class="wfb-site-name"><a href="{{ $config['urls']['back'] }}" data-leave>單據設定</a> /</div>
+                <div class="wfb-doc-row">
+                    {{-- 單據切換：直接跳到其他單據的設計器，不必先回列表 --}}
+                    <div class="wfb-menu" id="wfb-switch">
+                        <button type="button" class="wfb-doc-switch" id="wfb-switch-btn" title="切換到其他單據" aria-haspopup="true" aria-expanded="false" aria-controls="wfb-switch-list">
+                            <strong id="dbd-type-name">{{ $config['settings']['name'] }}</strong>
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div class="wfb-menu-list" id="wfb-switch-list" role="menu" hidden>
+                            @foreach($config['switcher'] as $item)
+                            <a role="menuitem" href="{{ $item['url'] }}" data-leave @class(['is-current' => (int) $item['id'] === (int) $type->id])>
+                                {{ $item['name'] }}@unless($item['enabled'])<span class="wfb-menu-note">停用</span>@endunless
+                            </a>
+                            @endforeach
+                        </div>
+                    </div>
+                    <span class="wfb-rev @if($config['revisionInfo']['published']) is-published @endif" id="wfb-rev">{{ $config['revisionInfo']['label'] }}</span>
+                </div>
+            </div>
+            <a class="wfb-btn wfb-btn-ghost wfb-sources-link" href="{{ $config['urls']['sources'] }}" target="_blank" rel="noopener" title="在新分頁打開來源庫；新增來源後回到這裡重新整理即可使用">來源庫 <span aria-hidden="true">↗</span></a>
         </div>
 
         <div class="wfb-top-center">
@@ -45,17 +70,24 @@
         </div>
 
         <div class="wfb-top-right">
-            <span class="wfb-save-state" id="wfb-save-state"></span>
-            <a class="wfb-btn" href="{{ $config['urls']['revisions'] }}">版本紀錄</a>
-            @if($config['canPublish'])
-            <button type="button" class="wfb-btn" id="dbd-publish" title="草稿通過審核後，需由另一位超級管理員發布">發布版本</button>
-            @endif
-            <button type="button" class="wfb-btn" id="wfb-fill-dummy" hidden title="只在畫面上填入範例文字，不會儲存，用來檢查長文字會不會撐破版面">填入範例資料</button>
-                        <button type="button" class="wfb-btn" id="dbd-open-form" title="另開分頁預覽這張表單，不會建立或儲存單據">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                <span>預覽填單畫面</span>
-            </button>
-            <button type="button" class="wfb-btn wfb-btn-primary" id="wfb-save" title="儲存版面與單據設定（Ctrl+S）">儲存</button>
+            <div class="wfb-group">
+                <a class="wfb-btn" href="{{ $config['urls']['revisions'] }}">版本紀錄</a>
+                @if($config['canPublish'])
+                <span class="wfb-publish-wrap" id="dbd-publish-wrap" @if(! $config['revisionInfo']['canPublish']) title="{{ $config['revisionInfo']['publishReason'] }}" @endif>
+                    <button type="button" class="wfb-btn" id="dbd-publish" @disabled(! $config['revisionInfo']['canPublish'])>發布版本</button>
+                </span>
+                @endif
+            </div>
+            <div class="wfb-group">
+                <button type="button" class="wfb-btn" id="wfb-fill-dummy" hidden title="只在畫面上填入範例文字，不會儲存，用來檢查長文字會不會撐破版面">填入範例資料</button>
+                <button type="button" class="wfb-icon-btn wfb-icon-btn-line" id="dbd-open-form" title="另開新分頁預覽填單畫面（不會建立或儲存單據）" aria-label="另開新分頁預覽填單畫面">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+                </button>
+            </div>
+            <div class="wfb-group wfb-group-save">
+                <span class="wfb-save-state" id="wfb-save-state" role="status" aria-live="polite"></span>
+                <button type="button" class="wfb-btn wfb-btn-primary" id="wfb-save" title="儲存版面與單據設定（Ctrl+S）" disabled>儲存</button>
+            </div>
         </div>
     </header>
 
