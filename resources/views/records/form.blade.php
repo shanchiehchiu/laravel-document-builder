@@ -75,7 +75,9 @@
             @csrf
             @unless($isCreate) @method('PUT') @endunless
             @include('document-builder::records._runtime_fields')
+            @unless($show)
             <button type="submit" class="btn btn-primary">{{ __('document-builder::ui.save') }}</button>
+            @endunless
             <a href="{{ route(document_builder_route_name('doc_records.index'), $docType->code) }}" class="btn btn-secondary">{{ __('document-builder::ui.back_list') }}</a>
         </form>
     </div>
@@ -87,6 +89,11 @@
 <script>
 $(function () {
     var $form = $('#form-create, #form-edit');
+    @if($show)
+    // 詳情頁唯讀：欄位與明細列按鈕全部停用（要在 select2 初始化之前，下拉才會顯示成停用）
+    $form.find('[name]').not('[name=_token], [name=_method]').prop('disabled', true);
+    $form.find('.doc-item-add, .doc-item-remove').prop('disabled', true).attr('hidden', true);
+    @endif
     var showUrl = '{{ route(document_builder_route_name('doc_records.show'), [$docType->code, '___ID___']) }}';
 
     // 明細表：新增列從 <template> 複製，列索引用不重複的遞增值（刪列後不回收，送出時後端重新編號）

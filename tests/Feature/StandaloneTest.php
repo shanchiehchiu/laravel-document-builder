@@ -99,5 +99,12 @@ class StandaloneTest extends TestCase
         // 列表顯示建立者名稱（名稱欄位可設定，不假設使用者表一定有 name）
         $this->actingAs($user)->getJson(route('doc_records.index', 'leave').'?draw=1&start=0&length=10', ['X-Requested-With' => 'XMLHttpRequest'])
             ->assertOk()->assertJsonPath('data.0.creator_name', '王小明');
+
+        // 詳情頁唯讀：不出現送出鈕，並由套件自己停用欄位（不依賴宿主版型）；修改頁照常可以送出
+        $save = '>'.__('document-builder::ui.save').'</button>';
+        $this->actingAs($user)->get(route('doc_records.show', ['leave', $id]))->assertOk()
+            ->assertDontSee($save, false)->assertSee("prop('disabled', true)", false);
+        $this->actingAs($user)->get(route('doc_records.edit', ['leave', $id]))->assertOk()
+            ->assertSee($save, false)->assertDontSee("find('[name]').not('[name=_token], [name=_method]').prop('disabled', true)", false);
     }
 }
