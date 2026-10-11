@@ -1,4 +1,4 @@
-/* 20261009 表單設計器畫布（iframe 內，和後台一起載入 codebase.min.css，所以格子外觀和填單畫面一樣） */
+/* 表單設計器畫布（iframe 內，和宿主的畫布樣式 assets.canvas_styles 一起載入，格子外觀和填單畫面一致） */
 
 body {
     background: #eef1f5;

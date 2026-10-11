@@ -90,7 +90,7 @@ $(function () {
     var showUrl = '{{ route(document_builder_route_name('doc_records.show'), [$docType->code, '___ID___']) }}';
 
     // 明細表：新增列從 <template> 複製，列索引用不重複的遞增值（刪列後不回收，送出時後端重新編號）
-    // 宿主版型若已有全域的 select2 初始化（例如 c11305-1 的 main.blade.php），已初始化的下拉會跳過，不重複處理
+    // 宿主版型若已有全域的 select2 初始化，已初始化的下拉會跳過，不重複處理
     function initSelects($scope) {
         // 固定選項：選項不多時不顯示搜尋框
         $scope.find('select.js-choice').each(function () {

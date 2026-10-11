@@ -94,6 +94,8 @@ composer require document-builder/document-builder
 `DOCUMENT_BUILDER_SETUP_TOKEN=自訂的一串密碼`，在精靈第一步輸入它，避免被別人搶先安裝成為超級管理員。
 安裝完成後，精靈只開放給超級管理員（一般使用者會看到 404）。
 
+> 注意：`APP_ENV=local` 時精靈不需要 token。正式環境務必設成 `production`，否則任何登入者都可能在安裝前搶先成為超級管理員。
+
 其他說明：
 
 - 前端資產由套件的路由直接提供，不需要發布到 `public/`。
@@ -195,3 +197,7 @@ PHP_BIN=/path/to/php8.4 bin/test-all-versions.sh 11   # 指定 PHP
 Laravel 13 需要 PHP 8.3 以上；目前的 PHP 不夠新時，腳本會標示「略過」該版本，換 PHP 再跑一次。
 
 測試用 orchestra/testbench 在乾淨的 Laravel 環境裡安裝套件，涵蓋自帶介面、權限、填單、UUID 使用者與來源庫。
+
+## 授權
+
+MIT，見 [LICENSE](LICENSE)。內附的第三方前端函式庫各自的授權檔在 `resources/dist/vendor/` 底下。

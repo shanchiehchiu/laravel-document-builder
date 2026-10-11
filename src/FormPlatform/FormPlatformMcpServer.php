@@ -43,7 +43,7 @@ class FormPlatformMcpServer
         app()->bind(FormPlatformMcpTools::class);
         app()->bind(FormPlatformMcpResources::class);
         $builder = Server::builder()
-            ->setServerInfo('c11305-1 Form Platform', '0.1.0', '受控的表單結構查詢、驗證與預覽工具')
+            ->setServerInfo('Document Builder Form Platform', '0.1.0', '受控的表單結構查詢、驗證與預覽工具')
             ->setInstructions('先讀取 form-platform://validation-rules/form-request-v1，從使用者原始提示詞整理逐項需求與明確假設，再呼叫 validate_form_requirements 檢查需求覆蓋和 Schema。若有阻擋問題，先向使用者釐清；驗證通過後才預覽或套用草稿。這項驗證能檢查引用、路徑與結構，不會代替 AI 判斷原文的語意。')
             ->setContainer(app())
             ->setSession($stdio
