@@ -11,9 +11,11 @@
     --db-dark-hover: #23272b;
 }
 .block { border: 0; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); overflow: hidden; }
+/* 標題在左、按鈕在右，排在同一列；按鈕多時換行 */
+.block-header { display: flex; flex-wrap: wrap; align-items: center; row-gap: 0.5rem; }
 .block-header,
 .block-header-default { background: var(--db-header); border-bottom: 0; padding: 0.875rem 1.75rem; }
-.block-title { font-size: 1rem; font-weight: 600; color: #2b2f33; }
+.block-title { flex: 1 1 auto; margin: 0; font-size: 1rem; font-weight: 600; color: #2b2f33; }
 .block-content { padding: 1.5rem 1.75rem; }
 .form-label, label.col-form-label { font-weight: 600; color: #34383c; }
 
