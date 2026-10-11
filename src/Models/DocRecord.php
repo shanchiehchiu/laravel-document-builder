@@ -56,8 +56,9 @@ class DocRecord extends Model
     }
 
     /** 中文不轉成 \uXXXX，列表的關鍵字搜尋才能直接用 LIKE 比對 */
-    protected function asJson($value)
+    protected function asJson($value, $flags = 0)
     {
-        return json_encode($value, JSON_UNESCAPED_UNICODE);
+        // Laravel 12 起多了 $flags 參數；加上預設值讓 Laravel 10、11 也相容
+        return json_encode($value, JSON_UNESCAPED_UNICODE | $flags);
     }
 }

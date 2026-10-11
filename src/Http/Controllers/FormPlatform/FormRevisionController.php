@@ -24,7 +24,7 @@ class FormRevisionController extends Controller
         return view('document-builder::revisions.index', [
             'type' => $type,
             'revisions' => $type->revisions()->with([
-                'creator:id,name', 'publisher:id,name', 'latestReview.reviewer:id,name',
+                'creator:'.DocumentBuilder::userColumns(), 'publisher:'.DocumentBuilder::userColumns(), 'latestReview.reviewer:'.DocumentBuilder::userColumns(),
             ])->limit(100)->get(),
             'workingRevisionId' => $type->working_revision_id,
             'publishedRevisionId' => $type->published_revision_id,
@@ -34,7 +34,7 @@ class FormRevisionController extends Controller
     public function show(DocType $type, DocTypeRevision $revision): View
     {
         abort_unless((int) $revision->doc_type_id === (int) $type->id, 404);
-        $revision->load(['latestReview.reviewer:id,name', 'reviews.reviewer:id,name']);
+        $revision->load(['latestReview.reviewer:'.DocumentBuilder::userColumns(), 'reviews.reviewer:'.DocumentBuilder::userColumns()]);
 
         return view('document-builder::revisions.show', [
             'type' => $type,

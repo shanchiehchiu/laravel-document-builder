@@ -48,7 +48,7 @@
             </ul>
             <div class="d-flex align-items-center gap-2">
                 @if($user)
-                    <span class="navbar-text small">{{ $user->name ?? $user->getAuthIdentifier() }}</span>
+                    <span class="navbar-text small">{{ \DocumentBuilder\DocumentBuilder::userName($user) }}</span>
                 @endif
                 @if($homeUrl)
                     <a class="btn btn-sm btn-outline-secondary" href="{{ url($homeUrl) }}">{{ __('document-builder::ui.back_to_app') }}</a>

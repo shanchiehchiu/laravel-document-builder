@@ -58,7 +58,7 @@ class FormRevisionService
     }
 
     /** 儲存一份新的草稿；舊修訂永遠保留原內容。 */
-    public function saveDraft(DocType $type, array $schema, int $adminUserId, ?string $summary = null): DocTypeRevision
+    public function saveDraft(DocType $type, array $schema, int|string $adminUserId, ?string $summary = null): DocTypeRevision
     {
         $validation = $this->schemaValidator->validate($schema, $type->code);
         if (! $validation['valid']) {
@@ -130,7 +130,7 @@ class FormRevisionService
             if ($latestReview === null || $latestReview->decision !== 'approved') {
                 throw ValidationException::withMessages(['review' => '發布前必須先完成草稿審核']);
             }
-            if ((int) $latestReview->reviewer_id === (int) $publisher->getKey()) {
+            if ((string) $latestReview->reviewer_id === (string) $publisher->getKey()) {
                 throw new AuthorizationException('審核者與發布者必須是不同的管理員');
             }
 
@@ -160,7 +160,7 @@ class FormRevisionService
                 $lockedType,
                 $publishedSchema,
                 'published',
-                (int) $publisher->getKey(),
+                $publisher->getKey(),
                 $summary,
                 $publisher->getKey(),
                 now(),
@@ -212,7 +212,7 @@ class FormRevisionService
                 $lockedType,
                 $schema,
                 'draft',
-                (int) $actor->getKey(),
+                $actor->getKey(),
                 '回復修訂 '.$source->revision,
                 null,
                 null,
@@ -300,9 +300,9 @@ class FormRevisionService
         DocType $type,
         array $schema,
         string $kind,
-        int $creatorId,
+        int|string $creatorId,
         ?string $summary = null,
-        ?int $publisherId = null,
+        int|string|null $publisherId = null,
         mixed $publishedAt = null,
         ?int $parentRevisionId = null,
     ): DocTypeRevision {

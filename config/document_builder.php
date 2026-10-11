@@ -28,6 +28,12 @@ return [
     'user_model' => 'App\Models\User',
     'users_table' => 'users',
 
+    // 使用者主鍵型別：int（自動遞增）、uuid 或 ulid；套件資料表裡指向使用者的欄位跟著這個型別建立，執行 migration 前就要設定好
+    'user_key_type' => 'int',
+
+    // 畫面上顯示使用者名稱用的欄位
+    'user_name_column' => 'name',
+
     /*
      * 宿主後台整合（側選單、一般使用者能不能檢視某種單據），實作 DocumentBuilder\Contracts\Integration。
      * 要接自家後台的選單與權限，就在專案裡實作這個介面，把類別名稱填在這裡。

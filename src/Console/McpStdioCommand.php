@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 /** 僅在本機開發環境啟動給 AI 工具（例如 Codex）使用的表單 MCP stdio 程序；以指定的超級管理員身分操作。 */
 class McpStdioCommand extends Command
 {
-    protected $signature = 'form-platform:mcp-stdio {--admin-id= : 用於本機 MCP 操作的超級管理員 ID}';
+    protected $signature = 'form-platform:mcp-stdio {--admin-id= : 用於本機 MCP 操作的超級管理員主鍵（整數、UUID 或 ULID）}';
 
     protected $description = '以本機 stdio 提供單據建置 MCP';
 
@@ -25,7 +25,7 @@ class McpStdioCommand extends Command
         }
 
         $model = DocumentBuilder::userModel();
-        $admin = $model::query()->find((int) $this->option('admin-id'));
+        $admin = $model::query()->find($this->option('admin-id'));
 
         // 是否啟用等條件由宿主定義在 document-builder.super-admin Gate 裡
         if (! $admin || ! DocumentBuilder::isSuperAdmin($admin)) {

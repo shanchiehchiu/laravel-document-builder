@@ -28,8 +28,9 @@ class DocRecordItem extends Model
     }
 
     /** 與表頭一致：中文不轉成 \uXXXX */
-    protected function asJson($value)
+    protected function asJson($value, $flags = 0)
     {
-        return json_encode($value, JSON_UNESCAPED_UNICODE);
+        // Laravel 12 起多了 $flags 參數；加上預設值讓 Laravel 10、11 也相容
+        return json_encode($value, JSON_UNESCAPED_UNICODE | $flags);
     }
 }

@@ -43,7 +43,7 @@ class InstallCommand extends Command
         }
 
         $this->newLine();
-        $this->line('最後一步：在 app/Providers/AuthServiceProvider.php 的 boot() 定義權限，例如：');
+        $this->line('最後一步：在 AuthServiceProvider（Laravel 11 以後是 AppServiceProvider）的 boot() 定義權限，例如：');
         $this->line("    Gate::define('document-builder.super-admin', fn (\$user) => \$user->is_admin);");
         $this->line('超級管理員才能發布、審核、還原版本與透過 MCP 修改草稿；沒有定義時沒有人能做這些事。');
         $this->line('選用：document-builder.design 決定誰能設計單據（預設等於超級管理員），');
@@ -61,6 +61,8 @@ class InstallCommand extends Command
         $guard = $this->ask('使用者從哪個 guard 登入？', 'web');
         $userModel = $this->ask('使用者 model？', 'App\\Models\\User');
         $usersTable = $this->ask('使用者資料表？', 'users');
+        $keyType = $this->choice('使用者主鍵型別？', ['int', 'uuid', 'ulid'], $this->detectUserKeyType((string) $userModel));
+        $nameColumn = $this->ask('使用者名稱欄位？', 'name');
         $layout = $this->ask('頁面要 extends 哪個版型？（需提供 content 區塊與 scripts 堆疊）', 'document-builder::layouts.app');
         $prefix = $this->ask('路由網址前綴？（例如 admin，留空表示沒有）', '');
         $name = $this->ask('路由名稱前綴？（例如 admin.，留空表示沒有）', '');
@@ -78,6 +80,8 @@ class InstallCommand extends Command
             "    'guard' => 'web',\n" => "    'guard' => ".var_export((string) $guard, true).",\n",
             "    'user_model' => 'App\\Models\\User',\n" => "    'user_model' => ".ltrim((string) $userModel, '\\')."::class,\n",
             "    'users_table' => 'users',\n" => "    'users_table' => ".var_export((string) $usersTable, true).",\n",
+            "    'user_key_type' => 'int',\n" => "    'user_key_type' => ".var_export((string) $keyType, true).",\n",
+            "    'user_name_column' => 'name',\n" => "    'user_name_column' => ".var_export((string) $nameColumn, true).",\n",
             "    'integration' => DocumentBuilder\\Integrations\\NullIntegration::class,\n" => "    'integration' => {$integrationClass}::class,\n",
             "    'layout' => 'document-builder::layouts.app',\n" => "    'layout' => ".var_export((string) $layout, true).",\n",
         ];
@@ -90,6 +94,25 @@ class InstallCommand extends Command
         }
 
         return $template;
+    }
+
+    /** 從使用者 model 推測主鍵型別：用了 HasUuids／HasUlids 或主鍵是字串時是 uuid／ulid，否則是 int */
+    private function detectUserKeyType(string $userModel): string
+    {
+        $class = ltrim($userModel, '\\');
+        if (! class_exists($class)) {
+            return 'int';
+        }
+
+        $traits = class_uses_recursive($class);
+        if (in_array('Illuminate\\Database\\Eloquent\\Concerns\\HasUlids', $traits, true)) {
+            return 'ulid';
+        }
+        if (in_array('Illuminate\\Database\\Eloquent\\Concerns\\HasUuids', $traits, true)) {
+            return 'uuid';
+        }
+
+        return (new $class)->getKeyType() === 'string' ? 'uuid' : 'int';
     }
 
     private function exportList(array $items): string

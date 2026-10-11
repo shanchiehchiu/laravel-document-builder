@@ -43,7 +43,7 @@ class DocRecordController extends Controller
         }
 
         $query = DocRecord::query()
-            ->with(['creator:id,name', 'status'])
+            ->with(['creator:'.DocumentBuilder::userColumns(), 'status'])
             ->where('doc_type_id', $docType->id)
             ->when($request->filled('status_id'), fn (Builder $q) => $q->where('status_id', (int) $request->input('status_id')))
             ->when($request->filled('date_from'), fn (Builder $q) => $q->where('doc_date', '>=', $request->input('date_from')))
@@ -57,7 +57,7 @@ class DocRecordController extends Controller
 
         $table = DataTables::eloquent($query)
             ->editColumn('doc_date', fn (DocRecord $r): string => $r->doc_date->format('Y-m-d'))
-            ->addColumn('creator_name', fn (DocRecord $r): string => (string) $r->creator?->name)
+            ->addColumn('creator_name', fn (DocRecord $r): string => (string) DocumentBuilder::userName($r->creator))
             ->addColumn('status_name', fn (DocRecord $r): string => (string) $r->status?->name)
             ->addColumn('status_color', fn (DocRecord $r): string => (string) ($r->status?->color ?? 'secondary'))
             ->addColumn('status_locks_editing', fn (DocRecord $r): bool => (bool) $r->status?->locks_editing)
@@ -186,8 +186,8 @@ class DocRecordController extends Controller
         abort_unless($this->revisions->isCurrentRecordRevision($type, $record), 404);
     }
 
-    private function userId(Request $request): int
+    private function userId(Request $request): int|string
     {
-        return (int) DocumentBuilder::user()->getKey();
+        return DocumentBuilder::user()->getKey();
     }
 }

@@ -8,6 +8,8 @@ use DocumentBuilder\Contracts\Integration;
 use DocumentBuilder\Models\DocType;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Facades\Gate;
 
 /** 宿主整合的共用入口：使用者從哪個 guard 取得、用哪個 model、誰算超級管理員 */
@@ -31,6 +33,68 @@ final class DocumentBuilder
     public static function userModel(): string
     {
         return (string) config('document_builder.user_model', 'App\Models\User');
+    }
+
+    /** 使用者主鍵的型別：int（自動遞增）、uuid 或 ulid，決定套件資料表裡指向使用者的欄位型別 */
+    public static function userKeyType(): string
+    {
+        $type = (string) config('document_builder.user_key_type', 'int');
+
+        return in_array($type, ['int', 'uuid', 'ulid'], true) ? $type : 'int';
+    }
+
+    /** 使用者資料表的主鍵欄位名稱（通常是 id） */
+    public static function userKeyName(): string
+    {
+        $model = self::userModel();
+
+        return (new $model)->getKeyName();
+    }
+
+    /** 畫面上顯示使用者名稱用的欄位（預設 name） */
+    public static function userNameColumn(): string
+    {
+        return (string) config('document_builder.user_name_column', 'name');
+    }
+
+    /** 預先載入使用者關聯時只取主鍵與名稱欄位，例如 'creator:'.DocumentBuilder::userColumns() */
+    public static function userColumns(): string
+    {
+        return self::userKeyName().','.self::userNameColumn();
+    }
+
+    /** 使用者的顯示名稱；名稱欄位空白時退回主鍵，使用者已刪除時回傳 null */
+    public static function userName(Model|Authenticatable|null $user): ?string
+    {
+        if ($user === null) {
+            return null;
+        }
+        $name = data_get($user, self::userNameColumn());
+        $key = $user instanceof Model ? $user->getKey() : $user->getAuthIdentifier();
+
+        return $name !== null && $name !== '' ? (string) $name : (string) $key;
+    }
+
+    /**
+     * migration 用：建立指向使用者的欄位，型別跟著 user_key_type。
+     * 要外鍵約束時另外呼叫 userForeign()。
+     */
+    public static function userColumn(Blueprint $table, string $column): ColumnDefinition
+    {
+        return match (self::userKeyType()) {
+            'uuid' => $table->uuid($column),
+            'ulid' => $table->ulid($column),
+            default => $table->unsignedBigInteger($column),
+        };
+    }
+
+    /** migration 用：指向使用者資料表的外鍵，使用者刪除時清成 null */
+    public static function userForeign(Blueprint $table, string $column): void
+    {
+        $table->foreign($column)
+            ->references(self::userKeyName())
+            ->on((string) config('document_builder.users_table', 'users'))
+            ->nullOnDelete();
     }
 
     /** 目前登入的使用者；只接受設定的 user model，避免別的 guard 的使用者混進來 */

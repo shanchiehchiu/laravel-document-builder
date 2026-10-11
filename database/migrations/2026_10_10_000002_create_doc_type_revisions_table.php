@@ -1,5 +1,6 @@
 <?php
 
+use DocumentBuilder\DocumentBuilder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,8 +18,10 @@ return new class extends Migration
             $table->json('schema_json');
             $table->foreignId('parent_revision_id')->nullable()->constrained('doc_type_revisions')->nullOnDelete();
             $table->string('change_summary', 255)->nullable();
-            $table->foreignId('created_by')->nullable()->constrained(config('document_builder.users_table', 'users'))->nullOnDelete();
-            $table->foreignId('published_by')->nullable()->constrained(config('document_builder.users_table', 'users'))->nullOnDelete();
+            DocumentBuilder::userColumn($table, 'created_by')->nullable();
+            DocumentBuilder::userColumn($table, 'published_by')->nullable();
+            DocumentBuilder::userForeign($table, 'created_by');
+            DocumentBuilder::userForeign($table, 'published_by');
             $table->timestamp('published_at')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->unique(['doc_type_id', 'revision']);

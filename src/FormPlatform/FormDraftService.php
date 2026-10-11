@@ -61,7 +61,7 @@ class FormDraftService
                 'status' => false,
             ]);
             $schema = $this->adapter->export($type->fresh(['fields', 'statuses']));
-            $this->revisions->saveDraft($type, $schema, (int) $operation->admin_user_id, '透過 MCP 建立草稿');
+            $this->revisions->saveDraft($type, $schema, $operation->admin_user_id, '透過 MCP 建立草稿');
             $operation->doc_type_id = $type->id;
 
             return [
@@ -172,7 +172,7 @@ class FormDraftService
                 $revision = $this->revisions->saveDraft(
                     $type,
                     $savedSchema,
-                    (int) $actor->getKey(),
+                    $actor->getKey(),
                     '透過 MCP 原子套用表單計畫'
                 );
                 $operation->doc_type_id = $type->id;
@@ -252,7 +252,7 @@ class FormDraftService
             }
 
             $operation->doc_type_id = $type->id;
-            $this->revisions->saveDraft($type, $schema, (int) $actor->getKey(), '透過 MCP 修改草稿元件');
+            $this->revisions->saveDraft($type, $schema, $actor->getKey(), '透過 MCP 修改草稿元件');
 
             return [
                 'form_code' => $type->code,
@@ -288,7 +288,7 @@ class FormDraftService
             $type->forceFill(['event_schema' => $events])->save();
             $type = $type->fresh(['fields', 'statuses']);
             $schema = $this->adapter->export($type);
-            $this->revisions->saveDraft($type, $schema, (int) $actor->getKey(), '透過 MCP 修改欄位事件');
+            $this->revisions->saveDraft($type, $schema, $actor->getKey(), '透過 MCP 修改欄位事件');
             $operation->doc_type_id = $type->id;
 
             return [
@@ -310,7 +310,7 @@ class FormDraftService
         $type = $query->first();
 
         if (! $type || ! DocMcpOperation::query()
-            ->where('admin_user_id', $actor->id)
+            ->where('admin_user_id', $actor->getKey())
             ->where('doc_type_id', $type->id)
             ->whereIn('operation', ['create_form', 'apply_form_plan'])
             ->exists()) {
@@ -345,7 +345,7 @@ class FormDraftService
 
         return DB::transaction(function () use ($actor, $operationName, $idempotencyKey, $requestHash, $callback): array {
             DocMcpOperation::query()->getConnection()->table('doc_mcp_operations')->insertOrIgnore([
-                'admin_user_id' => $actor->id,
+                'admin_user_id' => $actor->getKey(),
                 'operation' => $operationName,
                 'idempotency_key' => $idempotencyKey,
                 'request_hash' => $requestHash,
@@ -354,7 +354,7 @@ class FormDraftService
             ]);
 
             $entry = DocMcpOperation::query()
-                ->where('admin_user_id', $actor->id)
+                ->where('admin_user_id', $actor->getKey())
                 ->where('idempotency_key', $idempotencyKey)
                 ->lockForUpdate()
                 ->firstOrFail();

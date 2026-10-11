@@ -18,7 +18,6 @@ class DocMcpOperation extends Model
     ];
 
     protected $casts = [
-        'admin_user_id' => 'integer',
         'doc_type_id' => 'integer',
         'response_data' => 'array',
     ];

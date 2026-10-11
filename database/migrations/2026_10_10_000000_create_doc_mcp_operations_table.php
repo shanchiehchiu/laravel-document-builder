@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use DocumentBuilder\DocumentBuilder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('doc_mcp_operations', function (Blueprint $table): void {
             $table->id();
-            $table->unsignedBigInteger('admin_user_id')->comment('執行工具的後台管理員');
+            DocumentBuilder::userColumn($table, 'admin_user_id')->comment('執行工具的使用者');
             $table->string('operation', 32)->comment('MCP 操作名稱');
             $table->string('idempotency_key', 128)->comment('呼叫端冪等鍵');
             $table->char('request_hash', 64)->comment('正規化請求的 SHA-256');

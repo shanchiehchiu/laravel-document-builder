@@ -85,7 +85,7 @@ class DocDesignerController extends Controller
             $events = null;
         }
 
-        $actorId = (int) DocumentBuilder::user()->getKey();
+        $actorId = DocumentBuilder::user()->getKey();
         if ($type->published_revision_id !== null) {
             if (! $usesSchema) {
                 throw ValidationException::withMessages(['schema' => '發布過的表單必須使用 Schema v1 儲存草稿']);

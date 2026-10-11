@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use DocumentBuilder\DocumentBuilder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -46,8 +47,9 @@ return new class extends Migration
             $table->foreignId('doc_type_id')->constrained('doc_types');
             $table->date('doc_date')->comment('單據日期');
             $table->json('data')->nullable()->comment('表頭自訂欄位');
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
+            // 使用者欄位的型別跟著 user_key_type（int／uuid／ulid）
+            DocumentBuilder::userColumn($table, 'created_by')->nullable();
+            DocumentBuilder::userColumn($table, 'updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->index(['doc_type_id', 'doc_date']);

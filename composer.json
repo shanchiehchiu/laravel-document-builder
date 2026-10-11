@@ -5,11 +5,15 @@
     "license": "proprietary",
     "require": {
         "php": "^8.1",
-        "illuminate/support": "^10.0",
+        "illuminate/support": "^10.0|^11.0|^12.0",
         "mcp/sdk": "^0.8.1",
         "nyholm/psr7": "^1.8",
         "symfony/psr-http-message-bridge": "^7.4",
-        "yajra/laravel-datatables-oracle": "^10.0"
+        "yajra/laravel-datatables-oracle": "^10.0|^11.0|^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "phpunit/phpunit": "^10.5|^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -19,12 +23,23 @@
             "src/helpers.php"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "DocumentBuilder\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
                 "DocumentBuilder\\DocumentBuilderServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
     },
     "minimum-stability": "stable"
 }

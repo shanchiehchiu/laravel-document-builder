@@ -24,7 +24,7 @@ class DocRecordService
     ) {}
 
     /** @param  array{doc_date: string, data?: array, items?: array}  $input  已通過 RecordValidator 驗證的資料 */
-    public function create(DocType $type, array $input, int $userId): DocRecord
+    public function create(DocType $type, array $input, int|string $userId): DocRecord
     {
         return $type->getConnection()->transaction(function () use ($type, $input, $userId): DocRecord {
             $status = $type->defaultStatus()->firstOrFail();
@@ -43,7 +43,7 @@ class DocRecordService
         });
     }
 
-    public function update(DocType $type, DocRecord $record, array $input, int $userId): DocRecord
+    public function update(DocType $type, DocRecord $record, array $input, int|string $userId): DocRecord
     {
         return $type->getConnection()->transaction(function () use ($type, $record, $input, $userId): DocRecord {
             $record->update([
@@ -86,7 +86,7 @@ class DocRecordService
         $record->delete();
     }
 
-    public function changeStatus(DocType $type, DocRecord $record, int $statusId, int $userId): DocRecord
+    public function changeStatus(DocType $type, DocRecord $record, int $statusId, int|string $userId): DocRecord
     {
         return $type->getConnection()->transaction(function () use ($type, $record, $statusId, $userId): DocRecord {
             $status = $type->statuses()->findOrFail($statusId);

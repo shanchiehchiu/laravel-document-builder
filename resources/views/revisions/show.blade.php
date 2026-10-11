@@ -51,7 +51,7 @@
             <div class="list-group-item">
                 <div class="d-flex justify-content-between gap-3">
                     <strong>{{ $review->decision === 'approved' ? '審核通過' : '要求修改' }}</strong>
-                    <span class="text-muted">{{ $review->reviewer?->name ?: '已刪除的管理員' }}／{{ $review->reviewed_at?->format('Y-m-d H:i:s') }}</span>
+                    <span class="text-muted">{{ \DocumentBuilder\DocumentBuilder::userName($review->reviewer) ?? '已刪除的使用者' }}／{{ $review->reviewed_at?->format('Y-m-d H:i:s') }}</span>
                 </div>
                 @if($review->note)<p class="mb-1 mt-2">{{ $review->note }}</p>@endif
                 @if(!empty($review->validation_json['warnings']))

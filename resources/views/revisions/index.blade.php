@@ -35,7 +35,7 @@
                             @endif
                         </td>
                         <td>{{ $revision->change_summary ?: '—' }}</td>
-                        <td>{{ $revision->creator?->name ?: '已刪除的管理員' }}</td>
+                        <td>{{ \DocumentBuilder\DocumentBuilder::userName($revision->creator) ?? '已刪除的使用者' }}</td>
                         <td class="text-nowrap">{{ $revision->created_at?->format('Y-m-d H:i') }}</td>
                         <td>
                             @if($revision->latestReview?->decision === 'approved')
@@ -46,10 +46,10 @@
                             <span class="badge bg-secondary">待審核</span>
                             @endif
                             @if($revision->latestReview)
-                            <div class="small text-muted">{{ $revision->latestReview->reviewer?->name ?: '已刪除的管理員' }}／{{ $revision->latestReview->reviewed_at?->format('Y-m-d H:i') }}</div>
+                            <div class="small text-muted">{{ \DocumentBuilder\DocumentBuilder::userName($revision->latestReview->reviewer) ?? '已刪除的使用者' }}／{{ $revision->latestReview->reviewed_at?->format('Y-m-d H:i') }}</div>
                             @endif
                         </td>
-                        <td>{{ $revision->publisher?->name }}{{ $revision->published_at ? '／'.$revision->published_at->format('Y-m-d H:i') : '' }}</td>
+                        <td>{{ \DocumentBuilder\DocumentBuilder::userName($revision->publisher) }}{{ $revision->published_at ? '／'.$revision->published_at->format('Y-m-d H:i') : '' }}</td>
                         <td><a class="btn btn-sm btn-outline-primary" href="{{ route(document_builder_route_name('document_builder.revisions.show'), [$type, $revision]) }}">查看 Schema</a></td>
                     </tr>
                     @endforeach
