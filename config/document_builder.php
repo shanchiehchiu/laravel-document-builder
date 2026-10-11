@@ -18,21 +18,31 @@ return [
     ],
 
     /*
-     * 使用者：從哪個 guard 取得登入者、用哪個 model、資料表叫什麼（版本與審核紀錄的外鍵指向這張表）。
-     * 權限由宿主定義 Gate（定義在 AuthServiceProvider；沒定義就用預設）：
- *   document-builder.super-admin：可以發布、審核、還原版本、透過 MCP 修改草稿（預設沒有人是）
- *   document-builder.design：可以進入單據設定、設計器、版本紀錄與來源庫（預設等於 super-admin）
- *   document-builder.view-type：選用，參數是 (使用者, DocType)，決定誰能填寫某種單據（預設登入者都可以）
+     * 使用者。全部留 null 就會自動偵測，一般不用設定：
+     *   guard：Laravel 的預設 guard
+     *   user_model／users_table：guard 對應的 user provider 的 model 與它的資料表
+     *   user_key_type：int、uuid 或 ulid，從 model 偵測（HasUuids／HasUlids）；套件資料表指向使用者的欄位依它建立
+     *   user_name_column：顯示名稱的欄位，使用者表有 name 用 name，否則用 email
+     *
+     * 權限（Gate，可在宿主的 AuthServiceProvider／AppServiceProvider 定義；沒定義就用預設）：
+     *   document-builder.super-admin：發布、審核、還原版本、透過 MCP 修改草稿。預設看「初始化」頁設定的超級管理員名單
+     *   document-builder.design：單據設定、設計器、版本紀錄與來源庫。預設等於 super-admin
+     *   document-builder.view-type：選用，參數是 (使用者, DocType)，決定誰能填寫某種單據。預設登入者都可以
      */
-    'guard' => 'web',
-    'user_model' => 'App\Models\User',
-    'users_table' => 'users',
+    'guard' => null,
+    'user_model' => null,
+    'users_table' => null,
+    'user_key_type' => null,
+    'user_name_column' => null,
 
-    // 使用者主鍵型別：int（自動遞增）、uuid 或 ulid；套件資料表裡指向使用者的欄位跟著這個型別建立，執行 migration 前就要設定好
-    'user_key_type' => 'int',
-
-    // 畫面上顯示使用者名稱用的欄位
-    'user_name_column' => 'name',
+    /*
+     * 初始化頁（document_builder/setup）：還沒有任何超級管理員時，登入者可以在這裡把自己設為第一位超級管理員。
+     * open_environments 裡的環境（預設本機開發 APP_ENV=local）直接可以設定；其他環境要輸入 token，避免被陌生人搶先。
+     */
+    'setup' => [
+        'token' => env('DOCUMENT_BUILDER_SETUP_TOKEN'),
+        'open_environments' => ['local'],
+    ],
 
     /*
      * 宿主後台整合（側選單、一般使用者能不能檢視某種單據），實作 DocumentBuilder\Contracts\Integration。

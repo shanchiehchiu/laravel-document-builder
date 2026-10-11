@@ -64,34 +64,48 @@
 
 ## 安裝
 
+把套件加進專案後，其餘都在網頁上完成，不需要執行任何指令、不需要改程式：
+
 ```bash
 composer require document-builder/document-builder
-php artisan document-builder:install
 ```
 
-**先執行安裝精靈，再執行 `php artisan migrate`。** 安裝精靈會依使用者 model 偵測主鍵型別（int／uuid／ulid），
-套件資料表裡指向使用者的欄位跟著這個型別建立；如果資料表已經用別的型別建好，安裝精靈會警告。
+登入專案後打開 `/document_builder`，會自動進入**安裝引導精靈**：
 
-安裝精靈會詢問 guard、使用者 model 與資料表、主鍵型別、名稱欄位、頁面版型、路由前綴與中介層、整合類別，
-寫出 `config/document_builder.php`，發布前端資產到 `public/vendor/document-builder`，並執行 migration。
+1. **環境檢查**：PHP 版本與擴充、資料庫連線、storage 與 config 目錄能不能寫入。
+2. **帳號與版型**：自動偵測 guard、使用者 model、資料表、主鍵型別（int／UUID／ULID）與名稱欄位；選擇套件內建版型或嵌進專案的後台版型。
+3. **路由與整合**：路由前綴（即時預覽網址）、名稱前綴、中介層；側選單整合會列出專案裡實作 `Integration` 的類別。
+4. **執行安裝**：只執行單據建置自己的 migration、把你設為第一位超級管理員、寫入 `config/document_builder.php`，每一步顯示進度與執行記錄。
+5. **完成**：一鍵匯入範本（樣品申請單）直接進設計器；管理超級管理員名單。
 
-接著定義權限（Laravel 10 寫在 `AuthServiceProvider`，Laravel 11 以後寫在 `AppServiceProvider` 的 `boot()`）：
+| 環境檢查 | 帳號與版型 |
+|---|---|
+| ![環境檢查](docs/screenshots/setup-1-check.png) | ![帳號與版型](docs/screenshots/setup-2-auth.png) |
+| **執行安裝** | **完成** |
+| ![執行安裝](docs/screenshots/setup-4-run.png) | ![完成](docs/screenshots/setup-5-done.png) |
 
-```php
-Gate::define('document-builder.super-admin', fn ($user) => $user->is_admin);
-```
+**安全**：本機開發環境（`APP_ENV=local`）可以直接安裝；其他環境要先在 `.env` 加上
+`DOCUMENT_BUILDER_SETUP_TOKEN=自訂的一串密碼`，在精靈第一步輸入它，避免被別人搶先安裝成為超級管理員。
+安裝完成後，精靈只開放給超級管理員（一般使用者會看到 404）。
 
-完成後打開 `/document_builder`。
+其他說明：
+
+- 前端資產由套件的路由直接提供，不需要發布到 `public/`。
+- config 目錄無法寫入時，精靈會顯示設定檔內容，請開發人員自行存檔；資料表與超級管理員仍會完成。
+- 設定檔不是必要的：沒有設定檔時，使用者相關設定一律自動偵測。
 
 ## 權限
 
 | Gate | 用途 | 沒定義時 |
 |---|---|---|
-| `document-builder.super-admin` | 發布、審核、還原版本，透過 MCP 修改草稿 | 沒有人 |
+| `document-builder.super-admin` | 發布、審核、還原版本，透過 MCP 修改草稿 | 安裝精靈設定的超級管理員名單 |
 | `document-builder.design` | 單據設定、設計器、版本紀錄、來源庫 | 等於 super-admin |
 | `document-builder.view-type` | 參數是 `($user, DocType $type)`，誰能填寫、檢視某種單據 | 登入者都可以 |
 
-要接自家後台的選單與權限，可以改實作 `DocumentBuilder\Contracts\Integration`，填在設定的 `integration`。
+超級管理員平常在安裝精靈的「完成」頁管理（加入、移除，至少留一位）。想改用專案自己的規則時，在 `AuthServiceProvider`
+（Laravel 11 以後是 `AppServiceProvider`）定義 `document-builder.super-admin` Gate，就以程式為準。
+
+要接自家後台的選單與權限，可以改實作 `DocumentBuilder\Contracts\Integration`，在精靈第 3 步選擇它。
 
 ## 來源庫
 
@@ -111,8 +125,9 @@ Gate::define('document-builder.super-admin', fn ($user) => $user->is_admin);
 | 鍵 | 說明 |
 |---|---|
 | `route.prefix`／`route.name`／`route.middleware` | 套件路由的網址前綴、名稱前綴與中介層；中介層要包含登入檢查 |
-| `guard`／`user_model`／`users_table` | 登入者從哪個 guard 取得、用哪個 model、使用者資料表 |
-| `user_key_type`／`user_name_column` | 使用者主鍵型別（int／uuid／ulid，執行 migration 前要設好）與顯示名稱的欄位 |
+| `guard`／`user_model`／`users_table` | 登入者從哪個 guard 取得、用哪個 model、使用者資料表；null 表示自動偵測 |
+| `user_key_type`／`user_name_column` | 使用者主鍵型別（int／uuid／ulid）與顯示名稱的欄位；null 表示自動偵測 |
+| `setup.token`／`setup.open_environments` | 安裝精靈的 token（讀 `.env` 的 `DOCUMENT_BUILDER_SETUP_TOKEN`）與不需要 token 的環境（預設 `local`） |
 | `layout` | 頁面版型；預設是套件自帶的完整介面，要嵌進自家後台時改成自己的版型 |
 | `ui.brand`／`ui.home_url`／`ui.logout_route` | 自帶介面左上角名稱、「回到系統」連結、登出路由 |
 | `integration` | 宿主後台整合；預設 `NullIntegration`（不處理選單，檢視權限看 `view-type` Gate） |
@@ -120,7 +135,7 @@ Gate::define('document-builder.super-admin', fn ($user) => $user->is_admin);
 | `masters` | 程式定義的主檔來源（畫面上不能改） |
 | `sources.drivers`／`sources.models`／`sources.hidden_columns` | 來源庫的驅動、資料模型可選的 model（null 表示自動找）、不開放的欄位 |
 
-沒有寫在宿主設定檔裡的頂層鍵沿用套件預設值。`config/form_platform.php`（元件與欄位型別規格）一般不需要發布。
+這些設定都可以在安裝精靈裡調整。沒有寫在宿主設定檔裡的頂層鍵沿用套件預設值。`config/form_platform.php`（元件與欄位型別規格）一般不需要發布。
 
 ## 嵌進自家後台
 
@@ -131,6 +146,7 @@ Bootstrap 5、jQuery、jQuery Form、select2、SweetAlert2、DataTables，以及
 
 ## 主要路由（名稱前綴依 `route.name`）
 
+- `document_builder.setup`：安裝引導精靈（安裝後只開放給超級管理員）
 - `document_builder.home`：首頁，列出目前使用者能填寫的單據
 - `document_builder.types.index`：單據設定
 - `document_builder.designer.edit`：表單設計器
@@ -147,12 +163,15 @@ Bootstrap 5、jQuery、jQuery Form、select2、SweetAlert2、DataTables，以及
 
 ```bash
 composer update document-builder/document-builder
-php artisan vendor:publish --tag=document-builder-assets --force   # 更新前端資產
-php artisan migrate
 ```
 
-其他可發布的內容：`--tag=document-builder-config`（設定檔）、`--tag=document-builder-views`（視圖，發布到
-`resources/views/vendor/document-builder` 後可覆寫）。按鈕文字可在 `lang/vendor/document-builder/{locale}/ui.php` 覆寫。
+前端資產跟著套件更新，不需要重新發布。新版本有新的資料表時，打開單據建置的頁面會自動導向安裝精靈，
+由超級管理員在「執行安裝」套用；這段期間一般使用者會看到「請超級管理員完成更新」。
+部署流程原本就會執行 `php artisan migrate` 的專案，也會一併建立套件的資料表。
+
+選用的發布內容：`vendor:publish --tag=document-builder-views`（視圖，發布到 `resources/views/vendor/document-builder`
+後可覆寫）、`--tag=document-builder-assets`（想交給網頁伺服器提供靜態檔時）。按鈕文字可在
+`lang/vendor/document-builder/{locale}/ui.php` 覆寫。
 
 宿主的驗證訊息與登入畫面要中文時，可安裝 [Laravel-Lang](https://laravel-lang.com)：
 `composer require laravel-lang/common --dev`、`php artisan lang:add zh_TW`，再把 `app.locale` 設成 `zh_TW`。

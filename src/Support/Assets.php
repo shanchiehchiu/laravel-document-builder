@@ -7,13 +7,23 @@ namespace DocumentBuilder\Support;
 /** 前端資產網址：套件自己的資產（resources/dist）與宿主在設定裡指定的外部資產 */
 final class Assets
 {
-    /** 套件資產的網址，附上檔案修改時間當版本，更新後瀏覽器不會拿到舊的快取 */
+    /**
+     * 套件資產的網址，附上檔案修改時間當版本，更新後瀏覽器不會拿到舊的快取。
+     * 宿主有把資產發布（或連結）到 public 時用靜態檔；沒有時由套件路由直接提供，不必發布。
+     */
     public static function url(string $path): string
     {
-        $relative = trim((string) config('document_builder.assets.url'), '/').'/'.ltrim($path, '/');
-        $full = public_path($relative);
+        $path = ltrim($path, '/');
+        $relative = trim((string) config('document_builder.assets.url'), '/').'/'.$path;
+        $published = public_path($relative);
+        if (is_file($published)) {
+            return asset($relative).'?v='.filemtime($published);
+        }
 
-        return asset($relative).(is_file($full) ? '?v='.filemtime($full) : '');
+        $source = __DIR__.'/../../resources/dist/'.$path;
+
+        return route(document_builder_route_name('document_builder.asset'), ['path' => $path])
+            .(is_file($source) ? '?v='.filemtime($source) : '');
     }
 
     /** 設定裡的資產：完整網址原樣使用，相對路徑視為 public 底下的檔案；沒設定時回傳 null */

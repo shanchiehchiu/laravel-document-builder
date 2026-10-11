@@ -28,7 +28,8 @@ abstract class TestCase extends Orchestra
     /** 使用者 model；UUID 測試改成 UuidUser */
     protected string $userModel = User::class;
 
-    protected string $userKeyType = 'int';
+    /** 模擬宿主自己在程式裡定義超級管理員 Gate；false 時用套件的初始化頁名單 */
+    protected bool $hostDefinesSuperAdmin = true;
 
     protected function getPackageProviders($app): array
     {
@@ -40,9 +41,8 @@ abstract class TestCase extends Orchestra
         $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('a', 32)));
         $app['config']->set('app.locale', 'zh-Hant');
         $app['config']->set('database.default', 'testing');
+        // 使用者相關設定一律不指定，驗證套件能從 auth 設定與 model 自動偵測
         $app['config']->set('auth.providers.users.model', $this->userModel);
-        $app['config']->set('document_builder.user_model', $this->userModel);
-        $app['config']->set('document_builder.user_key_type', $this->userKeyType);
     }
 
     protected function defineDatabaseMigrations(): void
@@ -61,7 +61,9 @@ abstract class TestCase extends Orchestra
     {
         parent::setUp();
 
-        Gate::define('document-builder.super-admin', fn ($user): bool => (bool) $user->is_admin);
+        if ($this->hostDefinesSuperAdmin) {
+            Gate::define('document-builder.super-admin', fn ($user): bool => (bool) $user->is_admin);
+        }
     }
 
     protected function makeUser(array $attributes = []): Model

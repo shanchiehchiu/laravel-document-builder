@@ -21,6 +21,7 @@ return [
     'my_documents' => 'My documents',
     'type_settings' => 'Document types',
     'sources' => 'Data sources',
+    'setup' => 'Setup',
     'new_type' => 'New document type',
     'no_types' => 'There are no documents you can fill in yet.',
     'record_count' => ':count records',

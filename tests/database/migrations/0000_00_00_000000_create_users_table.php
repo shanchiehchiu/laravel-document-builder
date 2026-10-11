@@ -10,7 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table): void {
-            match (config('document_builder.user_key_type')) {
+            match (\DocumentBuilder\DocumentBuilder::userKeyType()) {
                 'uuid' => $table->uuid('id')->primary(),
                 'ulid' => $table->ulid('id')->primary(),
                 default => $table->id(),

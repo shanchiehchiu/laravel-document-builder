@@ -16,8 +16,8 @@ class StandaloneTest extends TestCase
     {
         $html = $this->actingAs($this->makeUser())->get(route('document_builder.home'))->assertOk()->getContent();
 
-        $this->assertStringContainsString('vendor/document-builder/vendor/jquery-3.7.1/jquery.min.js', $html);
-        $this->assertStringContainsString('vendor/document-builder/css/app.css', $html);
+        $this->assertStringContainsString('/document_builder/assets/vendor/jquery-3.7.1/jquery.min.js', $html);
+        $this->assertStringContainsString('/document_builder/assets/css/app.css', $html);
         $this->assertStringNotContainsString('cdn.', $html);
         $this->assertStringContainsString('我的單據', $html);
     }
@@ -73,21 +73,6 @@ class StandaloneTest extends TestCase
         $this->actingAs($this->makeUser(['email' => 'designer@example.com']))
             ->get(route('document_builder.types.index'))->assertOk();
         $this->actingAs($this->makeUser())->get(route('document_builder.types.index'))->assertForbidden();
-    }
-
-    public function test_安裝精靈發現資料表的使用者欄位型別和設定不一致時會警告(): void
-    {
-        // 資料表用整數使用者欄位建好之後，才把設定改成 uuid（例如先跑了 migrate 才執行安裝精靈）
-        config()->set('document_builder.user_key_type', 'uuid');
-        $path = sys_get_temp_dir().'/document_builder_install_'.uniqid().'.php';
-        file_put_contents($path, '<?php return [];');
-
-        $this->artisan('document-builder:install', ['--path' => $path, '--no-assets' => true, '--no-migrate' => true])
-            ->expectsConfirmation("設定檔 {$path} 已存在，要覆寫嗎？", 'no')
-            ->expectsOutputToContain('不一致')
-            ->assertSuccessful();
-
-        @unlink($path);
     }
 
     public function test_一般使用者可以填單_驗證錯誤回傳_422(): void

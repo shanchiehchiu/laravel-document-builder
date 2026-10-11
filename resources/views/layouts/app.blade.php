@@ -49,6 +49,12 @@
                            href="{{ route(document_builder_route_name('document_builder.sources.index')) }}">{{ __('document-builder::ui.sources') }}</a>
                     </li>
                 @endif
+                @if(\DocumentBuilder\DocumentBuilder::isSuperAdmin($user))
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs(document_builder_route_name('document_builder.setup')) ? 'active' : '' }}"
+                           href="{{ route(document_builder_route_name('document_builder.setup')) }}">{{ __('document-builder::ui.setup') }}</a>
+                    </li>
+                @endif
             </ul>
             <div class="d-flex align-items-center gap-2">
                 @if($user)

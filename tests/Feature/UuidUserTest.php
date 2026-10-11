@@ -16,8 +16,6 @@ class UuidUserTest extends TestCase
 {
     protected string $userModel = UuidUser::class;
 
-    protected string $userKeyType = 'uuid';
-
     public function test_指向使用者的欄位依設定建立成字串型別(): void
     {
         foreach (['doc_records' => 'created_by', 'doc_type_revisions' => 'created_by', 'doc_type_revision_reviews' => 'reviewer_id', 'doc_mcp_operations' => 'admin_user_id'] as $table => $column) {
