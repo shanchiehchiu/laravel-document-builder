@@ -37,21 +37,22 @@
 
     <ul class="db-check-list js-checks">
         @foreach($checks as $check)
-            <li>
-                <div>
-                    <div>{{ $check['label'] }}</div>
-                    <div class="db-check-value">{{ $check['value'] }}</div>
-                    @if($check['fix'])<div class="db-check-fix text-{{ $check['level'] === 'error' ? 'danger' : 'warning' }}">{{ $check['fix'] }}</div>@endif
+            <li class="db-row {{ $levels[$check['level']][0] }}">
+                <span class="db-row-icon" aria-hidden="true"></span>
+                <div class="db-row-body">
+                    <div class="db-row-title">{{ $check['label'] }}</div>
+                    <div class="db-row-sub">{{ $check['value'] }}</div>
+                    @if($check['fix'])<div class="db-row-fix">{{ $check['fix'] }}</div>@endif
                 </div>
-                <span class="db-badge {{ $levels[$check['level']][0] }}">{{ $levels[$check['level']][1] }}</span>
+                <span class="db-row-status">{{ $levels[$check['level']][1] }}</span>
             </li>
         @endforeach
     </ul>
 
     <div class="db-install-actions">
-        <button type="button" class="btn btn-outline-secondary js-check" @if($needsToken) hidden @endif>重新檢查</button>
+        <button type="button" class="btn db-btn-ghost js-check" @if($needsToken) hidden @endif>重新檢查</button>
         <button type="button" class="btn btn-primary js-next" data-to="2"
-                @disabled($needsToken || collect($checks)->contains('level', 'error'))>下一步</button>
+                @disabled($needsToken || collect($checks)->contains('level', 'error'))>下一步 <span aria-hidden="true">→</span></button>
     </div>
 </section>
 
@@ -113,8 +114,8 @@
     </div>
 
     <div class="db-install-actions">
-        <button type="button" class="btn btn-outline-secondary js-prev" data-to="1">上一步</button>
-        <button type="button" class="btn btn-primary js-next" data-to="3">下一步</button>
+        <button type="button" class="btn db-btn-ghost js-prev" data-to="1">上一步</button>
+        <button type="button" class="btn btn-primary js-next" data-to="3">下一步 <span aria-hidden="true">→</span></button>
     </div>
 </section>
 
@@ -150,8 +151,8 @@
     </div>
 
     <div class="db-install-actions">
-        <button type="button" class="btn btn-outline-secondary js-prev" data-to="2">上一步</button>
-        <button type="button" class="btn btn-primary js-save-settings">下一步</button>
+        <button type="button" class="btn db-btn-ghost js-prev" data-to="2">上一步</button>
+        <button type="button" class="btn btn-primary js-save-settings">下一步 <span aria-hidden="true">→</span></button>
     </div>
 </section>
 
@@ -161,9 +162,21 @@
     <div class="db-step-desc">建立資料表、設定超級管理員並寫入設定檔。前端資產由套件直接提供，不需要發布。</div>
 
     <ul class="db-check-list js-tasks">
-        <li data-task="migrate"><span>建立資料表（只執行單據建置自己的 migration）</span><span class="db-badge is-wait">等待中</span></li>
-        <li data-task="admin"><span>把你設為第一位超級管理員</span><span class="db-badge is-wait">等待中</span></li>
-        <li data-task="config"><span>寫入設定檔 <code>config/document_builder.php</code></span><span class="db-badge is-wait">等待中</span></li>
+        <li class="db-row is-wait" data-task="migrate">
+            <span class="db-row-icon" aria-hidden="true"></span>
+            <div class="db-row-body"><div class="db-row-title">建立資料表結構</div><div class="db-row-sub">只執行單據建置自己的 migration，不會動到專案其他資料表</div></div>
+            <span class="db-row-status">等待中</span>
+        </li>
+        <li class="db-row is-wait" data-task="admin">
+            <span class="db-row-icon" aria-hidden="true"></span>
+            <div class="db-row-body"><div class="db-row-title">指派超級管理員</div><div class="db-row-sub">將目前登入的帳號設為單據建置的超級管理員</div></div>
+            <span class="db-row-status">等待中</span>
+        </li>
+        <li class="db-row is-wait" data-task="config">
+            <span class="db-row-icon" aria-hidden="true"></span>
+            <div class="db-row-body"><div class="db-row-title">產生設定檔</div><div class="db-row-sub"><code>config/document_builder.php</code></div></div>
+            <span class="db-row-status">等待中</span>
+        </li>
     </ul>
     <details class="mt-3">
         <summary class="small text-muted">執行記錄</summary>
@@ -176,10 +189,10 @@
     </div>
 
     <div class="db-install-actions">
-        <button type="button" class="btn btn-outline-secondary js-prev" data-to="3">上一步</button>
+        <button type="button" class="btn db-btn-ghost js-prev" data-to="3">上一步</button>
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-primary js-run">開始初始化安裝</button>
-            <button type="button" class="btn btn-primary js-finish" hidden>下一步</button>
+            <button type="button" class="btn btn-primary js-finish" hidden>下一步 <span aria-hidden="true">→</span></button>
         </div>
     </div>
 </section>
@@ -278,9 +291,10 @@ $(function () {
         $.post(urls.check, { token: $('.js-token').val() }).done(function (data) {
             var $list = $('.js-checks').empty();
             data.checks.forEach(function (c) {
-                var fix = c.fix ? '<div class="db-check-fix text-' + (c.level === 'error' ? 'danger' : 'warning') + '">' + escape(c.fix) + '</div>' : '';
-                $list.append('<li><div><div>' + escape(c.label) + '</div><div class="db-check-value">' + escape(c.value) + '</div>' + fix + '</div>' +
-                    '<span class="db-badge ' + levels[c.level][0] + '">' + levels[c.level][1] + '</span></li>');
+                var fix = c.fix ? '<div class="db-row-fix">' + escape(c.fix) + '</div>' : '';
+                $list.append('<li class="db-row ' + levels[c.level][0] + '"><span class="db-row-icon" aria-hidden="true"></span>' +
+                    '<div class="db-row-body"><div class="db-row-title">' + escape(c.label) + '</div><div class="db-row-sub">' + escape(c.value) + '</div>' + fix + '</div>' +
+                    '<span class="db-row-status">' + levels[c.level][1] + '</span></li>');
             });
             $('.js-token-box').remove();
             $('.js-check').attr('hidden', false);
@@ -337,7 +351,7 @@ $(function () {
 
     // Step 4：依序執行，每一項顯示進度
     function setTask(task, cls, text) {
-        $('.js-tasks [data-task=' + task + '] .db-badge').attr('class', 'db-badge ' + cls).text(text);
+        $('.js-tasks [data-task=' + task + ']').attr('class', 'db-row ' + cls).find('.db-row-status').text(text);
     }
     function log(text) {
         var $log = $('.js-log');

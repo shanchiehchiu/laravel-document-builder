@@ -258,3 +258,99 @@
     .db-stepper li span { display: none; }
     .db-install-card { padding: 1.125rem; }
 }
+
+/* ───────── 視覺打磨：狀態列、程式碼、步驟條、按鈕 ───────── */
+.db-install { --db-ok: #10b981; --db-accent: #2563eb; }
+
+/* 狀態列：左側圖示＋標題與說明兩行，不再把狀態推到最右端 */
+.db-rows { display: grid; gap: 0.5rem; list-style: none; padding: 0; margin: 0; }
+.db-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 0.75rem 0.875rem;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 0.625rem;
+}
+.db-check-list .db-row + .db-row { margin-top: 0.5rem; }
+.db-check-list li.db-row,
+.db-check-list li.db-row:last-child { padding: 0.75rem 0.875rem; border: 1px solid #eef2f7; justify-content: flex-start; }
+.db-check-list li.db-row.is-error { border-color: #fee2e2; }
+.db-check-list li.db-row.is-warn { border-color: #fef3c7; }
+.db-row-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-top: 1px;
+    border-radius: 50%;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #fff;
+    background: #cbd5e1;
+}
+.db-row.is-ok .db-row-icon { background: var(--db-ok); box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35); }
+.db-row.is-ok .db-row-icon::before { content: "✓"; }
+.db-row.is-error .db-row-icon { background: var(--db-error); box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3); }
+.db-row.is-error .db-row-icon::before { content: "✕"; }
+.db-row.is-warn .db-row-icon { background: var(--db-warn); }
+.db-row.is-warn .db-row-icon::before { content: "!"; }
+.db-row.is-wait .db-row-icon { background: #fff; border: 2px solid #cbd5e1; }
+.db-row.is-run .db-row-icon { background: #fff; border: 2px solid #bfdbfe; border-top-color: var(--db-accent); animation: db-spin 0.8s linear infinite; }
+@keyframes db-spin { to { transform: rotate(360deg); } }
+.db-row-body { flex: 1; min-width: 0; }
+.db-row-title { font-weight: 600; font-size: 0.9375rem; line-height: 1.4; }
+.db-row-sub { color: var(--db-muted); font-size: 0.8125rem; margin-top: 0.125rem; word-break: break-all; }
+.db-row-fix { font-size: 0.8125rem; margin-top: 0.375rem; color: var(--db-error); }
+.db-row.is-warn .db-row-fix { color: #b45309; }
+.db-row-status { flex: none; font-size: 0.75rem; color: var(--db-muted); margin-top: 4px; white-space: nowrap; }
+.db-row.is-ok .db-row-status { color: #047857; }
+.db-row.is-error .db-row-status { color: var(--db-error); font-weight: 600; }
+.db-row.is-error { background: #fef2f2; border-color: #fee2e2; }
+.db-row.is-warn { background: #fffbeb; border-color: #fef3c7; }
+
+/* 程式碼：灰階取代 Bootstrap 的洋紅 */
+.db-install code {
+    font-size: 0.85em;
+    color: #334155;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 1px 6px;
+}
+
+/* 步驟條：較大的圓、目前步驟實心加光暈、未到的步驟淡灰 */
+.db-stepper li::before { width: 32px; height: 32px; border: 0; background: #e2e8f0; color: var(--db-muted); }
+.db-stepper li:not(:last-child)::after { top: 15px; left: calc(50% + 20px); right: calc(-50% + 20px); background: repeating-linear-gradient(90deg, #cbd5e1 0 6px, transparent 6px 10px); }
+.db-stepper li.is-current::before { background: var(--db-accent); color: #fff; box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.15); }
+.db-stepper li.is-done::before { background: var(--db-ok); color: #fff; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); }
+.db-stepper li.is-done:not(:last-child)::after { background: var(--db-ok); }
+
+/* 按鈕：上一步改成幽靈按鈕，主要按鈕統一品牌藍＋微陰影 */
+.db-install .btn { border-radius: 8px; font-weight: 500; }
+.db-install .btn-primary {
+    --bs-btn-bg: var(--db-accent);
+    --bs-btn-border-color: var(--db-accent);
+    --bs-btn-hover-bg: #1d4ed8;
+    --bs-btn-hover-border-color: #1d4ed8;
+    --bs-btn-active-bg: #1e40af;
+    --bs-btn-disabled-bg: var(--db-accent);
+    --bs-btn-disabled-border-color: var(--db-accent);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+.db-btn-ghost { border: 0; color: var(--db-muted); background: transparent; }
+.db-btn-ghost:hover, .db-btn-ghost:focus-visible { color: var(--db-text); background: #f1f5f9; }
+.db-btn-ghost:disabled { visibility: hidden; }
+
+@media (prefers-reduced-motion: reduce) { .db-row.is-run .db-row-icon { animation: none; } }
+
+/* 環境檢查項目多：收進同一個容器的精簡清單，通過的項目只留綠勾 */
+.db-check-list.js-checks { background: #f8fafc; border: 1px solid #eef2f7; border-radius: 0.75rem; padding: 0.25rem 0.875rem; }
+.db-check-list.js-checks li.db-row,
+.db-check-list.js-checks li.db-row:last-child { background: transparent; border: 0; border-radius: 0; padding: 0.625rem 0; margin: 0; }
+.db-check-list.js-checks li.db-row + li.db-row { border-top: 1px solid #e9eef5; }
+.db-check-list.js-checks .db-row-icon { width: 22px; height: 22px; font-size: 0.6875rem; box-shadow: none; }
+.db-check-list.js-checks .db-row-title { font-size: 0.875rem; }
+.db-check-list.js-checks .db-row.is-ok .db-row-status { display: none; }
