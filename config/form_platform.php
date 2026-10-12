@@ -187,6 +187,17 @@ return [
             'renderer' => 'field.checkgroup',
             'capabilities' => ['data_binding' => true, 'events' => ['value_changed']],
         ],
+        'multiselect' => [
+            'version' => 1,
+            'default_width' => 6,
+            'options' => [
+                'choices' => ['type' => 'array', 'required' => true, 'min_items' => 1, 'item_type' => 'string'],
+            ],
+            'section_options' => [],
+            'allowed_sections' => ['header', 'item'],
+            'renderer' => 'field.multiselect',
+            'capabilities' => ['data_binding' => true, 'events' => ['value_changed']],
+        ],
         'master' => [
             'version' => 1,
             'default_width' => 6,

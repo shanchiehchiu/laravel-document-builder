@@ -28,6 +28,7 @@ class ComponentRendererRegistry
         'field.select',
         'field.radio',
         'field.checkgroup',
+        'field.multiselect',
         'field.master',
     ];
 

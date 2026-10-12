@@ -32,12 +32,15 @@
         return checked ? checked.value : '';
     }
 
-    // 複選是一組 name="...[]" 的勾選框，值是所有被勾選的選項（陣列）
+    // 複選是一組 name="...[]" 的勾選框，值是所有被勾選的選項（陣列）；多選下拉是一個 <select multiple>，同樣以陣列讀寫
     function isCheckGroup(list) {
-        return list[0].type === 'checkbox' && /\[\]$/.test(list[0].name || '');
+        return (list[0].type === 'checkbox' && /\[\]$/.test(list[0].name || '')) || (list[0].tagName === 'SELECT' && list[0].multiple);
     }
 
     function checkGroupValue(list) {
+        if (list[0].tagName === 'SELECT') {
+            return Array.prototype.filter.call(list[0].options, function (option) { return option.selected; }).map(function (option) { return option.value; });
+        }
         return list.filter(function (control) { return control.checked; }).map(function (control) { return control.value; });
     }
 
@@ -67,7 +70,11 @@
         if (isCheckGroup(list)) {
             var chosen = Array.isArray(value) ? value.map(String) : [];
             var before = JSON.stringify(checkGroupValue(list));
-            list.forEach(function (control) { control.checked = chosen.indexOf(control.value) !== -1; });
+            if (list[0].tagName === 'SELECT') {
+                Array.prototype.forEach.call(list[0].options, function (option) { option.selected = chosen.indexOf(option.value) !== -1; });
+            } else {
+                list.forEach(function (control) { control.checked = chosen.indexOf(control.value) !== -1; });
+            }
 
             if (JSON.stringify(checkGroupValue(list)) === before) return false;
             list[0].dispatchEvent(new Event('change', { bubbles: true }));

@@ -59,6 +59,15 @@
             @endforeach
         </div>
         @break
+    @case('field.multiselect')
+        {{-- 多選下拉：由單據頁 initSelects() 套上 select2 多選；送出名稱加 []，沒選任何一項時不送出，儲存時轉為空陣列 --}}
+        @php($selected = array_map('strval', (array) ($value ?? [])))
+        <select name="{{ $name }}[]" multiple class="js-choice-multi form-select" data-no-select2 data-placeholder="輸入關鍵字搜尋…" @if(!empty($eventKey)) {{ $eventAttr }}="{{ $eventKey }}" @endif>
+            @foreach($field->choices() as $choice)
+            <option value="{{ $choice }}" @selected(in_array((string) $choice, $selected, true))>{{ $choice }}</option>
+            @endforeach
+        </select>
+        @break
     @case('field.select')
         {{-- 不走全域 select2 初始化（它沒有 placeholder、寬度依當下元素計算），由單據頁 initSelects() 處理 --}}
         <select name="{{ $name }}" class="js-choice form-select" data-no-select2 data-placeholder="請選擇" @if(!empty($eventKey)) {{ $eventAttr }}="{{ $eventKey }}" @endif>

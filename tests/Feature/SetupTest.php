@@ -170,7 +170,12 @@ class SetupTest extends TestCase
         $url = $this->actingAs($admin)->postJson(route('document_builder.setup.sample'))->assertOk()->json('url');
         $type = DocType::query()->where('code', 'sample')->firstOrFail();
         $this->assertSame('樣品申請單', $type->name);
-        $this->assertCount(6, $type->fields);
+        // 範本涵蓋除了主檔下拉以外的所有欄位型別（主檔需要來源，範本不假設來源存在）
+        $this->assertCount(10, $type->fields);
+        $this->assertEqualsCanonicalizing(
+            ['text', 'number', 'date', 'select', 'checkbox', 'textarea', 'amount', 'radio', 'checkgroup', 'multiselect'],
+            $type->fields->pluck('type')->all(),
+        );
         $this->actingAs($admin)->get($url)->assertOk();
 
         // 範本要能直接在設計器存檔：用存檔時同一套 Schema 驗證（欄寬只能是 3、4、6、12）

@@ -98,6 +98,7 @@ return [
         'select' => '固定選項',
         'radio' => '單選按鈕',
         'checkgroup' => '複選',
+        'multiselect' => '多選下拉',
         'master' => '主檔下拉',
     ],
 

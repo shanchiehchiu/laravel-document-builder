@@ -239,6 +239,10 @@
                 var choices = String(m.get('choices') || '').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
                 input = '<select class="form-select" tabindex="-1"><option>' + esc(choices.length ? choices.join('／') : '（尚未設定選項）') + '</option></select>';
                 break;
+            case 'multiselect':
+                var multiChoices = String(m.get('choices') || '').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+                input = '<select class="form-select" tabindex="-1" multiple><option>' + esc(multiChoices.length ? multiChoices.join('／') : '（尚未設定選項）') + '</option></select>';
+                break;
             case 'checkgroup':
                 var groupChoices = String(m.get('choices') || '').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
                 var groupVertical = m.get('layout') === 'vertical';
@@ -405,7 +409,7 @@
         if (type !== 'checkbox') list.push({ type: 'checkbox', name: 'required', label: item ? '必填（每一列）' : '必填', changeProp: true });
         if (!item) list.push({ type: 'checkbox', name: 'showInList', label: '顯示在列表', changeProp: true });
 
-        if (type === 'select' || type === 'radio' || type === 'checkgroup') {
+        if (type === 'select' || type === 'radio' || type === 'checkgroup' || type === 'multiselect') {
             list.push({ type: 'db-textarea', name: 'choices', label: '選項（一行一個）', changeProp: true });
         }
         if (type === 'radio' || type === 'checkgroup') {
@@ -933,6 +937,7 @@
         'f-date': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
         'f-checkbox': '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/>',
         'f-radio': '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/>',
+        'f-multiselect': '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 10 3 3 5-6"/><path d="M7 16h10"/>',
         'f-checkgroup': '<rect x="3" y="3" width="8" height="8" rx="1.5"/><path d="m4.5 7 1.5 1.5 2.5-3"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',
         'f-amount': '<path d="M15.5 8.5c-.6-1-1.7-1.6-3.5-1.6-2 0-3.3.9-3.3 2.2 0 3.1 7 1.4 7 4.6 0 1.4-1.4 2.3-3.7 2.3-1.9 0-3.1-.6-3.8-1.7"/><path d="M12 4.5v2M12 17.5v2"/>',
         'f-select': '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="m9 11 3 3 3-3"/>',
@@ -979,7 +984,7 @@
         bm.add('field-' + t, {
             label: FIELD_TYPE_DEFS[t].label, category: '欄位', media: icon('f-' + t),
             content: newField(t, FIELD_TYPE_DEFS[t].label, defaultWidth[t] || 6,
-                (t === 'select' || t === 'radio' || t === 'checkgroup') ? { choices: '選項一\n選項二' } : (t === 'amount' ? { decimals: 2 } : null))
+                (t === 'select' || t === 'radio' || t === 'checkgroup' || t === 'multiselect') ? { choices: '選項一\n選項二' } : (t === 'amount' ? { decimals: 2 } : null))
         });
     });
     // 主檔關聯：只有一張積木，拖入後來源留空，由右側「主檔來源」選擇（存檔前會檢查，見 unsetMasterCells）
@@ -1364,7 +1369,7 @@
         $('#db-event-save').disabled = fields.length === 0;
 
         // 主檔與複選的值不是單一字串，只能用「沒有填寫」判斷（後端的事件驗證也會擋下其他運算子）
-        var emptyOnly = source.type === 'master' || source.type === 'checkgroup';
+        var emptyOnly = source.type === 'master' || source.type === 'checkgroup' || source.type === 'multiselect';
         var operator = current && current.condition ? current.condition.operator : 'always';
         if (emptyOnly && operator !== 'is_empty') operator = 'always';
         $('#db-event-condition').value = operator;

@@ -103,7 +103,7 @@ $(function () {
     // 明細表：新增列從 <template> 複製，列索引用不重複的遞增值（刪列後不回收，送出時後端重新編號）
     // 宿主版型若已有全域的 select2 初始化，已初始化的下拉會跳過，不重複處理
     function initSelects($scope) {
-        // 固定選項：選項不多時不顯示搜尋框
+        // 固定選項：一律提供搜尋框（minimumResultsForSearch: 0），選項再少也能直接輸入篩選
         $scope.find('select.js-choice').each(function () {
             var $select = $(this);
             if ($select.hasClass('select2-hidden-accessible')) return;
@@ -111,7 +111,18 @@ $(function () {
                 allowClear: true,
                 width: '100%',
                 placeholder: $select.data('placeholder'),
-                minimumResultsForSearch: 10
+                minimumResultsForSearch: 0
+            });
+        });
+        // 多選下拉：一律提供搜尋框，已選的項目以標籤顯示
+        $scope.find('select.js-choice-multi').each(function () {
+            var $select = $(this);
+            if ($select.hasClass('select2-hidden-accessible')) return;
+            $select.select2({
+                width: '100%',
+                placeholder: $select.data('placeholder'),
+                closeOnSelect: false,
+                minimumResultsForSearch: 0
             });
         });
         $scope.find('.js-select2[data-url]').each(function () {

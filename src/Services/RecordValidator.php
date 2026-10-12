@@ -85,7 +85,7 @@ class RecordValidator
             'checkbox' => ['boolean'],
             'select', 'radio' => [Rule::in($field->choices())],
             // 複選：陣列，每個元素都必須在選項中；required 時至少要勾一個（空陣列會被 required 擋下）
-            'checkgroup' => ['array', function (string $attribute, mixed $value, Closure $fail) use ($field): void {
+            'checkgroup', 'multiselect' => ['array', function (string $attribute, mixed $value, Closure $fail) use ($field): void {
                 foreach ((array) $value as $choice) {
                     if (! in_array($choice, $field->choices(), true)) {
                         $fail("{$attribute} 含有不在選項中的值。");

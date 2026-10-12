@@ -140,7 +140,7 @@ class DocRecordService
             return (bool) $value;
         }
         // 複選：一律存成純字串陣列；瀏覽器沒勾任何一項時不會送出該欄位，所以 null 也轉成 []
-        if ($field->type === 'checkgroup') {
+        if (in_array($field->type, ['checkgroup', 'multiselect'], true)) {
             return array_values(array_filter(array_map('strval', (array) $value), fn (string $choice): bool => $choice !== ''));
         }
         if ($value === null || $value === '') {

@@ -253,6 +253,11 @@ class InstallWizard
             ['key' => 'purpose', 'label' => '用途', 'type' => 'select', 'choices' => "試用\n展示\n檢驗", 'show_in_list' => true, 'width' => 4],
             ['key' => 'need_return', 'label' => '需歸還', 'type' => 'checkbox', 'width' => 4],
             ['key' => 'note', 'label' => '備註', 'type' => 'textarea', 'width' => 12],
+            // 其餘型別：金額、單選、複選。主檔下拉需要來源，範本不假設來源存在，因此不放
+            ['key' => 'unit_price', 'label' => '單價', 'type' => 'amount', 'decimals' => 2, 'currency' => 'NT$', 'width' => 4],
+            ['key' => 'priority', 'label' => '優先度', 'type' => 'radio', 'choices' => "一般\n急件", 'layout' => 'horizontal', 'width' => 4],
+            ['key' => 'tags', 'label' => '標籤', 'type' => 'checkgroup', 'choices' => "需回覆\n需寄回\n已確認", 'layout' => 'horizontal', 'width' => 4],
+            ['key' => 'destinations', 'label' => '寄送地點', 'type' => 'multiselect', 'choices' => "北部\n中部\n南部\n東部", 'width' => 6],
         ];
         foreach ($fields as $field) {
             $this->fields->create($type, $field + ['section' => DocField::SECTION_HEADER]);

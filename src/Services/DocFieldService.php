@@ -36,7 +36,7 @@ class DocFieldService
             'required' => ['nullable', 'boolean'],
             'width' => ['required', Rule::in(array_keys(config('document_builder.widths')))],
             'show_in_list' => ['nullable', 'boolean'],
-            'choices' => ['nullable', 'string', 'required_if:type,select,radio,checkgroup'],
+            'choices' => ['nullable', 'string', 'required_if:type,select,radio,checkgroup,multiselect'],
             'layout' => ['nullable', Rule::in(['horizontal', 'vertical'])],
             'decimals' => ['nullable', 'integer', 'min:0', 'max:6'],
             'currency' => ['nullable', 'string', 'max:5'],
@@ -116,6 +116,7 @@ class DocFieldService
         return match ($type) {
             'select' => ['choices' => $this->parseChoices((string) ($data['choices'] ?? ''))],
             'radio', 'checkgroup' => ['choices' => $this->parseChoices((string) ($data['choices'] ?? '')), 'layout' => $data['layout'] ?? 'horizontal'],
+            'multiselect' => ['choices' => $this->parseChoices((string) ($data['choices'] ?? ''))],
             'amount' => ['decimals' => (int) ($data['decimals'] ?? 2)] + (trim((string) ($data['currency'] ?? '')) !== '' ? ['currency' => trim((string) $data['currency'])] : []),
             'number' => ['decimals' => (int) ($data['decimals'] ?? 0)]
                 + ($section === DocField::SECTION_ITEM ? ['sum' => (bool) ($data['sum'] ?? false)] : []),
