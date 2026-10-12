@@ -19,7 +19,7 @@
 #wfb-traits .gjs-label-wrp,
 #wfb-traits .gjs-label { color: #1f2937; font-weight: 500; }
 /* grapes.min.css 替 .gjs-trt-trait 設了 font-weight: lighter，蘋方會繼承成字重 100，深色字也細得像灰色 */
-#wfb-traits .gjs-trt-trait { font-weight: 400; }
+#wfb-traits .gjs-trt-trait { font-weight: 400; padding: 3px 2px; }
 #wfb-traits .gjs-field:not(.gjs-field-checkbox) { background: #fff; border-color: #d1d5db; }
 #wfb-traits .gjs-field:not(.gjs-field-checkbox):focus-within { border-color: var(--wfb-primary); }
 
@@ -28,7 +28,7 @@
 .db-trait-info {
     display: flex;
     gap: 6px;
-    padding: 6px 0;
+    padding: 3px 0;
     font-size: 12px;
     line-height: 1.5;
     color: #64748b;
@@ -74,12 +74,16 @@
 
 /* 鎖定的值：值本身要看得清楚，灰色只留給說明 */
 .db-info-value { color: #1f2937; font-size: 12.5px; }
-.db-info-hint { margin-top: 2px; color: #94a3b8; font-size: 11.5px; }
+.db-info-hint { margin-top: 1px; color: #94a3b8; font-size: 11.5px; }
 .db-trait-info.is-note { color: #64748b; }
 /* 整張單據設定的分組標題：滿版靠左，隱藏 trait 自己的標籤，上方加分隔線與間距；第一組不加 */
-#wfb-traits .gjs-trt-trait--db-section { display: block; border-top: 1px solid #e5e7eb; margin-top: 16px; padding-top: 12px; }
+#wfb-traits .gjs-trt-trait--db-section { display: block; border-top: 1px solid #e5e7eb; margin-top: 10px; padding-top: 8px; }
 #wfb-traits .gjs-trt-trait--db-section:first-child { border-top: 0; margin-top: 0; padding-top: 4px; }
 #wfb-traits .gjs-trt-trait--db-section .gjs-label { display: none; }
+/* 純說明列（note）：標籤已併入文字，隱藏左欄標籤讓說明滿版 */
+#wfb-traits .gjs-trt-trait--db-info:has(.is-note) .gjs-label-wrp { display: none; }
+#wfb-traits .gjs-trt-trait--db-info:has(.is-note) .gjs-field { width: 100%; background: transparent; border-color: transparent; padding: 0; }
+.db-trait-info .db-info-value strong { font-weight: 600; color: #334155; }
 #wfb-traits .gjs-trt-trait--db-section .gjs-field { width: 100%; background: transparent; border-color: transparent; padding: 0; }
 .db-section-title { font-size: 13px; font-weight: 700; color: #1f2937; text-align: left; }
 

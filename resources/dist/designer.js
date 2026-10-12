@@ -872,7 +872,9 @@
                 var el = document.createElement('div');
                 var hint = o.trait.get('hint');
                 el.className = 'db-trait-info' + (o.trait.get('note') ? ' is-note' : '');
-                el.innerHTML = '<div><div class="db-info-value">' + esc(o.trait.get('text') || '') + '</div>'
+                // 純說明列：標籤併入文字前面，讓說明可以佔滿整列（不另佔左欄）
+                var noteLabel = o.trait.get('note') && o.trait.get('label') ? '<strong>' + esc(o.trait.get('label')) + '：</strong>' : '';
+                el.innerHTML = '<div><div class="db-info-value">' + noteLabel + esc(o.trait.get('text') || '') + '</div>'
                     + (hint ? '<div class="db-info-hint">' + esc(hint) + '</div>' : '') + '</div>';
                 return el;
             },
