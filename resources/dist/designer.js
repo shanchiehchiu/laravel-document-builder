@@ -370,8 +370,7 @@
             },
             { type: 'number', name: 'noSeqDigits', label: '流水號補零位數', changeProp: true, min: 1, max: 12, step: 1 },
             { type: 'db-number-example', name: 'noExample', label: '單號範例' },
-            { type: 'db-section', name: 'secActions', text: '前台功能權限' },
-            { type: 'db-info', name: 'buttonsHeader', label: '操作', note: true, text: '勾選的操作才會出現在填單與列表。' }
+            { type: 'db-section', name: 'secActions', text: '前台功能權限' }
         ];
         Object.keys(C.buttonLabels).forEach(function (key) {
             list.push({ type: 'checkbox', name: BUTTON_PROP(key), label: C.buttonLabels[key], changeProp: true });
@@ -886,7 +885,7 @@
                 var el = document.createElement('div');
                 el.className = 'db-trait-info db-number-preview';
                 el.innerHTML = '<div><div class="db-info-value db-number-example-value"></div>'
-                    + '<div class="db-info-hint">範例使用今天日期與週期內第一個流水號</div></div>';
+                    + '</div>';
                 var view = this;
                 this.listenTo(o.component, 'change:noPrefix change:noDateFormat change:noSeqDigits', function () {
                     view.onUpdate({ elInput: el, component: o.component });
