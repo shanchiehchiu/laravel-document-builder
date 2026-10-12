@@ -82,6 +82,7 @@ class DocumentBuilderSchemaAdapter
             // 通用資料綁定尚未加入；事件只保存受控 DSL，不包含執行碼。
             'bindings' => [],
             'events' => $type->event_schema ?? [],
+            'conversion_groups' => $type->conversion_groups ?? [],
         ];
     }
 
@@ -183,6 +184,7 @@ class DocumentBuilderSchemaAdapter
         return [
             'rows' => $rows,
             'events' => array_values($schema['events'] ?? []),
+            'conversion_groups' => array_values($schema['conversion_groups'] ?? []),
             'settings' => [
                 'name' => (string) ($form['name'] ?? ''),
                 'status' => (bool) ($form['enabled'] ?? false),
@@ -350,7 +352,7 @@ class DocumentBuilderSchemaAdapter
     /** 拒絕 Adapter 尚未定義的屬性，避免 HTML、CSS 或其他內容被靜默忽略。 */
     private function assertSupportedShape(array $schema): void
     {
-        $this->assertOnlyKeys($schema, ['schema_version', 'form', 'layout', 'fields', 'statuses', 'bindings', 'events'], 'Schema');
+        $this->assertOnlyKeys($schema, ['schema_version', 'form', 'layout', 'fields', 'statuses', 'bindings', 'events', 'conversion_groups'], 'Schema');
         $form = $schema['form'] ?? [];
         $this->assertOnlyKeys($form, ['code', 'name', 'enabled', 'order', 'buttons', 'numbering'], 'Schema form');
         $this->assertOnlyKeys($form['buttons'] ?? [], array_keys(DocType::BUTTONS), 'Schema 按鈕');

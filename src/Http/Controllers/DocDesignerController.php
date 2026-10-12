@@ -64,6 +64,7 @@ class DocDesignerController extends Controller
             $rows = $payload['rows'];
             $settings = $payload['settings'];
             $events = $payload['events'];
+            $conversionGroups = $payload['conversion_groups'];
         } else {
             // 舊 rows/settings 用戶端維持相容；Schema 用戶端由共用 Validator 驗證完整設定。
             $settings = $request->validate([
@@ -84,6 +85,7 @@ class DocDesignerController extends Controller
             ])['settings'] ?? null;
             $rows = (array) $request->input('rows', []);
             $events = null;
+            $conversionGroups = null;
         }
 
         $actorId = DocumentBuilder::user()->getKey();
@@ -93,13 +95,13 @@ class DocDesignerController extends Controller
             }
             $this->revisions->saveDraft($type, $requestData, $actorId, '設計器儲存');
         } else {
-            $type->getConnection()->transaction(function () use ($rows, $type, $settings, $events, $actorId): void {
+            $type->getConnection()->transaction(function () use ($rows, $type, $settings, $events, $conversionGroups, $actorId): void {
                 $this->layout->save($type, $rows);
                 if ($settings !== null) {
                     $this->types->update($type, $settings);
                 }
                 if ($events !== null) {
-                    $type->forceFill(['event_schema' => $events])->save();
+                    $type->forceFill(['event_schema' => $events, 'conversion_groups' => $conversionGroups])->save();
                 }
 
                 $schema = $this->schemaAdapter->export($type->fresh(['fields', 'statuses']));

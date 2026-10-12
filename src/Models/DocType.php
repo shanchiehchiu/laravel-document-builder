@@ -24,7 +24,7 @@ class DocType extends Model
 
     protected $fillable = [
         'code', 'name', 'status', 'seq', 'permission_id', 'form_layout', 'buttons',
-        'no_prefix', 'no_date_format', 'no_seq_digits', 'event_schema', 'working_revision_id', 'published_revision_id',
+        'no_prefix', 'no_date_format', 'no_seq_digits', 'event_schema', 'conversion_groups', 'working_revision_id', 'published_revision_id',
     ];
 
     protected $casts = [
@@ -35,6 +35,7 @@ class DocType extends Model
         'form_layout' => 'array',
         'buttons' => 'array',
         'event_schema' => 'array',
+        'conversion_groups' => 'array',
         'no_seq_digits' => 'integer',
     ];
 

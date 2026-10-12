@@ -71,6 +71,7 @@
         @endif
         <form id="{{ $isCreate ? 'form-create' : 'form-edit' }}" method="post"
             data-form-events="{{ json_encode($events, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
+            data-conversion-groups="{{ json_encode($conversionGroups ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
             action="{{ $isCreate ? route(document_builder_route_name('doc_records.store'), $docType->code) : route(document_builder_route_name('doc_records.update'), [$docType->code, $record]) }}">
             @csrf
             @unless($isCreate) @method('PUT') @endunless
@@ -88,6 +89,7 @@
 <script src="{{ \DocumentBuilder\Support\Assets::url('form-events.js') }}"></script>
 <script src="{{ \DocumentBuilder\Support\Assets::url('amount-field.js') }}"></script>
 <script src="{{ \DocumentBuilder\Support\Assets::url('master-extras.js') }}"></script>
+<script src="{{ \DocumentBuilder\Support\Assets::url('conversion-group.js') }}"></script>
 <script>
 $(function () {
     var $form = $('#form-create, #form-edit');

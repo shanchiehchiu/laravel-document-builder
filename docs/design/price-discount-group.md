@@ -109,9 +109,18 @@ document-builder 目前做不到這件事，原因見「現況」。
   - 設計器：欄位代碼命中任一來源的附隨代碼時，屬性面板顯示一行淡色提示（不鎖定、不改畫布外觀）。
   - 決定不做：後台（來源庫）編輯 `extras` 的介面。附隨欄位對應屬於系統架構，維持在設定檔（`document_builder.masters`）定義。
   - 尚未實測：屬性面板提示只在程式層面驗證（PHP 測試確認設計器設定帶出附隨代碼），未在完整設計器中實際開啟欄位代碼輸入框看過畫面。
-- [ ] **換算組實作**：`kind: price_discount`，包括 schema 驗證、前端執行規則、測試。
+- [ ] **換算組實作**：
+  - [x] 步驟 4-1（前端原型，已完成）：`resources/dist/conversion-group.js`，`DBConversion.register({ base, price, rate, guard })` 註冊後生效。驗證 `conversion-test` 瀏覽器測試 18/18 項（首次選品、驅動方規則、精度不飄移、促銷保護、無促銷欄位、建議價為 0／負數／清空、被動方有焦點不覆寫、無循環寫入）。尚未接進表單的 schema 與填單頁。
+  - [x] 步驟 4-2（已完成）：schema 頂層 `conversion_groups`（每組 `{kind: price_discount, table_key, base, price, rate, guard: null | {field}}`），存於 `doc_types.conversion_groups`（遷移 `2026_10_15_000000`）。`ConversionGroupValidator` 檢查同明細表、數字或金額、不重複、一般事件不得設定控管欄位。設計器存檔、草稿、版本還原都會寫入；填單頁從 `data-conversion-groups` 註冊。
+    - 驗證：`ConversionGroupValidatorTest`（8 項）、`ConversionGroupRecordTest`（2 項）；真實建立單據頁的瀏覽器流程 6/6 項（註冊、首次選品、驅動方、無 JS 錯誤）。
+    - 尚未有設計器介面設定換算組；目前經由 schema（API／MCP）宣告，設計器存檔時會保留既有宣告。
+  - [ ] 步驟 4-3：伺服器端重算。
 - [ ] **伺服器端重算**：決定換算結果是否由伺服器重新計算。目前事件只在瀏覽器執行，與表頭事件現況相同。
-- [ ] **業務決定確認**：整數單價、無建議價留空、促銷保護，目前是預設值，尚未經業務確認。
+- [x] **業務決定**（已確認）：
+  1. 首次選商品：單價與折數皆空時，單價 = 建議價、折數 = 100；已有折數則依折數算單價，不覆蓋。
+  2. 促銷判定：宣告式 Guard（`guard.field`）；欄位不存在視為未促銷。
+  3. 寫回時機：驅動方為使用者改過並離開的欄位（focusout 且值有變），被動方才寫入。
+  4. 建議價為空或 0（或負數）：折數清空，不產生 NaN／Infinity。
 - [ ] **提交變更**：目前未提交的內容包括 `doc-field` 原型、明細列連動、本文件；待確認後再 commit。
 
 ## 測試計畫

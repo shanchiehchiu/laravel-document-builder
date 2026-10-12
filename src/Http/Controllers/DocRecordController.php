@@ -160,11 +160,12 @@ class DocRecordController extends Controller
         $items = $record ? $record->items->groupBy('table_key') : collect();
         $statuses = $docType->statuses;
         $events = $schema['events'] ?? [];
+        $conversionGroups = $schema['conversion_groups'] ?? [];
         $isOutdated = $record !== null && ! $this->revisions->isCurrentRecordRevision($docType, $record);
         $formRevision = $record?->formRevision;
 
         return view('document-builder::records.form', compact(
-            'docType', 'record', 'show', 'rows', 'adjacent', 'items', 'statuses', 'events', 'isOutdated', 'formRevision'
+            'docType', 'record', 'show', 'rows', 'adjacent', 'items', 'statuses', 'events', 'conversionGroups', 'isOutdated', 'formRevision'
         ));
     }
 

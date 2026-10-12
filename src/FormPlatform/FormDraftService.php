@@ -162,7 +162,7 @@ class FormDraftService
                     throw new ToolCallException('草稿版面無法儲存：'.implode('；', $messages));
                 }
 
-                $type->forceFill(['event_schema' => $payload['events']])->save();
+                $type->forceFill(['event_schema' => $payload['events'], 'conversion_groups' => $payload['conversion_groups'] ?? []])->save();
                 $type = $type->fresh(['fields', 'statuses']);
                 $savedSchema = $this->adapter->export($type);
                 $savedValidation = $this->schemaValidator->validate($savedSchema, $formCode);

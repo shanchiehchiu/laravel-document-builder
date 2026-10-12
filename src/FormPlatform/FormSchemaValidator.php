@@ -15,13 +15,14 @@ class FormSchemaValidator
     public function __construct(
         private readonly ComponentRegistry $registry,
         private readonly EventSchemaValidator $eventValidator,
+        private readonly ConversionGroupValidator $conversionValidator,
     ) {}
 
     /** @return array{valid: bool, errors: array<int, array{path: string, message: string}>, warnings: array<int, array{path: string, message: string}>} */
     public function validate(array $schema, ?string $expectedFormCode = null): array
     {
         $this->errors = [];
-        $this->onlyKeys($schema, ['schema_version', 'form', 'layout', 'fields', 'statuses', 'bindings', 'events'], '');
+        $this->onlyKeys($schema, ['schema_version', 'form', 'layout', 'fields', 'statuses', 'bindings', 'events', 'conversion_groups'], '');
 
         if (($schema['schema_version'] ?? null) !== config('form_platform.schema_version')) {
             $this->error('schema_version', '不支援的表單 Schema 版本');
@@ -80,6 +81,10 @@ class FormSchemaValidator
         }
 
         foreach ($this->eventValidator->validate($schema['events'] ?? null, $fields ?? [])['errors'] as $error) {
+            $this->error($error['path'], $error['message']);
+        }
+
+        foreach ($this->conversionValidator->validate($schema['conversion_groups'] ?? null, $fields ?? [], is_array($schema['events'] ?? null) ? $schema['events'] : [])['errors'] as $error) {
             $this->error($error['path'], $error['message']);
         }
 

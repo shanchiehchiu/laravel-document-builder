@@ -146,7 +146,7 @@ class FormRevisionService
             $previousPublishedId = $lockedType->published_revision_id;
             $this->layout->save($lockedType, $payload['rows']);
             $this->types->update($lockedType, $payload['settings']);
-            $lockedType->forceFill(['event_schema' => $payload['events']])->save();
+            $lockedType->forceFill(['event_schema' => $payload['events'], 'conversion_groups' => $payload['conversion_groups']])->save();
 
             $publishedSchema = $this->adapter->export($lockedType->fresh(['fields', 'statuses']));
             $publishedValidation = $this->publishValidator->validate($publishedSchema, $lockedType->code);
@@ -204,7 +204,7 @@ class FormRevisionService
                 $payload = $this->adapter->toDesignerPayload($lockedType, $schema);
                 $this->layout->save($lockedType, $payload['rows']);
                 $this->types->update($lockedType, $payload['settings']);
-                $lockedType->forceFill(['event_schema' => $payload['events']])->save();
+                $lockedType->forceFill(['event_schema' => $payload['events'], 'conversion_groups' => $payload['conversion_groups']])->save();
                 $schema = $this->adapter->export($lockedType->fresh(['fields', 'statuses']));
             }
 
