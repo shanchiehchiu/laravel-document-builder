@@ -114,7 +114,7 @@ document-builder 目前做不到這件事，原因見「現況」。
   - [x] 步驟 4-2（已完成）：schema 頂層 `conversion_groups`（每組 `{kind: price_discount, table_key, base, price, rate, guard: null | {field}}`），存於 `doc_types.conversion_groups`（遷移 `2026_10_15_000000`）。`ConversionGroupValidator` 檢查同明細表、數字或金額、不重複、一般事件不得設定控管欄位。設計器存檔、草稿、版本還原都會寫入；填單頁從 `data-conversion-groups` 註冊。
     - 驗證：`ConversionGroupValidatorTest`（8 項）、`ConversionGroupRecordTest`（2 項）；真實建立單據頁的瀏覽器流程 6/6 項（註冊、首次選品、驅動方、無 JS 錯誤）。
     - 尚未有設計器介面設定換算組；目前經由 schema（API／MCP）宣告，設計器存檔時會保留既有宣告。
-  - [ ] 步驟 4-3：伺服器端重算。
+  - [ ] 步驟 4-3：伺服器端重算（決定暫緩，列為安全加固階段）。未來做法：在儲存（Store／Update）服務中、schema 驗證後，若有換算組且無促銷保護，以 base 與 rate（或 price）重算，差距超過容許誤差（約一個小數單位）時以公式值校正後存檔。現階段前端換算＋schema 驗證已足夠正常開單。
 - [ ] **伺服器端重算**：決定換算結果是否由伺服器重新計算。目前事件只在瀏覽器執行，與表頭事件現況相同。
 - [x] **業務決定**（已確認）：
   1. 首次選商品：單價與折數皆空時，單價 = 建議價、折數 = 100；已有折數則依折數算單價，不覆蓋。
