@@ -80,11 +80,11 @@ class LabelLayoutTest extends TestCase
         ], '拜訪單');
 
         $top = $this->actingAs($admin)->get(route('doc_records.create', 'visit'))->assertOk()->getContent();
-        $this->assertStringNotContainsString('align-items-center g-2', $top, '預設不應出現左側標籤排列');
+        $this->assertStringNotContainsString('text-nowrap flex-shrink-0', $top, '預設不應出現左側標籤排列');
 
         app(DocTypeService::class)->update($type, ['name' => '拜訪單', 'label_layout' => 'left']);
         $left = $this->actingAs($admin)->get(route('doc_records.create', 'visit'))->assertOk()->getContent();
-        $this->assertStringContainsString('align-items-center g-2', $left);
+        $this->assertStringContainsString('text-nowrap flex-shrink-0', $left);
         $this->assertStringContainsString('name="data[note]"', $left);
     }
 }

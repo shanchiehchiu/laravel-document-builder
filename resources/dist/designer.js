@@ -2177,7 +2177,8 @@
     var canvasDoc = null;
 
     // 欄位標籤位置：左側時標籤與欄位並排（標籤約 1/3 寬），樣式注入畫布文件，只改顯示不改資料
-    var LABEL_LEFT_CSS = '.db-label-left .db-field-body { display: grid; grid-template-columns: 35% minmax(0, 1fr); column-gap: 8px; align-items: center; position: relative; }'
+    // 標籤欄依文字長度自動決定寬度（max-content），欄位接在標籤後面，不留固定的空白
+    var LABEL_LEFT_CSS = '.db-label-left .db-field-body { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 10px; align-items: center; position: relative; }'
         + '.db-label-left .db-field-body > label { grid-column: 1; margin-bottom: 0; }'
         + '.db-label-left .db-field-body > :not(label):not(.db-badges) { grid-column: 2; min-width: 0; }'
         + '.db-label-left .db-field-body > .db-badges { position: absolute; top: 4px; right: 4px; }';
