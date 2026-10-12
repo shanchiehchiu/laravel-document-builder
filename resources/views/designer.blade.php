@@ -20,19 +20,14 @@
 <div class="wfb" id="wfb">
     <header class="wfb-top">
         <div class="wfb-top-left">
-            {{-- 全域選單：設計器不再是孤島，可直接回到單據建置的其他頁面 --}}
-            <div class="wfb-menu" id="wfb-nav">
-                <button type="button" class="wfb-icon-btn" id="wfb-nav-btn" title="單據建置選單" aria-haspopup="true" aria-expanded="false" aria-controls="wfb-nav-list">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-                </button>
-                <div class="wfb-menu-list" id="wfb-nav-list" role="menu" hidden>
-                    <a role="menuitem" href="{{ $config['urls']['home'] }}" data-leave>我的單據</a>
-                    <a role="menuitem" href="{{ $config['urls']['back'] }}" data-leave>單據設定列表</a>
-                    <a role="menuitem" href="{{ $config['urls']['sources'] }}" target="_blank" rel="noopener">來源庫 <span class="wfb-ext" aria-hidden="true">↗</span><span class="wfb-sr">（另開分頁）</span></a>
-                </div>
-            </div>
+            {{-- 品牌與導覽與一般後台（layouts/app.blade.php 的 db-topbar）相同，離開設計器時不會遺失位置感 --}}
+            <a class="wfb-brand" href="{{ $config['urls']['home'] }}" data-leave>{{ config('document_builder.ui.brand') ?: config('document_builder.menu.builder') }}</a>
+            <nav class="wfb-nav-links" aria-label="單據建置">
+                <a href="{{ $config['urls']['home'] }}" data-leave>{{ __('document-builder::ui.my_documents') }}</a>
+                <a href="{{ $config['urls']['back'] }}" class="is-active" data-leave>{{ __('document-builder::ui.type_settings') }}</a>
+                <a href="{{ $config['urls']['sources'] }}" id="wfb-sources-link">{{ __('document-builder::ui.sources') }}</a>
+            </nav>
             <div class="wfb-doc">
-                <div class="wfb-site-name"><a href="{{ $config['urls']['back'] }}" data-leave>單據設定</a> /</div>
                 <div class="wfb-doc-row">
                     {{-- 單據切換：直接跳到其他單據的設計器，不必先回列表 --}}
                     <div class="wfb-menu" id="wfb-switch">
@@ -51,7 +46,6 @@
                     <span class="wfb-rev @if($config['revisionInfo']['published']) is-published @endif" id="wfb-rev">{{ $config['revisionInfo']['label'] }}</span>
                 </div>
             </div>
-            <a class="wfb-btn wfb-btn-ghost wfb-sources-link" href="{{ $config['urls']['sources'] }}" target="_blank" rel="noopener" title="在新分頁打開來源庫；新增來源後回到這裡重新整理即可使用">來源庫 <span aria-hidden="true">↗</span></a>
         </div>
 
         <div class="wfb-top-center">
@@ -154,6 +148,19 @@
 
 <div class="wfb-toast" id="wfb-toast" role="status" aria-live="polite"></div>
 <div class="wfb-loading" id="wfb-loading"><div class="wfb-spinner"></div><span>正在載入設計器…</span></div>
+
+{{-- 來源庫彈窗：在設計器內編輯來源，存檔後由 designer.js 就地更新主檔下拉；沒有 JS 時連結仍可正常開啟來源庫 --}}
+<div class="wfb-modal" id="wfb-sources-modal" role="dialog" aria-modal="true" aria-labelledby="wfb-sources-title" hidden>
+    <div class="wfb-modal-box">
+        <div class="wfb-modal-head">
+            <strong id="wfb-sources-title">來源庫</strong>
+            <button type="button" class="wfb-icon-btn" id="wfb-sources-close" title="關閉（Esc）" aria-label="關閉來源庫">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+        </div>
+        <iframe id="wfb-sources-frame" title="來源庫" src="about:blank"></iframe>
+    </div>
+</div>
 
 <script>
     window.DB_DESIGNER = @json($config);

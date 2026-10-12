@@ -204,7 +204,12 @@
         var item = inTable(m);
         var badges = [];
         if (!m.get('fieldId')) badges.push('<span class="db-badge is-new">新</span>');
-        if (type === 'master') badges.push('<span class="db-badge is-master">' + (item ? '' : '主檔：') + esc(C.masters[m.get('source')] || '未選') + '</span>');
+        if (type === 'master') {
+            // 來源的小圖示跟著放在標記上：面板只剩一張主檔關聯積木，來源的語意改由畫布上的欄位呈現
+            var src = m.get('source');
+            var srcIcon = src ? smallIcon(ICONS['m-' + src] ? 'm-' + src : 'm-default') : '';
+            badges.push('<span class="db-badge is-master">' + srcIcon + (item ? '' : '主檔：') + esc(C.masters[src] || '未選') + '</span>');
+        }
         // 「列表」只留小圖示，文字放在 title（畫布上每欄都有，全寫字會很吵）
         if (!item && m.get('showInList')) badges.push('<span class="db-badge is-list" title="顯示於列表" aria-label="顯示於列表">' + BADGE_TABLE_ICON + '</span>');
 
@@ -898,12 +903,21 @@
         'm-employee': '<rect x="5" y="4" width="14" height="17" rx="2"/><circle cx="12" cy="11" r="2.5"/><path d="M8.5 17.5c.7-1.5 2-2.3 3.5-2.3s2.8.8 3.5 2.3"/>',
         'm-department': '<rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-2h12v2"/>',
         'm-warehouse': '<path d="M3 10 12 4l9 6v10H3z"/><path d="M7 20v-6h10v6"/>',
+        'm-user': '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/>',
+        'm-leave': '<rect x="3" y="5" width="13" height="14" rx="2"/><path d="M3 10h13M7 3v4M12 3v4"/><circle cx="18" cy="16" r="4"/><path d="M18 14v2l1.5 1"/>',
+        // 主檔來源可由來源庫新增，沒有專屬圖示時用資料庫圖示，與欄位的三條橫線區分開
+        'm-default': '<ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',
         heading: '<path d="M6 4v16M18 4v16M6 12h12"/>',
         note: '<path d="M4 6h16M4 10h16M4 14h10"/>',
         spacer: '<rect x="4" y="6" width="16" height="12" rx="2" stroke-dasharray="3 3"/>',
         archived: '<path d="M3 7h18v13H3zM3 7l2-3h14l2 3M10 12h4"/>',
         table: '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 10h18M3 14.5h18M9 5v14"/>'
     };
+
+    // 卡片標記用的小尺寸圖示（與 icon() 同樣的線條樣式，只改尺寸）
+    function smallIcon(name) {
+        return icon(name).replace('width="26" height="26"', 'width="12" height="12"');
+    }
 
     function icon(name) {
         return '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || ICONS.field) + '</svg>';
@@ -927,16 +941,73 @@
             content: newField(t, FIELD_TYPE_DEFS[t].label, defaultWidth[t] || 6, t === 'select' ? { choices: '選項一\n選項二' } : null)
         });
     });
-    Object.keys(C.masters).forEach(function (src) {
-        bm.add('master-' + src, {
-            label: C.masters[src], category: '主檔下拉', media: icon('m-' + src),
-            content: newField('master', C.masters[src], 6, { source: src })
-        });
+    // 主檔關聯：只有一張積木，拖入後來源留空，由右側「主檔來源」選擇（存檔前會檢查，見 unsetMasterCells）
+    bm.add('master-link', {
+        label: '主檔關聯', category: '主檔下拉', media: icon('master'),
+        // 帶上 class 讓樣式能標出「關聯主檔」（左上角鏈結標記）
+        attributes: { class: 'wfb-block-master' },
+        content: newField('master', '主檔關聯', 6, null)
     });
-    bm.add('layout-heading', { label: COMPONENTS.heading.label, category: '排版', media: icon('heading'), content: { type: CELL, kind: 'heading', width: 12, text: COMPONENTS.heading.label } });
-    bm.add('layout-note', { label: COMPONENTS.note.label, category: '排版', media: icon('note'), content: { type: CELL, kind: 'note', width: 12, text: COMPONENTS.note.label } });
-    bm.add('layout-spacer', { label: COMPONENTS.spacer.label, category: '排版', media: icon('spacer'), content: { type: CELL, kind: 'spacer', width: 6 } });
-    bm.add('layout-table', { label: COMPONENTS.table.label, category: '排版', media: icon('table'), content: { type: TABLE, title: COMPONENTS.table.label, tableKey: '' } });
+
+    /* ───────── 來源庫彈窗：編輯來源時不離開設計器，存檔後就地更新主檔下拉 ───────── */
+    var sourcesModal = document.getElementById('wfb-sources-modal');
+    var sourcesFrame = document.getElementById('wfb-sources-frame');
+    var sourcesLink = document.getElementById('wfb-sources-link');
+
+    function showToast(text) {
+        var toast = document.createElement('div');
+        toast.className = 'wfb-toast';
+        toast.textContent = text;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 2200);
+    }
+
+    if (sourcesModal && sourcesFrame && sourcesLink) {
+        function openSources(e) {
+            // 保留 Ctrl／Cmd 點擊等開新分頁的操作
+            if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+            e.preventDefault();
+            sourcesFrame.src = sourcesLink.href;
+            sourcesModal.hidden = false;
+        }
+
+        function closeSources() {
+            sourcesModal.hidden = true;
+            sourcesFrame.src = 'about:blank';
+        }
+
+        // 來源代碼就是主檔下拉的 key；停用的來源從下拉移除，已放在畫布上的主檔欄位不受影響。
+        // 積木只有一張（主檔關聯），來源差異只在屬性面板的下拉選項，所以這裡只更新來源清單
+        function syncMasterSource(source) {
+            if (source.status) {
+                C.masters[source.code] = source.label;
+            } else {
+                delete C.masters[source.code];
+            }
+        }
+
+        sourcesLink.addEventListener('click', openSources);
+        document.getElementById('wfb-sources-close').addEventListener('click', closeSources);
+        sourcesModal.addEventListener('click', function (e) {
+            if (e.target === sourcesModal) closeSources();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !sourcesModal.hidden) closeSources();
+        });
+
+        // 只接受同源、且來自這個彈窗 iframe 的訊息
+        window.addEventListener('message', function (e) {
+            if (e.origin !== window.location.origin || e.source !== sourcesFrame.contentWindow) return;
+            if (!e.data || e.data.type !== 'DB_SOURCE_SAVED' || !e.data.source) return;
+            syncMasterSource(e.data.source);
+            closeSources();
+            showToast('來源已更新，主檔下拉已同步');
+        });
+    }
+    bm.add('layout-heading', { label: COMPONENTS.heading.label, category: '輔助排版', media: icon('heading'), content: { type: CELL, kind: 'heading', width: 12, text: COMPONENTS.heading.label } });
+    bm.add('layout-note', { label: COMPONENTS.note.label, category: '輔助排版', media: icon('note'), content: { type: CELL, kind: 'note', width: 12, text: COMPONENTS.note.label } });
+    bm.add('layout-spacer', { label: COMPONENTS.spacer.label, category: '輔助排版', media: icon('spacer'), content: { type: CELL, kind: 'spacer', width: 6 } });
+    bm.add('layout-table', { label: COMPONENTS.table.label, category: '表格', media: icon('table'), content: { type: TABLE, title: COMPONENTS.table.label, tableKey: '' } });
 
     /* ───────────────────────── 已封存：所有已知欄位 − 畫布上的欄位 ───────────────────────── */
 
@@ -1095,9 +1166,30 @@
         refreshCells();
     }
 
+    // 屬性面板裡「主檔來源」那一列的下拉（列的文字含「主檔來源」，GrapesJS 不會替 select 加 name）
+    function sourceTraitSelect() {
+        var row = Array.prototype.find.call(document.querySelectorAll('#wfb-traits .gjs-trt-trait'), function (t) {
+            return t.textContent.indexOf('主檔來源') > -1;
+        });
+        return row ? row.querySelector('select') : null;
+    }
+
     editor.on('block:drag:stop', function (component) {
         normalize();
         if (component) editor.select(component);
+        // 拖入的主檔關聯還沒選來源：把焦點移到右側的來源下拉，省一次點擊（等屬性面板換成這個欄位之後再聚焦）
+        if (component && component.get('ftype') === 'master' && !component.get('source')) {
+            setTimeout(function () {
+                var select = sourceTraitSelect();
+                if (select) select.focus();
+            }, 0);
+        }
+    });
+
+    // 來源選定後，若欄位名稱還是預設的「主檔關聯」，就改用來源的名稱（使用者改過名稱就不動）
+    editor.on('component:update:source', function (c) {
+        if (c.get('ftype') !== 'master') return;
+        if (c.get('label') === '主檔關聯' && C.masters[c.get('source')]) c.set('label', C.masters[c.get('source')]);
     });
     editor.on('component:drag:end', normalize);
 
@@ -1590,6 +1682,16 @@
     }
 
     // 最外層的格子視為獨立一列、空列略過（復原到一半的狀態也能存出合法結構）；明細表獨佔一列
+    // 畫布上還沒選主檔來源的主檔欄位（表頭與明細表裡的都要找）。後端雖然會擋，但只回報「缺少必要屬性」，不指出是哪一欄
+    function unsetMasterCells() {
+        var found = [];
+        (function walk(c) {
+            if (c.get('kind') === 'field' && c.get('ftype') === 'master' && !c.get('source')) found.push(c);
+            c.components().forEach(walk);
+        })(editor.getWrapper());
+        return found;
+    }
+
     function collectRows() {
         var rows = [];
         editor.getWrapper().components().forEach(function (c) {
@@ -1766,6 +1868,13 @@
     function save(opts) {
         opts = opts || {};
         if (saving) return saving;
+        // 主檔關聯還沒選來源：不送出，選取該欄位讓右側直接顯示來源下拉
+        var unset = unsetMasterCells();
+        if (unset.length) {
+            editor.select(unset[0]);
+            toast('「' + (unset[0].get('label') || '主檔關聯') + '」尚未選擇主檔來源，請在右側設定', 'error');
+            return Promise.reject(new Error('主檔關聯尚未選擇來源'));
+        }
         setSaveState('儲存中…');
         $('#wfb-save').disabled = true;
         $('#wfb').classList.add('is-saving');

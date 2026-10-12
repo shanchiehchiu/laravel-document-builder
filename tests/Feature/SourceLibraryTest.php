@@ -25,6 +25,21 @@ class SourceLibraryTest extends TestCase
         $app['config']->set('document_builder.sources.models', [Customer::class, Supplier::class]);
     }
 
+    public function test_存檔回傳來源摘要_設計器彈窗靠它就地更新主檔下拉(): void
+    {
+        $created = $this->storeSource([
+            'code' => 'customer', 'label' => '客戶', 'driver' => 'model',
+            'settings' => ['model' => Customer::class, 'code' => 'no', 'text' => 'name'],
+        ])->assertOk()->assertJsonPath('source', ['code' => 'customer', 'label' => '客戶', 'status' => true]);
+
+        $source = DocSource::query()->findOrFail($created->json('id'));
+
+        $this->actingAs($this->admin)->putJson(route('document_builder.sources.update', $source), [
+            'code' => 'customer', 'label' => '客戶（新）', 'driver' => 'model', 'status' => 0,
+            'settings' => ['model' => Customer::class, 'code' => 'no', 'text' => 'name'],
+        ])->assertOk()->assertJsonPath('source', ['code' => 'customer', 'label' => '客戶（新）', 'status' => false]);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();

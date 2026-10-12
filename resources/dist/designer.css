@@ -243,8 +243,20 @@
 .wfb-menu-note { margin-left: auto; font-size: 11px; color: var(--wfb-muted); }
 .wfb-ext { margin-left: auto; color: var(--wfb-muted); }
 .wfb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-.wfb-site-name a { color: inherit; text-decoration: none; }
-.wfb-site-name a:hover { color: var(--wfb-primary); text-decoration: underline; }
+/* 品牌與導覽：數值對齊 layouts/app.blade.php 的 .db-app .db-topbar */
+.wfb-brand { font-weight: 600; font-size: 17px; color: var(--wfb-text); text-decoration: none; white-space: nowrap; margin-right: 8px; }
+.wfb-nav-links { display: flex; align-items: center; gap: 2px; white-space: nowrap; }
+.wfb-nav-links a { padding: 6px 12px; border-radius: 6px; color: var(--wfb-muted); font-size: 16px; text-decoration: none; }
+.wfb-nav-links a:hover { color: var(--wfb-text); background: #f3f4f6; }
+.wfb-nav-links a.is-active { color: var(--wfb-primary); background: #eef3fe; font-weight: 500; }
+
+/* 來源庫彈窗：編輯來源時不離開設計器，畫布的未儲存編輯因此保留 */
+.wfb-modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, .45); }
+.wfb-modal[hidden] { display: none; }
+.wfb-modal-box { display: flex; flex-direction: column; width: min(1100px, 94vw); height: 88vh; overflow: hidden; background: #fff; border-radius: 12px; box-shadow: 0 20px 50px rgba(15, 23, 42, .25); }
+.wfb-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 8px 16px; border-bottom: 1px solid var(--wfb-border); }
+#wfb-sources-frame { flex: 1 1 auto; width: 100%; min-height: 0; border: 0; }
+.wfb-toast { position: fixed; left: 50%; bottom: 24px; z-index: 110; transform: translateX(-50%); padding: 8px 16px; border-radius: 8px; background: #1f2937; color: #fff; font-size: 13px; box-shadow: 0 6px 18px rgba(15, 23, 42, .25); }
 .wfb-doc-switch { display: inline-flex; align-items: center; gap: 4px; max-width: 240px; padding: 0 4px; margin-left: -4px; border: 0; border-radius: 6px; background: transparent; color: var(--wfb-text); font: inherit; cursor: pointer; }
 .wfb-doc-switch:hover, .wfb-doc-switch[aria-expanded="true"] { background: #f3f4f6; }
 .wfb-doc-switch strong { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -269,6 +281,59 @@
 .wfb-save-state.is-dirty::before { background: #f59e0b; }
 .wfb-save-state.is-error::before { background: #dc2626; }
 
-/* 窄螢幕：來源庫捷徑收進全域選單 */
-@media (max-width: 1280px) { .wfb-sources-link { display: none; } }
 a.wfb-btn { text-decoration: none; }
+
+/* 元件面板的圖示：grapes.min.css 替 .gjs-block svg 設了 fill: currentColor，會蓋過圖示自己的 fill="none"，
+   子元素繼承後整塊變成實心黑塊。這裡只把填色收回，線條（stroke）維持 currentColor */
+#wfb-blocks svg,
+#wfb-blocks svg * { fill: none; }
+
+/* 元件卡片是拖曳來源，hover 時顯示拖曳游標；名稱太長時省略，完整名稱由 title 提示 */
+#wfb-blocks .gjs-block { position: relative; cursor: grab; min-width: 0; overflow: hidden; }
+#wfb-blocks .gjs-block:active { cursor: grabbing; }
+#wfb-blocks .gjs-block-label { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 拖曳把手：右上角六個點（與表格欄位的移動圖示同款），平時淡化，hover 時加深 */
+#wfb-blocks .gjs-block::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 10px;
+    height: 14px;
+    opacity: .6;
+    transition: opacity .15s;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='14' viewBox='0 0 10 14' fill='%2364748b'%3E%3Ccircle cx='2.5' cy='2.5' r='1.3'/%3E%3Ccircle cx='7.5' cy='2.5' r='1.3'/%3E%3Ccircle cx='2.5' cy='7' r='1.3'/%3E%3Ccircle cx='7.5' cy='7' r='1.3'/%3E%3Ccircle cx='2.5' cy='11.5' r='1.3'/%3E%3Ccircle cx='7.5' cy='11.5' r='1.3'/%3E%3C/svg%3E") center / contain no-repeat;
+    pointer-events: none;
+}
+#wfb-blocks .gjs-block:hover::before { opacity: 1; }
+
+/* 分類裡只有一張積木（目前是主檔關聯、明細表）：跨滿整列，改成水平卡片（圖示左、文字右），不留下空格 */
+#wfb-blocks .gjs-blocks-c > .gjs-block:only-child {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    height: auto;
+    min-height: 52px;
+    padding: 8px 12px;
+    text-align: left;
+}
+#wfb-blocks .gjs-blocks-c > .gjs-block:only-child .gjs-block__media { flex: 0 0 auto; }
+#wfb-blocks .gjs-blocks-c > .gjs-block:only-child .gjs-block-label { flex: 1 1 auto; min-width: 0; text-align: left; }
+/* 水平卡片的左上角已被圖示占用，鏈結標記改到左下角 */
+#wfb-blocks .gjs-blocks-c > .gjs-block.wfb-block-master:only-child::after { top: auto; bottom: 6px; }
+/* 主檔積木左下角的鏈結標記：表示這是關聯主檔，和靜態欄位區分開 */
+#wfb-blocks .gjs-block.wfb-block-master::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    width: 13px;
+    height: 13px;
+    opacity: .6;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/%3E%3C/svg%3E") center / contain no-repeat;
+    pointer-events: none;
+}
+
+/* 主檔欄位卡片上的來源小圖示：與文字基線對齊 */
+.db-badge.is-master svg { width: 12px; height: 12px; vertical-align: -2px; margin-right: 3px; }

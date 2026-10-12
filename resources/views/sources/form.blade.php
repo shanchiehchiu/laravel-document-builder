@@ -235,6 +235,11 @@ $(function () {
             url: $form.attr('action'), type: $form.data('method'), contentType: 'application/json', dataType: 'json',
             data: JSON.stringify(payload())
         }).done(function (data) {
+            // 被設計器的彈窗打開時：交給父頁就地更新主檔下拉並關閉彈窗，這裡不跳轉
+            if (window.self !== window.top) {
+                window.parent.postMessage({ type: 'DB_SOURCE_SAVED', source: data.source }, window.location.origin);
+                return;
+            }
             Swal.fire({ text: data.message, icon: 'success' }).then(function () { location.href = indexUrl; });
         }).always(function () { $button.attr('disabled', false); });
     });

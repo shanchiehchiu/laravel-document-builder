@@ -57,7 +57,7 @@ class SourceController extends Controller
     {
         $source = $this->service->create($request->all());
 
-        return response()->json(['message' => '來源已新增', 'id' => $source->id]);
+        return response()->json(['message' => '來源已新增', 'id' => $source->id, 'source' => $this->summary($source)]);
     }
 
     public function edit(DocSource $source)
@@ -69,7 +69,7 @@ class SourceController extends Controller
     {
         $this->service->update($source, $request->all());
 
-        return response()->json(['message' => '來源已更新', 'id' => $source->id]);
+        return response()->json(['message' => '來源已更新', 'id' => $source->id, 'source' => $this->summary($source->refresh())]);
     }
 
     public function destroy(DocSource $source): JsonResponse
@@ -77,6 +77,12 @@ class SourceController extends Controller
         $this->service->delete($source);
 
         return response()->json(['message' => '來源已刪除']);
+    }
+
+    /** 設計器的來源彈窗需要的欄位：來源代碼即主檔下拉的 key，只有啟用中的來源會出現在下拉 */
+    private function summary(DocSource $source): array
+    {
+        return ['code' => $source->code, 'label' => $source->label, 'status' => (bool) $source->status];
     }
 
     /** 某個資料模型可以用的欄位 */

@@ -25,6 +25,9 @@
     <link rel="stylesheet" href="{{ $asset('css/theme.css') }}">
     {!! \DocumentBuilder\Support\Theme::style() !!}
     @stack('styles')
+    {{-- 被設計器的彈窗（iframe）打開時不顯示外層導覽，避免彈窗裡又出現一排選單 --}}
+    <script>if (window.self !== window.top) document.documentElement.classList.add('db-framed');</script>
+    <style>.db-framed .db-topbar { display: none; }</style>
 </head>
 <body class="db-app">
 <nav class="db-topbar navbar navbar-expand-md">
