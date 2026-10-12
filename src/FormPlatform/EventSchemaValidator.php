@@ -203,10 +203,10 @@ class EventSchemaValidator
         return match ($field['type'] ?? null) {
             'text' => is_string($value) && mb_strlen($value) <= 255,
             'textarea' => is_string($value) && mb_strlen($value) <= 2000,
-            'number' => (is_int($value) || is_float($value)) && is_finite((float) $value),
+            'number', 'amount' => (is_int($value) || is_float($value)) && is_finite((float) $value),
             'date' => $this->validDate($value),
             'checkbox' => is_bool($value),
-            'select' => is_string($value)
+            'select', 'radio' => is_string($value)
                 && is_array($field['options']['choices'] ?? null)
                 && in_array($value, $field['options']['choices'], true),
             default => false,

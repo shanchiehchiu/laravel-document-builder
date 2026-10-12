@@ -42,9 +42,32 @@ class ModelSourceDriver implements SourceDriver
             })
             ->orderBy($code)
             ->limit($limit)
-            ->get(array_values(array_unique([$model->getKeyName(), $code, $text])))
-            ->map(fn (Model $m): array => ['id' => $m->getKey(), 'name' => $this->labelOf($settings, $m)])
+            ->get(array_values(array_unique([$model->getKeyName(), $code, $text, ...array_values($this->extraColumns($settings))])))
+            ->map(fn (Model $m): array => [
+                'id' => $m->getKey(),
+                'name' => $this->labelOf($settings, $m),
+            ] + $this->extrasPayload($settings, $m))
             ->all();
+    }
+
+    /**
+     * 附隨欄位：settings 的 extras 是「欄位代碼 => 模型欄位」，選取主檔時會把值帶進同一列中代碼相同的欄位。
+     *
+     * @return array<string, string>
+     */
+    private function extraColumns(array $settings): array
+    {
+        return (array) ($settings['extras'] ?? []);
+    }
+
+    /** 沒有附隨欄位的來源不帶 extras 鍵，維持原本的回傳格式 */
+    private function extrasPayload(array $settings, Model $m): array
+    {
+        $extras = collect($this->extraColumns($settings))
+            ->map(fn (string $column): mixed => $m->getAttribute($column))
+            ->all();
+
+        return $extras === [] ? [] : ['extras' => $extras];
     }
 
     public function find(array $settings, int|string $id): ?array

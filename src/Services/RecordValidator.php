@@ -80,10 +80,10 @@ class RecordValidator
         return array_merge($base, match ($field->type) {
             'text' => ['string', 'max:255'],
             'textarea' => ['string', 'max:5000'],
-            'number' => ['numeric'],
+            'number', 'amount' => ['numeric'],
             'date' => ['date_format:Y-m-d'],
             'checkbox' => ['boolean'],
-            'select' => [Rule::in($field->choices())],
+            'select', 'radio' => [Rule::in($field->choices())],
             // 主檔 id 依來源而定：整數主鍵或 UUID／ULID 字串
             'master' => [...$this->masterKeyRules($field), $this->masterRule($field, $current)],
             default => [],

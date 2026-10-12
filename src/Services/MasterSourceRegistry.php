@@ -75,6 +75,34 @@ class MasterSourceRegistry
         $this->definitions = null;
     }
 
+    /**
+     * 這個來源附隨帶入的欄位代碼（同一列中代碼相同的欄位會被填入，並改為唯讀）。
+     *
+     * @return array<int, string>
+     */
+    public function extraKeys(string $source): array
+    {
+        if (! $this->has($source)) {
+            return [];
+        }
+
+        return array_keys((array) ($this->definition($source)['settings']['extras'] ?? []));
+    }
+
+    /**
+     * 所有來源附隨欄位代碼的聯集（設計器用來提示：這個欄位代碼會被主檔自動帶入）。
+     *
+     * @return array<int, string>
+     */
+    public function allExtraKeys(): array
+    {
+        return collect(array_keys($this->definitions()))
+            ->flatMap(fn (string $source): array => $this->extraKeys($source))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     /** @return array<string, string> 來源代碼 => 顯示名稱 */
     public function options(): array
     {

@@ -86,6 +86,8 @@
 
 @push('scripts')
 <script src="{{ \DocumentBuilder\Support\Assets::url('form-events.js') }}"></script>
+<script src="{{ \DocumentBuilder\Support\Assets::url('amount-field.js') }}"></script>
+<script src="{{ \DocumentBuilder\Support\Assets::url('master-extras.js') }}"></script>
 <script>
 $(function () {
     var $form = $('#form-create, #form-edit');
@@ -156,6 +158,8 @@ $(function () {
         var html = $table.find('template.doc-item-template').html().replace(/__INDEX__/g, index);
         var $row = $(html).appendTo($table.find('tbody'));
         initSelects($row);
+        // 新列的主檔附隨欄位也要鎖成唯讀
+        if (window.DBMasterExtras) window.DBMasterExtras.mark($row);
         renumber($table);
         $row.find('input:not([type=hidden]), select, textarea').first().trigger('focus');
     });

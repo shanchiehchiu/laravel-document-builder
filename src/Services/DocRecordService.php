@@ -141,7 +141,7 @@ class DocRecordService
         }
 
         return match ($field->type) {
-            'number' => round((float) $value, $field->decimals()),
+            'number', 'amount' => round((float) $value, $field->decimals()),
             // 仍是原本那筆主檔時沿用存檔當時的名稱，主檔之後改名、刪除都不影響舊單據
             'master' => is_array($old) && (string) ($old['id'] ?? '') === (string) $value
                 ? $old

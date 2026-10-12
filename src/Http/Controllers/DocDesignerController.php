@@ -156,6 +156,7 @@ class DocDesignerController extends Controller
             // 已有資料時，既有欄位的主檔來源不能改（型別在設計器本來就不能改）
             'hasRecords' => $type->records()->withTrashed()->exists(),
             'masters' => $this->masters->options(),
+            'masterExtraKeys' => $this->masters->allExtraKeys(),
             'widths' => config('document_builder.widths'),
             'canvasStyles' => Assets::canvasStyles(),
             'themeCss' => Theme::css(),

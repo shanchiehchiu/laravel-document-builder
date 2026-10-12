@@ -253,6 +253,8 @@ class DocumentBuilderSchemaAdapter
             'required' => (bool) $definition['required'],
             'show_in_list' => (bool) $definition['show_in_list'],
             'choices' => implode("\n", $options['choices'] ?? []),
+            'layout' => $options['layout'] ?? null,
+            'currency' => $options['currency'] ?? null,
             'decimals' => $options['decimals'] ?? null,
             'source' => $options['source'] ?? null,
             'sum' => $options['sum'] ?? false,
@@ -383,7 +385,7 @@ class DocumentBuilderSchemaAdapter
             $this->assertOnlyKeys($field, [
                 'key', 'section', 'table_key', 'label', 'type', 'required', 'width', 'options', 'show_in_list', 'order', 'archived',
             ], 'Schema 欄位定義');
-            $this->assertOnlyKeys($field['options'] ?? [], ['choices', 'decimals', 'source', 'sum'], 'Schema 欄位選項');
+            $this->assertOnlyKeys($field['options'] ?? [], ['choices', 'layout', 'currency', 'decimals', 'source', 'sum'], 'Schema 欄位選項');
         }
 
         foreach ($schema['statuses'] ?? [] as $status) {

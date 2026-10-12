@@ -5,3 +5,4 @@
     </form>
 </section>
 <script src="{{ \DocumentBuilder\Support\Assets::url('form-events.js') }}"></script>
+<script src="{{ \DocumentBuilder\Support\Assets::url('amount-field.js') }}"></script>

@@ -19,7 +19,7 @@ use Illuminate\Validation\ValidationException;
 class DocumentSourceDriver implements SourceDriver
 {
     /** 可以當顯示文字的欄位型別（主檔、勾選不適合） */
-    private const TEXT_TYPES = ['text', 'textarea', 'number', 'date', 'select'];
+    private const TEXT_TYPES = ['text', 'textarea', 'number', 'date', 'select', 'radio'];
 
     public function key(): string
     {
@@ -52,8 +52,25 @@ class DocumentSourceDriver implements SourceDriver
             ->orderByDesc('id')
             ->limit($limit)
             ->get()
-            ->map(fn (DocRecord $record): array => ['id' => $record->id, 'name' => $this->labelOf($record, $field)])
+            ->map(fn (DocRecord $record): array => [
+                'id' => $record->id,
+                'name' => $this->labelOf($record, $field),
+            ] + $this->extrasPayload($settings, $record))
             ->all();
+    }
+
+    /**
+     * 附隨欄位：settings 的 extras 是「欄位代碼 => 單據資料的欄位代碼」。沒有附隨欄位時不帶 extras 鍵。
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function extrasPayload(array $settings, DocRecord $record): array
+    {
+        $extras = collect((array) ($settings['extras'] ?? []))
+            ->map(fn (string $column): mixed => $record->data[$column] ?? null)
+            ->all();
+
+        return $extras === [] ? [] : ['extras' => $extras];
     }
 
     public function find(array $settings, int|string $id): ?array

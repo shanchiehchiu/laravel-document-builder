@@ -28,7 +28,7 @@
     var BUTTON_PROP = function (key) { return 'btn_' + key; };
     var ARCHIVED = '已封存';
     // 一格可能帶的屬性（存檔、記住已封存欄位時用）
-    var PROPS = ['kind', 'width', 'fieldId', 'key', 'label', 'ftype', 'required', 'showInList', 'choices', 'decimals', 'source', 'text', 'bg', 'border', 'tableKey', 'sum'];
+    var PROPS = ['kind', 'width', 'fieldId', 'key', 'label', 'ftype', 'required', 'showInList', 'choices', 'layout', 'decimals', 'currency', 'source', 'text', 'bg', 'border', 'tableKey', 'sum'];
     var KEY_RE = /^[a-z][a-z0-9_]{0,49}$/;
     var COLOR_RE = /^#[0-9a-f]{6}$/;
     var DARK_TEXT = '#1f2937';
@@ -222,6 +222,12 @@
                 var d = parseInt(m.get('decimals'), 10) || 0;
                 input = '<input class="form-control" readonly tabindex="-1" placeholder="' + (d ? '0.' + new Array(d + 1).join('0') : '0') + '">';
                 break;
+            case 'amount':
+                var ad = parseInt(m.get('decimals'), 10) || 0;
+                var currency = String(m.get('currency') || '').trim();
+                input = '<div class="input-group">' + (currency ? '<span class="input-group-text">' + esc(currency) + '</span>' : '')
+                    + '<input class="form-control text-end" readonly tabindex="-1" placeholder="' + (ad ? '0.' + new Array(ad + 1).join('0') : '0') + '"></div>';
+                break;
             case 'date':
                 input = '<input type="date" class="form-control" readonly tabindex="-1">';
                 break;
@@ -232,6 +238,14 @@
             case 'select':
                 var choices = String(m.get('choices') || '').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
                 input = '<select class="form-select" tabindex="-1"><option>' + esc(choices.length ? choices.join('／') : '（尚未設定選項）') + '</option></select>';
+                break;
+            case 'radio':
+                var radioChoices = String(m.get('choices') || '').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+                var vertical = m.get('layout') === 'vertical';
+                input = '<div style="display:flex;flex-wrap:wrap;gap:12px;' + (vertical ? 'flex-direction:column;' : '') + '">'
+                    + (radioChoices.length ? radioChoices : ['（尚未設定選項）']).map(function (c) {
+                        return '<span style="display:inline-flex;align-items:center;gap:4px"><input type="radio" tabindex="-1" disabled> ' + esc(c) + '</span>';
+                    }).join('') + '</div>';
                 break;
             case 'master':
                 input = '<select class="form-select" tabindex="-1"><option>搜尋' + label + '</option></select>';
@@ -383,8 +397,15 @@
         if (type !== 'checkbox') list.push({ type: 'checkbox', name: 'required', label: item ? '必填（每一列）' : '必填', changeProp: true });
         if (!item) list.push({ type: 'checkbox', name: 'showInList', label: '顯示在列表', changeProp: true });
 
-        if (type === 'select') {
+        if (type === 'select' || type === 'radio') {
             list.push({ type: 'db-textarea', name: 'choices', label: '選項（一行一個）', changeProp: true });
+        }
+        if (type === 'radio') {
+            list.push({ type: 'select', name: 'layout', label: '排列方向', changeProp: true, options: [{ id: 'horizontal', label: '水平' }, { id: 'vertical', label: '垂直' }] });
+        }
+        if (type === 'amount') {
+            list.push({ type: 'number', name: 'decimals', label: '小數位數', changeProp: true, min: 0, max: 6, step: 1 });
+            list.push({ type: 'text', name: 'currency', label: '幣別符號（選填，例如 NT$）', changeProp: true });
         }
         if (type === 'number') {
             list.push({ type: 'number', name: 'decimals', label: '小數位數', changeProp: true, min: 0, max: 6, step: 1 });
@@ -784,7 +805,8 @@
                 el.className = 'db-trait-key';
                 el.innerHTML = '<div class="db-key-row"><input type="text" class="db-key-input" maxlength="50" placeholder="留空存檔時自動編號" spellcheck="false">'
                     + '<button type="button" class="db-trait-btn">自動產生</button></div>'
-                    + '<div class="db-info-hint db-key-hint"></div>';
+                    + '<div class="db-info-hint db-key-hint"></div>'
+                    + '<div class="db-info-hint db-key-extra"></div>';
                 el.querySelector('button').addEventListener('click', function () { generateKey(o.component, true); });
                 // 進度與來源不是 key 本身，changeProp 不會通知，自己聽
                 var view = this;
@@ -809,6 +831,10 @@
                 hint.textContent = bad
                     ? '只能用小寫英文、數字、底線，開頭須為英文'
                     : (KEY_VIA[o.component.get('keyVia')] || '') + '存檔後不得修改。';
+                // 代碼命中主檔的附隨欄位：只提示，不鎖定；使用者仍可不放這個欄位
+                var extra = o.elInput.querySelector('.db-key-extra');
+                var matched = !bad && key && (C.masterExtraKeys || []).indexOf(key) > -1;
+                extra.textContent = matched ? '💡 此代碼與主檔附隨欄位吻合，放在明細表中時，填單會由主檔自動帶入並轉為唯讀。' : '';
             }
         });
 
@@ -898,6 +924,8 @@
         'f-number': '<path d="M9 4 7 20M17 4l-2 16M4 9h16M3 15h16"/>',
         'f-date': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
         'f-checkbox': '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/>',
+        'f-radio': '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/>',
+        'f-amount': '<path d="M15.5 8.5c-.6-1-1.7-1.6-3.5-1.6-2 0-3.3.9-3.3 2.2 0 3.1 7 1.4 7 4.6 0 1.4-1.4 2.3-3.7 2.3-1.9 0-3.1-.6-3.8-1.7"/><path d="M12 4.5v2M12 17.5v2"/>',
         'f-select': '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="m9 11 3 3 3-3"/>',
         'm-customer': '<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
         'm-vendor': '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>',
@@ -941,7 +969,8 @@
         if (t === 'master') return;
         bm.add('field-' + t, {
             label: FIELD_TYPE_DEFS[t].label, category: '欄位', media: icon('f-' + t),
-            content: newField(t, FIELD_TYPE_DEFS[t].label, defaultWidth[t] || 6, t === 'select' ? { choices: '選項一\n選項二' } : null)
+            content: newField(t, FIELD_TYPE_DEFS[t].label, defaultWidth[t] || 6,
+                (t === 'select' || t === 'radio') ? { choices: '選項一\n選項二' } : (t === 'amount' ? { decimals: 2 } : null))
         });
     });
     // 主檔關聯：只有一張積木，拖入後來源留空，由右側「主檔來源」選擇（存檔前會檢查，見 unsetMasterCells）
@@ -1252,7 +1281,7 @@
 
     function eventValueControl(field, id, value) {
         var html;
-        if (field.type === 'select') {
+        if (field.type === 'select' || field.type === 'radio') {
             html = '<select id="' + id + '" class="db-event-value">'
                 + field.choices.map(function (choice) {
                     return '<option value="' + esc(choice) + '"' + (choice === value ? ' selected' : '') + '>' + esc(choice) + '</option>';
@@ -1262,7 +1291,7 @@
                 + '<option value="true"' + (value === true ? ' selected' : '') + '>是</option>'
                 + '<option value="false"' + (value !== true ? ' selected' : '') + '>否</option></select>';
         } else {
-            var inputType = field.type === 'number' || field.type === 'date' ? field.type : 'text';
+            var inputType = field.type === 'number' || field.type === 'amount' ? 'number' : (field.type === 'date' ? 'date' : 'text');
             html = '<input id="' + id + '" class="db-event-value" type="' + inputType + '" value="' + esc(value == null ? '' : value) + '"'
                 + (field.type === 'textarea' ? ' maxlength="2000"' : ' maxlength="255"') + '>';
         }
@@ -1291,7 +1320,7 @@
 
     function typedEventValue(field, input) {
         if (!input) return null;
-        if (field.type === 'number') return input.value === '' ? null : Number(input.value);
+        if (field.type === 'number' || field.type === 'amount') return input.value === '' ? null : Number(input.value);
         if (field.type === 'checkbox') return input.value === 'true';
         return input.value;
     }
@@ -1643,8 +1672,10 @@
                 required: !!c.get('required'),
                 // 列表只列表頭欄位；合計只有明細表的數字欄
                 show_in_list: !inTable(c) && !!c.get('showInList'),
-                choices: type === 'select' ? String(c.get('choices') || '') : null,
-                decimals: type === 'number' ? (parseInt(c.get('decimals'), 10) || 0) : null,
+                choices: (type === 'select' || type === 'radio') ? String(c.get('choices') || '') : null,
+                layout: type === 'radio' ? (c.get('layout') || 'horizontal') : null,
+                decimals: (type === 'number' || type === 'amount') ? (parseInt(c.get('decimals'), 10) || 0) : null,
+                currency: type === 'amount' ? (String(c.get('currency') || '').trim() || null) : null,
                 source: type === 'master' ? (c.get('source') || null) : null,
                 sum: inTable(c) && type === 'number' && !!c.get('sum')
             };
@@ -1730,9 +1761,9 @@
     }
 
     function fieldOptions(item, section) {
-        if (item.type === 'select') {
+        if (item.type === 'select' || item.type === 'radio') {
             var seen = {};
-            return {
+            var choiceOptions = {
                 choices: String(item.choices || '').split(/\r?\n/).map(function (choice) {
                     return choice.trim();
                 }).filter(function (choice) {
@@ -1741,6 +1772,13 @@
                     return true;
                 })
             };
+            if (item.type === 'radio') choiceOptions.layout = item.layout === 'vertical' ? 'vertical' : 'horizontal';
+            return choiceOptions;
+        }
+        if (item.type === 'amount') {
+            var amountOptions = { decimals: parseInt(item.decimals, 10) || 0 };
+            if (item.currency) amountOptions.currency = String(item.currency).trim();
+            return amountOptions;
         }
         if (item.type === 'number') {
             var options = { decimals: parseInt(item.decimals, 10) || 0 };

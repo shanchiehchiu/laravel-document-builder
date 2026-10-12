@@ -18,7 +18,7 @@ class DocFieldService
 {
     public const ATTRIBUTES = [
         'key' => '欄位代碼', 'label' => '欄位名稱', 'type' => '型別', 'width' => '欄寬',
-        'choices' => '固定選項', 'decimals' => '小數位數', 'source' => '主檔來源', 'sum' => '顯示合計',
+        'choices' => '固定選項', 'layout' => '排列方向', 'currency' => '幣別符號', 'decimals' => '小數位數', 'source' => '主檔來源', 'sum' => '顯示合計',
     ];
 
     public const MESSAGES = ['key.regex' => '欄位代碼只能用小寫英文、數字、底線，開頭須為英文'];
@@ -33,8 +33,10 @@ class DocFieldService
             'required' => ['nullable', 'boolean'],
             'width' => ['required', Rule::in(array_keys(config('document_builder.widths')))],
             'show_in_list' => ['nullable', 'boolean'],
-            'choices' => ['nullable', 'string', 'required_if:type,select'],
+            'choices' => ['nullable', 'string', 'required_if:type,select,radio'],
+            'layout' => ['nullable', Rule::in(['horizontal', 'vertical'])],
             'decimals' => ['nullable', 'integer', 'min:0', 'max:6'],
+            'currency' => ['nullable', 'string', 'max:5'],
             'source' => ['nullable', 'required_if:type,master', Rule::in(array_keys(app(MasterSourceRegistry::class)->options()))],
             'sum' => ['nullable', 'boolean'],
         ];
@@ -97,6 +99,8 @@ class DocFieldService
     {
         return match ($type) {
             'select' => ['choices' => $this->parseChoices((string) ($data['choices'] ?? ''))],
+            'radio' => ['choices' => $this->parseChoices((string) ($data['choices'] ?? '')), 'layout' => $data['layout'] ?? 'horizontal'],
+            'amount' => ['decimals' => (int) ($data['decimals'] ?? 2)] + (trim((string) ($data['currency'] ?? '')) !== '' ? ['currency' => trim((string) $data['currency'])] : []),
             'number' => ['decimals' => (int) ($data['decimals'] ?? 0)]
                 + ($section === DocField::SECTION_ITEM ? ['sum' => (bool) ($data['sum'] ?? false)] : []),
             'master' => ['source' => $data['source']],

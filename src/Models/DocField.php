@@ -34,10 +34,22 @@ class DocField extends Model
         return $this->belongsTo(DocType::class);
     }
 
-    /** 固定選項清單（select 型別） */
+    /** 固定選項清單（select、radio 型別） */
     public function choices(): array
     {
         return array_values($this->options['choices'] ?? []);
+    }
+
+    /** 單選按鈕的排列方向，沒設定時為水平 */
+    public function layout(): string
+    {
+        return $this->options['layout'] ?? 'horizontal';
+    }
+
+    /** 幣別符號（amount 型別），沒設定時為空字串 */
+    public function currency(): string
+    {
+        return (string) ($this->options['currency'] ?? '');
     }
 
     /** 小數位數（number 型別） */

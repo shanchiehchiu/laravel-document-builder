@@ -92,9 +92,11 @@ return [
         'text' => '單行文字',
         'textarea' => '多行文字',
         'number' => '數字',
+        'amount' => '金額／貨幣',
         'date' => '日期',
         'checkbox' => '勾選',
         'select' => '固定選項',
+        'radio' => '單選按鈕',
         'master' => '主檔下拉',
     ],
 
@@ -106,6 +108,8 @@ return [
      * 'customer' => ['label' => '客戶', 'model' => App\Models\Customer::class, 'code' => 'no', 'text' => 'name',
      *     'where' => ['customer_type_id' => 1], 'active' => []],
      * where：身分條件，搜尋與存檔驗證都套用；active：只在搜尋時套用（停用資料不出現在下拉，但舊單據仍可存檔）
+     * extras：附隨帶入，例如 'extras' => ['suggestion_price' => 'suggested_price']：選了主檔後，同一列中代碼為
+     *     suggestion_price 的欄位會被填入並改為唯讀，清空主檔時一併清空。右邊是模型欄位（單據來源則是單據資料的欄位代碼）。
      */
     'masters' => [],
 

@@ -377,6 +377,8 @@ class FormLayoutService
             'required' => $field->required,
             'showInList' => $field->show_in_list,
             'choices' => implode("\n", $field->choices()),
+            'layout' => $field->layout(),
+            'currency' => $field->currency(),
             'decimals' => $field->decimals(),
             'source' => (string) $field->masterSource(),
             'tableKey' => (string) $field->table_key,

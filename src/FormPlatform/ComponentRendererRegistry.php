@@ -22,9 +22,11 @@ class ComponentRendererRegistry
         'field.text',
         'field.textarea',
         'field.number',
+        'field.amount',
         'field.date',
         'field.checkbox',
         'field.select',
+        'field.radio',
         'field.master',
     ];
 

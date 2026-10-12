@@ -131,6 +131,18 @@ return [
             'renderer' => 'field.date',
             'capabilities' => ['data_binding' => true, 'events' => ['value_changed']],
         ],
+        'amount' => [
+            'version' => 1,
+            'default_width' => 4,
+            'options' => [
+                'decimals' => ['type' => 'integer', 'required' => false, 'min' => 0, 'max' => 6],
+                'currency' => ['type' => 'string', 'required' => false, 'max_length' => 5],
+            ],
+            'section_options' => [],
+            'allowed_sections' => ['header', 'item'],
+            'renderer' => 'field.amount',
+            'capabilities' => ['data_binding' => true, 'events' => ['value_changed']],
+        ],
         'checkbox' => [
             'version' => 1,
             'default_width' => 3,
@@ -149,6 +161,18 @@ return [
             'section_options' => [],
             'allowed_sections' => ['header', 'item'],
             'renderer' => 'field.select',
+            'capabilities' => ['data_binding' => true, 'events' => ['value_changed']],
+        ],
+        'radio' => [
+            'version' => 1,
+            'default_width' => 6,
+            'options' => [
+                'choices' => ['type' => 'array', 'required' => true, 'min_items' => 1, 'item_type' => 'string'],
+                'layout' => ['type' => 'string', 'required' => false, 'enum' => ['horizontal', 'vertical']],
+            ],
+            'section_options' => [],
+            'allowed_sections' => ['header', 'item'],
+            'renderer' => 'field.radio',
             'capabilities' => ['data_binding' => true, 'events' => ['value_changed']],
         ],
         'master' => [
