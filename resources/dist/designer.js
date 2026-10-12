@@ -2178,8 +2178,9 @@
 
     // 欄位標籤位置：左側時標籤與欄位並排（標籤約 1/3 寬），樣式注入畫布文件，只改顯示不改資料
     // 標籤欄固定 7 個字寬，所有欄位對齊成同一欄；較長的標籤換行
-    var LABEL_LEFT_CSS = '.db-label-left .db-field-body { display: grid; grid-template-columns: 7em minmax(0, 1fr); column-gap: 10px; align-items: center; position: relative; }'
-        + '.db-label-left .db-field-body > label { grid-column: 1; margin-bottom: 0; }'
+    // 從頂端對齊：標籤高度與輸入框相同（38px）並垂直置中，多行選項時標籤仍和第一行對齊
+    var LABEL_LEFT_CSS = '.db-label-left .db-field-body { display: grid; grid-template-columns: 7em minmax(0, 1fr); column-gap: 10px; align-items: start; position: relative; }'
+        + '.db-label-left .db-field-body > label { grid-column: 1; margin-bottom: 0; min-height: 38px; display: flex; align-items: center; }'
         + '.db-label-left .db-field-body > :not(label):not(.db-badges) { grid-column: 2; min-width: 0; }'
         + '.db-label-left .db-field-body > .db-badges { position: absolute; top: 4px; right: 4px; }';
     function applyLabelLayout(left) {

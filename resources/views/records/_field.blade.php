@@ -2,8 +2,8 @@
 <div class="col-md-{{ $width }} mb-4">
     @if($labelLeft)
     {{-- 標籤在左側：標籤欄固定 7 個字寬，同一張單據的欄位對齊；較長的標籤換行 --}}
-    <div class="d-flex align-items-center gap-2">
-        <label class="form-label mb-0 flex-shrink-0" style="width: 7em;">
+    <div class="d-flex align-items-start gap-2">
+        <label class="form-label mb-0 flex-shrink-0 d-flex align-items-center" style="width: 7em; min-height: 38px;">
             {{ $field->label }}
             @if($field->required && $field->type !== 'checkbox')<span class="text-danger">*</span>@endif
         </label>
