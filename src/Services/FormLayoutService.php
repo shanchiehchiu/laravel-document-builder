@@ -9,6 +9,7 @@ use DocumentBuilder\Models\DocType;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -211,8 +212,10 @@ class FormLayoutService
             $type->update(['form_layout' => ['rows' => $layout, 'tables' => $tables]]);
         });
 
-        // DDL 會隱含 commit，必須在交易結束後才同步篩選索引欄位
-        $this->filterIndex->sync($type);
+        // DDL 會隱含 commit，會切斷外層交易（例如測試的 RefreshDatabase）；只在沒有外層交易時同步
+        if (DB::transactionLevel() === 0) {
+            $this->filterIndex->sync($type);
+        }
     }
 
     /** 只檢查結構；回傳原始資料，因為 validate() 的回傳值會剝掉沒寫規則的巢狀鍵（欄位定義留給 saveField 逐欄驗證） */
