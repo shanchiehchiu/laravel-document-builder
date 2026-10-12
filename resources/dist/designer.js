@@ -352,8 +352,13 @@
 
     function wrapperTraits() {
         var list = [
+            { type: 'db-section', name: 'secBasic', text: '基本資訊' },
             { type: 'text', name: 'docName', label: '單據名稱', changeProp: true },
             { type: 'db-info', name: 'docCode', label: '單據代碼', text: C.settings.code, hint: '用在網址，建立後不得修改' },
+            { type: 'number', name: 'docSeq', label: '選單排序', changeProp: true, min: 0, step: 1 },
+            { type: 'checkbox', name: 'docStatus', label: '啟用單據', changeProp: true },
+            { type: 'db-info', name: 'statusNote', label: '說明', note: true, text: '停用後側選單隱藏，單據無法進入。' },
+            { type: 'db-section', name: 'secNumbering', text: '編碼規則' },
             { type: 'text', name: 'noPrefix', label: '單號前綴', changeProp: true, maxLength: 20 },
             {
                 type: 'select', name: 'noDateFormat', label: '日期格式與歸零週期', changeProp: true,
@@ -365,11 +370,9 @@
             },
             { type: 'number', name: 'noSeqDigits', label: '流水號補零位數', changeProp: true, min: 1, max: 12, step: 1 },
             { type: 'db-number-example', name: 'noExample', label: '單號範例' },
-            { type: 'number', name: 'docSeq', label: '選單排序', changeProp: true, min: 0, step: 1 },
-            { type: 'checkbox', name: 'docStatus', label: '啟用單據', changeProp: true },
-            { type: 'db-info', name: 'statusNote', label: '說明', note: true, text: '停用後側選單隱藏，單據無法進入。' }
+            { type: 'db-section', name: 'secActions', text: '前台功能權限' },
+            { type: 'db-info', name: 'buttonsHeader', label: '操作', note: true, text: '勾選的操作才會出現在填單與列表。' }
         ];
-        list.push({ type: 'db-info', name: 'buttonsHeader', label: '前台操作功能', note: true, text: '勾選的操作才會出現在填單與列表。' });
         Object.keys(C.buttonLabels).forEach(function (key) {
             list.push({ type: 'checkbox', name: BUTTON_PROP(key), label: C.buttonLabels[key], changeProp: true });
         });
@@ -850,6 +853,18 @@
                 var matched = !bad && key && (C.masterExtraKeys || []).indexOf(key) > -1;
                 extra.textContent = matched ? '💡 此代碼與主檔附隨欄位吻合，放在明細表中時，填單會由主檔自動帶入並轉為唯讀。' : '';
             }
+        });
+
+        // 分組標題：純展示，沒有值也不會被存檔；只用來把整張單據的設定分成幾個區塊
+        editor.TraitManager.addType('db-section', {
+            createInput: function (o) {
+                var el = document.createElement('div');
+                el.className = 'db-section-title';
+                el.textContent = o.trait.get('text') || '';
+                return el;
+            },
+            onEvent: function () {},
+            onUpdate: function () {}
         });
 
         // 唯讀資訊：鎖定的值（型別、欄位代碼、主檔來源）值用深色、說明用灰色小字；note 是純說明文字，不加鎖頭
