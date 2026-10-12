@@ -41,6 +41,20 @@ return [
             'renderer' => 'layout.heading',
             'capabilities' => ['data_binding' => false, 'events' => []],
         ],
+        // 區塊：從這一列起，之後的列都屬於這個區塊，直到下一個區塊或單據結尾（不巢狀）
+        'section' => [
+            'label' => '區塊',
+            'version' => 1,
+            'props' => [
+                'text' => ['type' => 'string', 'required' => false, 'max_length' => 50],
+                'tone' => ['type' => 'string', 'required' => false, 'enum' => ['blue', 'gray', 'green', 'amber']],
+            ],
+            'default_props' => ['text' => '', 'tone' => 'blue'],
+            'allowed_parents' => ['column'],
+            'allowed_children' => [],
+            'renderer' => 'layout.section',
+            'capabilities' => ['data_binding' => false, 'events' => []],
+        ],
         'note' => [
             'label' => '說明文字',
             'version' => 1,

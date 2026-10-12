@@ -238,7 +238,7 @@ class FormPlatformMcpServer
                 $draftWrite,
                 self::objectInputSchema([
                     'form_code' => ['type' => 'string', 'minLength' => 2, 'maxLength' => 30],
-                    'component_type' => ['type' => 'string', 'enum' => ['field', 'heading', 'note', 'divider', 'spacer', 'table']],
+                    'component_type' => ['type' => 'string', 'enum' => ['field', 'heading', 'section', 'note', 'divider', 'spacer', 'table']],
                     'props' => [
                         'type' => 'object',
                         'properties' => [

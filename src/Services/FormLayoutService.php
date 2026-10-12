@@ -23,7 +23,7 @@ use Illuminate\Validation\ValidationException;
  */
 class FormLayoutService
 {
-    public const KINDS = ['field', 'heading', 'note', 'divider', 'spacer', 'table'];
+    public const KINDS = ['field', 'heading', 'section', 'note', 'divider', 'spacer', 'table'];
 
     private const GRID = 12;
 
@@ -69,6 +69,13 @@ class FormLayoutService
                     continue;
                 }
 
+                // 區塊佔滿整列，色調存進格子供畫布與區塊分組使用
+                if ($item['kind'] === 'section') {
+                    $cols[] = ['width' => 12, 'kind' => 'section', 'text' => (string) ($item['text'] ?? ''), 'tone' => $item['tone'] ?? 'blue'];
+
+                    continue;
+                }
+
                 $cols[] = ['width' => $width, 'kind' => $item['kind'], 'text' => (string) ($item['text'] ?? '')]
                     + ($item['kind'] === 'heading' ? [
                         'bg' => $item['bg'] ?? null,
@@ -95,7 +102,8 @@ class FormLayoutService
                 'components' => array_map(fn (array $col): array => isset($col['field'])
                     ? $this->fieldCell($col['field'], $col['width'])
                     : ['type' => 'db-cell', 'kind' => $col['kind'], 'width' => $col['width'], 'text' => $col['text']]
-                        + ($col['kind'] === 'heading' ? ['bg' => (string) $col['bg'], 'border' => (string) $col['border']] : []),
+                        + ($col['kind'] === 'heading' ? ['bg' => (string) $col['bg'], 'border' => (string) $col['border']] : [])
+                        + ($col['kind'] === 'section' ? ['tone' => (string) $col['tone']] : []),
                     $cols),
             ], $this->rows($type));
     }
@@ -195,6 +203,7 @@ class FormLayoutService
                             // 顏色只有區段標題用得到；存小寫，空值不存
                             'bg' => $item['kind'] === 'heading' && ! empty($item['bg']) ? strtolower($item['bg']) : null,
                             'border' => $item['kind'] === 'heading' && ! empty($item['border']) ? strtolower($item['border']) : null,
+                            'tone' => $item['kind'] === 'section' ? ($item['tone'] ?? 'blue') : null,
                         ], fn ($v): bool => $v !== null);
                     }
 
@@ -233,6 +242,8 @@ class FormLayoutService
             // 顏色會輸出到 style 屬性，只接受 #RRGGBB，擋掉 CSS 注入
             'rows.*.cols.*.item.bg' => ['nullable', 'regex:'.self::COLOR],
             'rows.*.cols.*.item.border' => ['nullable', 'regex:'.self::COLOR],
+            // 區塊色調只接受預設配色的代碼
+            'rows.*.cols.*.item.tone' => ['nullable', Rule::in(array_keys(self::SECTION_TONES))],
             'rows.*.cols.*.item.title' => ['nullable', 'string', 'required_if:rows.*.cols.*.item.kind,table', 'max:50'],
             'rows.*.cols.*.item.key' => ['nullable', 'string'],
             'rows.*.cols.*.item.fields' => ['nullable', 'array', 'max:30'],
@@ -338,6 +349,37 @@ class FormLayoutService
      * 區段標題的 inline style；沒設定顏色回傳 null（沿用預設的底線樣式）。
      * 文字顏色不讓使用者選，依背景自動挑白字或深色字中對比較高的一個，避免淺底白字看不見。
      */
+    /** 區塊色調與顏色：字色與底色成套，使用者只能選這幾組，避免任意配色造成對比不足 */
+    public const SECTION_TONES = [
+        'blue' => ['accent' => '#2563eb', 'bg' => '#f8fafc', 'border' => '#e2e8f0'],
+        'gray' => ['accent' => '#64748b', 'bg' => '#f8fafc', 'border' => '#e2e8f0'],
+        'green' => ['accent' => '#059669', 'bg' => '#f5fbf8', 'border' => '#d1ebdf'],
+        'amber' => ['accent' => '#d97706', 'bg' => '#fffbf3', 'border' => '#f3e2c4'],
+    ];
+
+    /**
+     * 把列清單依區塊分組：遇到第一格為 section 的列就開始一個新區塊，之後的列都歸進去，直到下一個區塊。
+     * 回傳 [['section' => 區塊格或 null, 'rows' => 列清單], ...]；第一個區塊之前的列 section 為 null。
+     *
+     * @param  array<int, array<int, array<string, mixed>>>  $rows
+     * @return array<int, array{section: ?array<string, mixed>, rows: array}>
+     */
+    public static function sectionBlocks(array $rows): array
+    {
+        $blocks = [['section' => null, 'rows' => []]];
+        foreach ($rows as $cols) {
+            if (($cols[0]['kind'] ?? null) === 'section') {
+                $blocks[] = ['section' => $cols[0], 'rows' => []];
+
+                continue;
+            }
+            $blocks[count($blocks) - 1]['rows'][] = $cols;
+        }
+
+        // 區塊之前沒有列時不輸出空的無標題區塊
+        return array_values(array_filter($blocks, fn (array $block): bool => $block['section'] !== null || $block['rows'] !== []));
+    }
+
     public static function headingStyle(?string $bg, ?string $border): ?string
     {
         if (! $bg && ! $border) {

@@ -396,6 +396,7 @@ class FormDraftService
         $allowed = match ($componentType) {
             'field' => ['key', 'label', 'field_type', 'section', 'table_key', 'required', 'width', 'options', 'show_in_list'],
             'heading' => ['text', 'bg', 'border', 'width'],
+            'section' => ['text', 'tone'],
             'note' => ['text', 'width'],
             'spacer' => ['width'],
             'divider' => ['width'],
@@ -411,6 +412,7 @@ class FormDraftService
             return match ($componentType) {
                 'field' => $this->fieldDefinition($props, $schema),
                 'heading' => $this->textComponent('heading', $props, 12),
+                'section' => $this->sectionComponent($props),
                 'note' => $this->textComponent('note', $props, 12),
                 'spacer' => $this->spacerComponent($props),
                 'divider' => $this->dividerComponent($props),
@@ -537,6 +539,21 @@ class FormDraftService
         }
 
         return [$component, (int) ($input['width'] ?? $defaultWidth), null];
+    }
+
+    /** 區塊：佔滿整列，之後的列歸進區塊，直到下一個區塊；標題與色調都是選填 */
+    private function sectionComponent(array $props): array
+    {
+        $input = Validator::make($props, [
+            'text' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'tone' => ['sometimes', 'nullable', Rule::in(array_keys(FormLayoutService::SECTION_TONES))],
+        ])->validate();
+
+        return [
+            ['type' => 'section', 'text' => (string) ($input['text'] ?? ''), 'tone' => $input['tone'] ?? 'blue'],
+            12,
+            null,
+        ];
     }
 
     private function spacerComponent(array $props): array

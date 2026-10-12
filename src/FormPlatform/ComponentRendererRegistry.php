@@ -12,6 +12,7 @@ class ComponentRendererRegistry
     private const COMPONENT_VIEWS = [
         'field.reference' => 'document-builder::records._field',
         'layout.heading' => 'document-builder::records._runtime_heading',
+        'layout.section' => 'document-builder::records._runtime_section',
         'layout.note' => 'document-builder::records._runtime_note',
         'layout.spacer' => 'document-builder::records._runtime_spacer',
         'layout.divider' => 'document-builder::records._runtime_divider',
