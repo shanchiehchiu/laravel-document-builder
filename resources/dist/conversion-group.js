@@ -5,7 +5,8 @@
  * - 驅動方：使用者改過並離開欄位（focusout 且值有變）的那一欄；被動方才會被算出來。
  * - 被動方寫入時不會反向觸發換算（驅動方的值永遠保持原樣，不因四捨五入改寫）。
  * - 單價取整數（price_rounding: integer），折數取 rateDecimals 位小數。
- * - 建議價（base）變動：若單價與折數都空，帶入單價 = 建議價、折數 = rateScale；否則依最後的驅動方重算被動方。
+ * - 建議價（base）變動（換品項或清空商品）：同列單價與折數先清空，再帶入單價 = 建議價、折數 = rateScale；
+ *   不沿用上一件商品的計算欄位。
  * - 建議價為空或 0：折數清空，不產生 NaN／Infinity。
  * - 促銷保護（guard）：guard.field 成立（checkbox 勾選，或其他欄位有正數值）且驅動方是單價時，不反算折數。
  *   guard 未設定或同列沒有該欄位，視為不成立。
@@ -61,9 +62,11 @@
         return document.activeElement === parts.el || (parts.display && document.activeElement === parts.display);
     }
 
-    // 程式寫入：值相同不動，正在輸入的欄位不覆寫，寫入後通知事件引擎與金額顯示（amount-field.js 依 change 同步）
-    function write(parts, value) {
-        if (!parts || isFocused(parts) || parts.el.value === value) return;
+    // 程式寫入：值相同不動，寫入後通知事件引擎與金額顯示（amount-field.js 依 change 同步）。
+    // 被動換算時正在輸入的欄位不覆寫；換品項（force）是業務上的權威動作，焦點不擋。
+    function write(parts, value, force) {
+        if (!parts || parts.el.value === value) return;
+        if (!force && isFocused(parts)) return;
         writing = true;
         try {
             parts.el.value = value;
@@ -118,25 +121,20 @@
         }
     }
 
+    // 建議價變動（換品項或清空商品）：同列計算欄位一併清空，不沿用上一件商品的單價或折數。
+    // 清空後單價與折數必定都是空的，所以接著直接套用首次選品規則。
     function onBaseChanged(row, g) {
         var base = partsOf(row, g.base);
         var price = partsOf(row, g.price);
         var rate = partsOf(row, g.rate);
         if (!base || !price || !rate) return;
+        lastDriver.delete(row);
+        write(price, '', true);
+        write(rate, '', true);
         var b = num(base.el.value);
-        if (b === null || b <= 0) {
-            write(rate, '');
-            return;
-        }
-        // 首次選品：單價與折數都空，預設原價開單
-        if (num(price.el.value) === null && num(rate.el.value) === null) {
-            write(price, String(Math.round(b)));
-            write(rate, g.rateScale.toFixed(g.rateDecimals));
-            return;
-        }
-        // 其他情況依最後的驅動方重算；沒有驅動紀錄時，有折數就以折數為準
-        var driver = lastDriver.get(row) || (num(rate.el.value) !== null ? 'rate' : 'price');
-        recalc(row, g, driver);
+        if (b === null || b <= 0) return;
+        write(price, String(Math.round(b)), true);
+        write(rate, g.rateScale.toFixed(g.rateDecimals), true);
     }
 
     document.addEventListener('focusin', function (event) {

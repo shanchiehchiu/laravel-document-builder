@@ -110,14 +110,16 @@ document-builder 目前做不到這件事，原因見「現況」。
   - 決定不做：後台（來源庫）編輯 `extras` 的介面。附隨欄位對應屬於系統架構，維持在設定檔（`document_builder.masters`）定義。
   - 尚未實測：屬性面板提示只在程式層面驗證（PHP 測試確認設計器設定帶出附隨代碼），未在完整設計器中實際開啟欄位代碼輸入框看過畫面。
 - [ ] **換算組實作**：
-  - [x] 步驟 4-1（前端原型，已完成）：`resources/dist/conversion-group.js`，`DBConversion.register({ base, price, rate, guard })` 註冊後生效。驗證 `conversion-test` 瀏覽器測試 18/18 項（首次選品、驅動方規則、精度不飄移、促銷保護、無促銷欄位、建議價為 0／負數／清空、被動方有焦點不覆寫、無循環寫入）。尚未接進表單的 schema 與填單頁。
+  - [x] 步驟 4-1（前端原型，已完成）：`resources/dist/conversion-group.js`，`DBConversion.register({ base, price, rate, guard })` 註冊後生效。驗證 `conversion-test` 瀏覽器測試 19/19 項（含換品項清空）（首次選品、驅動方規則、精度不飄移、促銷保護、無促銷欄位、建議價為 0／負數／清空、被動方有焦點不覆寫、無循環寫入）。尚未接進表單的 schema 與填單頁。
   - [x] 步驟 4-2（已完成）：schema 頂層 `conversion_groups`（每組 `{kind: price_discount, table_key, base, price, rate, guard: null | {field}}`），存於 `doc_types.conversion_groups`（遷移 `2026_10_15_000000`）。`ConversionGroupValidator` 檢查同明細表、數字或金額、不重複、一般事件不得設定控管欄位。設計器存檔、草稿、版本還原都會寫入；填單頁從 `data-conversion-groups` 註冊。
     - 驗證：`ConversionGroupValidatorTest`（8 項）、`ConversionGroupRecordTest`（2 項）；真實建立單據頁的瀏覽器流程 6/6 項（註冊、首次選品、驅動方、無 JS 錯誤）。
     - 尚未有設計器介面設定換算組；目前經由 schema（API／MCP）宣告，設計器存檔時會保留既有宣告。
   - [ ] 步驟 4-3：伺服器端重算（決定暫緩，列為安全加固階段）。未來做法：在儲存（Store／Update）服務中、schema 驗證後，若有換算組且無促銷保護，以 base 與 rate（或 price）重算，差距超過容許誤差（約一個小數單位）時以公式值校正後存檔。現階段前端換算＋schema 驗證已足夠正常開單。
 - [ ] **伺服器端重算**：決定換算結果是否由伺服器重新計算。目前事件只在瀏覽器執行，與表頭事件現況相同。
 - [x] **業務決定**（已確認）：
-  1. 首次選商品：單價與折數皆空時，單價 = 建議價、折數 = 100；已有折數則依折數算單價，不覆蓋。
+  1. 換品項或清空商品：同列單價與折數先一併清空（不沿用上一件商品的計算欄位），再套用首次選品規則：單價 = 建議價、折數 = 100。
+     - 此規則取代先前「已有折數則依折數算單價」的寫法；換品項的寫入略過焦點保護，焦點欄位也會重設，避免單價與折數互相矛盾。
+     - 注意：使用者若先填了單價或折數才選品項，選品時這些值會被清空。
   2. 促銷判定：宣告式 Guard（`guard.field`）；欄位不存在視為未促銷。
   3. 寫回時機：驅動方為使用者改過並離開的欄位（focusout 且值有變），被動方才寫入。
   4. 建議價為空或 0（或負數）：折數清空，不產生 NaN／Infinity。
