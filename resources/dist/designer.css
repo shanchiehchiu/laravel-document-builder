@@ -76,12 +76,12 @@
 .db-info-value { color: #1f2937; font-size: 12.5px; }
 .db-info-hint { margin-top: 2px; color: #94a3b8; font-size: 11.5px; }
 .db-trait-info.is-note { color: #64748b; }
-/* 整張單據設定的分組標題：隱藏 trait 自己的標籤，只顯示分組名稱與上方分隔線 */
-#wfb-traits .gjs-trt-trait--db-section { border-top: 1px solid #e5e7eb; margin-top: 10px; padding-top: 8px; }
-#wfb-traits .gjs-trt-trait--db-section:first-child { border-top: 0; margin-top: 0; }
+/* 整張單據設定的分組標題：滿版靠左，隱藏 trait 自己的標籤，上方加分隔線與間距；第一組不加 */
+#wfb-traits .gjs-trt-trait--db-section { display: block; border-top: 1px solid #e5e7eb; margin-top: 16px; padding-top: 12px; }
+#wfb-traits .gjs-trt-trait--db-section:first-child { border-top: 0; margin-top: 0; padding-top: 4px; }
 #wfb-traits .gjs-trt-trait--db-section .gjs-label { display: none; }
-#wfb-traits .gjs-trt-trait--db-section .gjs-field { background: transparent; border-color: transparent; padding: 0; }
-.db-section-title { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; color: #334155; }
+#wfb-traits .gjs-trt-trait--db-section .gjs-field { width: 100%; background: transparent; border-color: transparent; padding: 0; }
+.db-section-title { font-size: 13px; font-weight: 700; color: #1f2937; text-align: left; }
 
 /* 單號範例：預覽卡片（等寬字、淺藍底），與一般說明文字區分 */
 .db-trait-info.db-number-preview {
