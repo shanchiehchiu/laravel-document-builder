@@ -46,6 +46,19 @@
             @endforeach
         </div>
         @break
+    @case('field.checkgroup')
+        {{-- 複選：name 加上 [] 送出陣列；沒勾任何一項時瀏覽器不送出此欄位，儲存時轉為空陣列 --}}
+        @php($selected = array_map('strval', (array) ($value ?? [])))
+        <div class="d-flex flex-wrap gap-3 @if($field->layout() === 'vertical') flex-column @endif {{ $compact ? '' : 'pt-1' }}">
+            @foreach($field->choices() as $index => $choice)
+            <div class="form-check mb-0">
+                <input class="form-check-input" type="checkbox" name="{{ $name }}[]" value="{{ $choice }}" id="{{ $inputId }}-{{ $index }}"
+                    @if(!empty($eventKey)) {{ $eventAttr }}="{{ $eventKey }}" @endif @checked(in_array((string) $choice, $selected, true))>
+                <label class="form-check-label" for="{{ $inputId }}-{{ $index }}">{{ $choice }}</label>
+            </div>
+            @endforeach
+        </div>
+        @break
     @case('field.select')
         {{-- 不走全域 select2 初始化（它沒有 placeholder、寬度依當下元素計算），由單據頁 initSelects() 處理 --}}
         <select name="{{ $name }}" class="js-choice form-select" data-no-select2 data-placeholder="請選擇" @if(!empty($eventKey)) {{ $eventAttr }}="{{ $eventKey }}" @endif>

@@ -13,7 +13,7 @@
         if (!condition) return true;
         if (condition.operator === 'equals') return value === condition.value;
         if (condition.operator === 'not_equals') return value !== condition.value;
-        if (condition.operator === 'is_empty') return value === '' || value === null;
+        if (condition.operator === 'is_empty') return value === '' || value === null || (Array.isArray(value) && value.length === 0);
         return false;
     }
 
@@ -32,10 +32,20 @@
         return checked ? checked.value : '';
     }
 
+    // 複選是一組 name="...[]" 的勾選框，值是所有被勾選的選項（陣列）
+    function isCheckGroup(list) {
+        return list[0].type === 'checkbox' && /\[\]$/.test(list[0].name || '');
+    }
+
+    function checkGroupValue(list) {
+        return list.filter(function (control) { return control.checked; }).map(function (control) { return control.value; });
+    }
+
     function valueOf(scope, fieldKey) {
         var list = controls(scope, fieldKey);
         if (list.length === 0) return null;
         if (list[0].type === 'radio') return radioValue(list);
+        if (isCheckGroup(list)) return checkGroupValue(list);
         return readValue(list[0]);
     }
 
@@ -49,6 +59,17 @@
             list.forEach(function (control) { control.checked = control.value === nextChoice; });
 
             if (radioValue(list) === previousChoice) return false;
+            list[0].dispatchEvent(new Event('change', { bubbles: true }));
+
+            return true;
+        }
+
+        if (isCheckGroup(list)) {
+            var chosen = Array.isArray(value) ? value.map(String) : [];
+            var before = JSON.stringify(checkGroupValue(list));
+            list.forEach(function (control) { control.checked = chosen.indexOf(control.value) !== -1; });
+
+            if (JSON.stringify(checkGroupValue(list)) === before) return false;
             list[0].dispatchEvent(new Event('change', { bubbles: true }));
 
             return true;

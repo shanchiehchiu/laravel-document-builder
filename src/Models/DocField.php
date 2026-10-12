@@ -34,7 +34,7 @@ class DocField extends Model
         return $this->belongsTo(DocType::class);
     }
 
-    /** 固定選項清單（select、radio 型別） */
+    /** 固定選項清單（select、radio、checkgroup 型別） */
     public function choices(): array
     {
         return array_values($this->options['choices'] ?? []);
@@ -79,6 +79,7 @@ class DocField extends Model
 
         return match ($this->type) {
             'checkbox' => $value ? '是' : '否',
+            'checkgroup' => implode('、', array_map('strval', (array) $value)),
             'master' => (string) ($value['label'] ?? ''),
             'number' => number_format((float) $value, $this->decimals()),
             default => (string) $value,

@@ -175,6 +175,18 @@ return [
             'renderer' => 'field.radio',
             'capabilities' => ['data_binding' => true, 'events' => ['value_changed']],
         ],
+        'checkgroup' => [
+            'version' => 1,
+            'default_width' => 6,
+            'options' => [
+                'choices' => ['type' => 'array', 'required' => true, 'min_items' => 1, 'item_type' => 'string'],
+                'layout' => ['type' => 'string', 'required' => false, 'enum' => ['horizontal', 'vertical']],
+            ],
+            'section_options' => [],
+            'allowed_sections' => ['header', 'item'],
+            'renderer' => 'field.checkgroup',
+            'capabilities' => ['data_binding' => true, 'events' => ['value_changed']],
+        ],
         'master' => [
             'version' => 1,
             'default_width' => 6,

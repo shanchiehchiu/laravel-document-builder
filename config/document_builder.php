@@ -97,6 +97,7 @@ return [
         'checkbox' => '勾選',
         'select' => '固定選項',
         'radio' => '單選按鈕',
+        'checkgroup' => '複選',
         'master' => '主檔下拉',
     ],
 
