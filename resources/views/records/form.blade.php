@@ -125,7 +125,8 @@ $(function () {
                     url: $select.data('url'),
                     data: function (params) { return { search: params.term }; },
                     processResults: function (data) {
-                        return { results: data.map(function (item) { return { id: item.id, text: item.name }; }) };
+                        // extras 是附隨帶入的值（主檔來源有設定時才有），選取時 master-extras.js 會讀取
+                        return { results: data.map(function (item) { return { id: item.id, text: item.name, extras: item.extras }; }) };
                     }
                 }
             });
