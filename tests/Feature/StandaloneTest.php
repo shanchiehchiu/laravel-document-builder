@@ -157,5 +157,7 @@ class StandaloneTest extends TestCase
         // 標點不成詞，搜 % 等於沒有關鍵字
         $this->actingAs($user)->getJson($url.'keyword='.urlencode('%'), $ajax)->assertOk()->assertJsonPath('recordsFiltered', 2);
         $this->actingAs($user)->getJson($url.'keyword='.urlencode('身體'), $ajax)->assertOk()->assertJsonPath('recordsFiltered', 1);
+        // 未超過上限時不標示
+        $this->actingAs($user)->getJson($url.'keyword='.urlencode('身體'), $ajax)->assertOk()->assertJsonPath('filtered_capped', false);
     }
 }

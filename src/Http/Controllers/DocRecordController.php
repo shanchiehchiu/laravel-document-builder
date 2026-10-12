@@ -12,6 +12,7 @@ use DocumentBuilder\Services\DocRecordService;
 use DocumentBuilder\Services\FilterIndexService;
 use DocumentBuilder\Services\MasterSourceRegistry;
 use DocumentBuilder\Services\RecordTermService;
+use Illuminate\Support\Facades\DB;
 use DocumentBuilder\Services\RecordValidator;
 use DocumentBuilder\FormPlatform\FormRevisionService;
 use DocumentBuilder\FormPlatform\FormRuntimeRenderer;
@@ -26,6 +27,9 @@ use Illuminate\Validation\Rule;
  */
 class DocRecordController extends Controller
 {
+    /** 關鍵字搜尋的筆數上限，超過只顯示「超過上限」 */
+    private const FILTER_COUNT_CAP = 1000;
+
     public function __construct(
         private readonly DocRecordService $service,
         private readonly RecordValidator $validator,
@@ -103,7 +107,18 @@ class DocRecordController extends Controller
             $table->addColumn("f_{$field->key}", fn (DocRecord $r): string => $field->display($r->value($field->key)));
         }
 
-        return $table->make(true);
+        // 關鍵字很常見時（幾乎每筆都命中）完整計數會很慢，所以最多計到上限，超過就標示
+        $capped = false;
+        if ($request->filled('keyword')) {
+            $limited = (clone $query)->reorder()->select('doc_records.id')->limit(self::FILTER_COUNT_CAP + 1)->toBase();
+            $counted = DB::query()->fromSub($limited, 'matched')->count();
+            $capped = $counted > self::FILTER_COUNT_CAP;
+            // DataTables 會先算 recordsTotal，且會在帶有關鍵字的查詢上完整計數；兩個都先設上限，避免完整計數
+            $table->setTotalRecords(min($counted, self::FILTER_COUNT_CAP));
+            $table->setFilteredRecords(min($counted, self::FILTER_COUNT_CAP));
+        }
+
+        return $table->with('filtered_capped', $capped)->make(true);
     }
 
     public function create(DocType $docType)

@@ -89,6 +89,10 @@ $(function () {
         serverSide: true,
         ordering: false,
         searching: false,
+        infoCallback: function (settings, start, end, max, total, pre) {
+            // 關鍵字的筆數超過上限時，標示實際超過
+            return settings.json && settings.json.filtered_capped ? pre + '（超過 1,000 筆，僅計算前 1,000 筆）' : pre;
+        },
         responsive: true,
         language: { url: '{{ \DocumentBuilder\Support\Assets::datatablesLanguage() }}' },
         ajax: {

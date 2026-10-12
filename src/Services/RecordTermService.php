@@ -79,12 +79,13 @@ class RecordTermService
     public function constrain(Builder $query, DocType $type, string $keyword): void
     {
         foreach ($this->tokenize($keyword) as $term) {
-            $prefix = addcslashes($term, '%_\\').'%';
+            // 跳脫字元用 !，避免反斜線在 MySQL 字串裡被當成跳脫字元
+            $prefix = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $term).'%';
             $query->whereIn('doc_records.id', function ($sub) use ($type, $prefix): void {
                 $sub->select('doc_record_id')
                     ->from(self::TABLE)
                     ->where('doc_type_id', $type->getKey())
-                    ->whereRaw("term like ? escape '\\'", [$prefix]);
+                    ->whereRaw("term like ? escape '!'", [$prefix]);
             });
         }
     }
