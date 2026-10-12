@@ -9,6 +9,9 @@
             'inputId' => "item-{$tableKey}-{$index}-{$field->key}",
             'value' => $item?->value($field->key),
             'compact' => true,
+            // 明細列內的欄位用獨立的標記屬性，列內連動只在同一列內查找，不會碰到表頭或其他列
+            'eventKey' => $field->key,
+            'eventAttr' => 'data-row-event-key',
         ])
     </td>
     @endforeach

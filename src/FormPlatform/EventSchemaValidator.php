@@ -38,20 +38,27 @@ class EventSchemaValidator
             $this->onlyKeys($event, ['trigger', 'condition', 'actions'], $path, $errors);
 
             $trigger = $event['trigger'] ?? null;
-            $sourceKey = null;
+            $sourceId = null;
             $sourceField = null;
+            // 事件範圍：未指定 table_key 為表頭事件；指定後為該明細表同一列內的事件
+            $tableKey = null;
             if (! is_array($trigger) || array_is_list($trigger)) {
                 $errors[] = ['path' => $path.'.trigger', 'message' => '事件觸發條件必須是物件'];
             } else {
-                $this->onlyKeys($trigger, ['type', 'field'], $path.'.trigger', $errors);
+                $this->onlyKeys($trigger, ['type', 'field', 'table_key'], $path.'.trigger', $errors);
                 if (($trigger['type'] ?? null) !== 'field.changed') {
                     $errors[] = ['path' => $path.'.trigger.type', 'message' => '目前只支援欄位變更事件'];
                 }
+                $tableKey = $this->eventTableKey($trigger, $path.'.trigger.table_key', $errors);
                 $sourceKey = $trigger['field'] ?? null;
-                $sourceField = is_string($sourceKey) ? ($fieldIndex[$sourceKey] ?? null) : null;
+                $sourceField = is_string($sourceKey) ? ($fieldIndex[$this->scopeId($tableKey, $sourceKey)] ?? null) : null;
                 if (! is_string($sourceKey) || $sourceField === null) {
-                    $errors[] = ['path' => $path.'.trigger.field', 'message' => '觸發欄位必須是未封存的表頭欄位'];
-                    $sourceKey = null;
+                    $errors[] = ['path' => $path.'.trigger.field', 'message' => $tableKey === null
+                        ? '觸發欄位必須是未封存的表頭欄位'
+                        : '觸發欄位必須是同一明細表中未封存的欄位'];
+                    $sourceField = null;
+                } else {
+                    $sourceId = $this->scopeId($tableKey, $sourceKey);
                 }
             }
 
@@ -82,13 +89,17 @@ class EventSchemaValidator
                     $errors[] = ['path' => $actionPath.'.type', 'message' => '目前只支援設定固定欄位值'];
                 }
 
+                // 目標必須與觸發欄位在同一範圍：表頭事件只能改表頭，明細列事件只能改同一列的欄位
                 $targetKey = $action['field'] ?? null;
-                $targetField = is_string($targetKey) ? ($fieldIndex[$targetKey] ?? null) : null;
+                $targetId = is_string($targetKey) ? $this->scopeId($tableKey, $targetKey) : null;
+                $targetField = $targetId !== null ? ($fieldIndex[$targetId] ?? null) : null;
                 if (! is_string($targetKey) || $targetField === null) {
-                    $errors[] = ['path' => $actionPath.'.field', 'message' => '目標必須是未封存的表頭欄位'];
-                } elseif ($sourceKey !== null) {
-                    $graph[$sourceKey][] = $targetKey;
-                    if ($sourceKey === $targetKey) {
+                    $errors[] = ['path' => $actionPath.'.field', 'message' => $tableKey === null
+                        ? '目標必須是未封存的表頭欄位'
+                        : '目標必須是同一明細表中未封存的欄位'];
+                } elseif ($sourceId !== null) {
+                    $graph[$sourceId][] = $targetId;
+                    if ($sourceId === $targetId) {
                         $errors[] = ['path' => $actionPath.'.field', 'message' => '事件不得設定自己的觸發欄位'];
                     }
                 }
@@ -146,18 +157,45 @@ class EventSchemaValidator
         }
     }
 
+    /** 索引表頭與明細欄位，鍵為 scopeId，所以同名的表頭欄位與明細欄位不會互相覆蓋 */
     private function fieldIndex(array $fields): array
     {
         $index = [];
         foreach ($fields as $field) {
-            if (! is_array($field) || ($field['section'] ?? null) !== 'header'
-                || ($field['archived'] ?? false) !== false || ! is_string($field['key'] ?? null)) {
+            if (! is_array($field) || ($field['archived'] ?? false) !== false || ! is_string($field['key'] ?? null)) {
                 continue;
             }
-            $index[$field['key']] = $field;
+            $section = $field['section'] ?? null;
+            if ($section === 'header') {
+                $index[$this->scopeId(null, $field['key'])] = $field;
+            } elseif ($section === 'item' && is_string($field['table_key'] ?? null)) {
+                $index[$this->scopeId($field['table_key'], $field['key'])] = $field;
+            }
         }
 
         return $index;
+    }
+
+    /** 欄位在事件範圍內的識別：表頭為 h:代碼，明細為 i:明細表代碼:欄位代碼 */
+    private function scopeId(?string $tableKey, string $key): string
+    {
+        return $tableKey === null ? 'h:'.$key : 'i:'.$tableKey.':'.$key;
+    }
+
+    /** 讀取 trigger.table_key；沒設定為表頭事件，設定了就必須是合法的明細表代碼 */
+    private function eventTableKey(array $trigger, string $path, array &$errors): ?string
+    {
+        if (! array_key_exists('table_key', $trigger)) {
+            return null;
+        }
+        $tableKey = $trigger['table_key'];
+        if (! is_string($tableKey) || preg_match('/^[a-z][a-z0-9_]{0,29}$/', $tableKey) !== 1) {
+            $errors[] = ['path' => $path, 'message' => '明細表代碼格式不正確'];
+
+            return null;
+        }
+
+        return $tableKey;
     }
 
     private function validValue(array $field, mixed $value): bool
