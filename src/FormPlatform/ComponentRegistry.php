@@ -39,7 +39,12 @@ class ComponentRegistry
         $unknown = array_diff(array_keys($definitions), array_keys($labels));
 
         if ($missing !== [] || $unknown !== []) {
-            throw new LogicException('表單平台欄位型別登錄與 DocumentBuilder 欄位型別不一致');
+            // 指出缺少與多餘的代碼：宿主專案發布過設定檔時，常見的原因是漏了新增的型別
+            throw new LogicException(sprintf(
+                '表單平台欄位型別登錄與 DocumentBuilder 欄位型別不一致（缺少：%s；多餘：%s）。請檢查 config/document_builder.php 的 field_types 是否為最新版本。',
+                $missing === [] ? '無' : implode('、', $missing),
+                $unknown === [] ? '無' : implode('、', $unknown),
+            ));
         }
 
         $fieldTypes = [];
