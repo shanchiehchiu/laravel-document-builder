@@ -14,6 +14,7 @@ class ComponentRendererRegistry
         'layout.heading' => 'document-builder::records._runtime_heading',
         'layout.note' => 'document-builder::records._runtime_note',
         'layout.spacer' => 'document-builder::records._runtime_spacer',
+        'layout.divider' => 'document-builder::records._runtime_divider',
         'layout.table' => 'document-builder::records._table',
     ];
 

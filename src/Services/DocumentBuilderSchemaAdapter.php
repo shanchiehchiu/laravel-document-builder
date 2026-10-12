@@ -368,6 +368,7 @@ class DocumentBuilderSchemaAdapter
                     'heading' => ['type', 'text', 'bg', 'border'],
                     'note' => ['type', 'text'],
                     'spacer' => ['type'],
+                    'divider' => ['type'],
                     default => throw new InvalidArgumentException('Schema 含有未登記的元件類型'),
                 };
                 $this->assertOnlyKeys($component, $allowed, 'Schema 元件');

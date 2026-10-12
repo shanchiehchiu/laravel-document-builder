@@ -398,6 +398,7 @@ class FormDraftService
             'heading' => ['text', 'bg', 'border', 'width'],
             'note' => ['text', 'width'],
             'spacer' => ['width'],
+            'divider' => ['width'],
             'table' => ['title'],
             default => throw new ToolCallException('指定的元件類型未登錄'),
         };
@@ -412,6 +413,7 @@ class FormDraftService
                 'heading' => $this->textComponent('heading', $props, 12),
                 'note' => $this->textComponent('note', $props, 12),
                 'spacer' => $this->spacerComponent($props),
+                'divider' => $this->dividerComponent($props),
                 'table' => $this->tableComponent($props, $schema),
             };
         } catch (ValidationException $exception) {
@@ -542,6 +544,15 @@ class FormDraftService
         ])->validate();
 
         return [['type' => 'spacer'], (int) $input['width'], null];
+    }
+
+    private function dividerComponent(array $props): array
+    {
+        $input = Validator::make($props, [
+            'width' => ['required', Rule::in(array_keys(config('document_builder.widths')))],
+        ])->validate();
+
+        return [['type' => 'divider'], (int) $input['width'], null];
     }
 
     private function tableComponent(array $props, array $schema): array

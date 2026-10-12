@@ -36,7 +36,7 @@
         labels[type] = FIELD_TYPE_DEFS[type].label;
         return labels;
     }, {});
-    var KIND_NAMES = ['heading', 'note', 'spacer'].reduce(function (labels, type) {
+    var KIND_NAMES = ['heading', 'note', 'divider', 'spacer'].reduce(function (labels, type) {
         labels[type] = COMPONENTS[type].label;
         return labels;
     }, {});
@@ -285,6 +285,8 @@
                     : '<h4 class="fs-5 fw-semibold border-bottom pb-2 mb-0">' + esc(m.get('text')) + '</h4>';
             case 'note':
                 return '<p class="text-muted mb-0" style="white-space: pre-line">' + esc(m.get('text')) + '</p>';
+            case 'divider':
+                return '<hr class="db-divider">';
             case 'spacer':
                 return '<div class="db-spacer">空白格</div>';
             default:
@@ -368,7 +370,7 @@
             ];
         }
         if (kind === 'note') return [{ type: 'db-textarea', name: 'text', label: '說明文字', changeProp: true }, widthTrait()];
-        if (kind === 'spacer') return [widthTrait()];
+        if (kind === 'spacer' || kind === 'divider') return [widthTrait()];
 
         // 明細表裡的欄位：沒有欄寬（表格一欄）與「顯示在列表」（列表只列表頭欄位）；數字欄可勾合計
         var item = inTable(m);
@@ -910,6 +912,7 @@
         heading: '<path d="M6 4v16M18 4v16M6 12h12"/>',
         note: '<path d="M4 6h16M4 10h16M4 14h10"/>',
         spacer: '<rect x="4" y="6" width="16" height="12" rx="2" stroke-dasharray="3 3"/>',
+        divider: '<path d="M3 12h18"/>',
         archived: '<path d="M3 7h18v13H3zM3 7l2-3h14l2 3M10 12h4"/>',
         table: '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 10h18M3 14.5h18M9 5v14"/>'
     };
@@ -1006,6 +1009,7 @@
     }
     bm.add('layout-heading', { label: COMPONENTS.heading.label, category: '輔助排版', media: icon('heading'), content: { type: CELL, kind: 'heading', width: 12, text: COMPONENTS.heading.label } });
     bm.add('layout-note', { label: COMPONENTS.note.label, category: '輔助排版', media: icon('note'), content: { type: CELL, kind: 'note', width: 12, text: COMPONENTS.note.label } });
+    bm.add('layout-divider', { label: COMPONENTS.divider.label, category: '輔助排版', media: icon('divider'), content: { type: CELL, kind: 'divider', width: 12 } });
     bm.add('layout-spacer', { label: COMPONENTS.spacer.label, category: '輔助排版', media: icon('spacer'), content: { type: CELL, kind: 'spacer', width: 6 } });
     bm.add('layout-table', { label: COMPONENTS.table.label, category: '表格', media: icon('table'), content: { type: TABLE, title: COMPONENTS.table.label, tableKey: '' } });
 
@@ -1644,8 +1648,8 @@
                 source: type === 'master' ? (c.get('source') || null) : null,
                 sum: inTable(c) && type === 'number' && !!c.get('sum')
             };
-        } else if (kind === 'spacer') {
-            item = { kind: 'spacer' };
+        } else if (kind === 'spacer' || kind === 'divider') {
+            item = { kind: kind };
         } else if (kind === 'heading') {
             item = { kind: kind, text: String(c.get('text') || ''), bg: c.get('bg') || null, border: c.get('border') || null };
         } else {
@@ -1808,8 +1812,8 @@
                         component: placeField(item, 'header', null, col.width)
                     };
                 }
-                if (item.kind === 'spacer') {
-                    return { width: col.width, component: { type: 'spacer' } };
+                if (item.kind === 'spacer' || item.kind === 'divider') {
+                    return { width: col.width, component: { type: item.kind } };
                 }
                 if (item.kind === 'heading') {
                     return {

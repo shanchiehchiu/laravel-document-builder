@@ -307,8 +307,8 @@ a.wfb-btn { text-decoration: none; }
 }
 #wfb-blocks .gjs-block:hover::before { opacity: 1; }
 
-/* 分類裡只有一張積木（目前是主檔關聯、明細表）：跨滿整列，改成水平卡片（圖示左、文字右），不留下空格 */
-#wfb-blocks .gjs-blocks-c > .gjs-block:only-child {
+/* 分類最後一張積木若落在新的一排的第一格（3n+1 且是最後一張），表示那一排只剩它一張：跨滿整列，改成水平卡片（圖示左、文字右），不留下空格 */
+#wfb-blocks .gjs-blocks-c > .gjs-block:nth-child(3n+1):last-child {
     grid-column: 1 / -1;
     flex-direction: row;
     justify-content: flex-start;
@@ -318,10 +318,10 @@ a.wfb-btn { text-decoration: none; }
     padding: 8px 12px;
     text-align: left;
 }
-#wfb-blocks .gjs-blocks-c > .gjs-block:only-child .gjs-block__media { flex: 0 0 auto; }
-#wfb-blocks .gjs-blocks-c > .gjs-block:only-child .gjs-block-label { flex: 1 1 auto; min-width: 0; text-align: left; }
+#wfb-blocks .gjs-blocks-c > .gjs-block:nth-child(3n+1):last-child .gjs-block__media { flex: 0 0 auto; }
+#wfb-blocks .gjs-blocks-c > .gjs-block:nth-child(3n+1):last-child .gjs-block-label { flex: 1 1 auto; min-width: 0; text-align: left; }
 /* 水平卡片的左上角已被圖示占用，鏈結標記改到左下角 */
-#wfb-blocks .gjs-blocks-c > .gjs-block.wfb-block-master:only-child::after { top: auto; bottom: 6px; }
+#wfb-blocks .gjs-blocks-c > .gjs-block.wfb-block-master:nth-child(3n+1):last-child::after { top: auto; bottom: 6px; }
 /* 主檔積木左下角的鏈結標記：表示這是關聯主檔，和靜態欄位區分開 */
 #wfb-blocks .gjs-block.wfb-block-master::after {
     content: "";
@@ -337,3 +337,6 @@ a.wfb-btn { text-decoration: none; }
 
 /* 主檔欄位卡片上的來源小圖示：與文字基線對齊 */
 .db-badge.is-master svg { width: 12px; height: 12px; vertical-align: -2px; margin-right: 3px; }
+
+/* 畫布上的分隔線：細線，上下留一點距離 */
+.db-divider { margin: 6px 0; border: 0; border-top: 1px solid #94a3b8; opacity: .8; }

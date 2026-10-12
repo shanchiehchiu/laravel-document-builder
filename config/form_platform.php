@@ -53,6 +53,16 @@ return [
             'renderer' => 'layout.note',
             'capabilities' => ['data_binding' => false, 'events' => []],
         ],
+        'divider' => [
+            'label' => '分隔線',
+            'version' => 1,
+            'props' => [],
+            'default_props' => [],
+            'allowed_parents' => ['column'],
+            'allowed_children' => [],
+            'renderer' => 'layout.divider',
+            'capabilities' => ['data_binding' => false, 'events' => []],
+        ],
         'spacer' => [
             'label' => '空白格',
             'version' => 1,

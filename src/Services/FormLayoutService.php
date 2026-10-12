@@ -22,7 +22,7 @@ use Illuminate\Validation\ValidationException;
  */
 class FormLayoutService
 {
-    public const KINDS = ['field', 'heading', 'note', 'spacer', 'table'];
+    public const KINDS = ['field', 'heading', 'note', 'divider', 'spacer', 'table'];
 
     private const GRID = 12;
 
