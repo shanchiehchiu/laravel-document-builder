@@ -366,12 +366,14 @@
             { type: 'number', name: 'noSeqDigits', label: '流水號補零位數', changeProp: true, min: 1, max: 12, step: 1 },
             { type: 'db-number-example', name: 'noExample', label: '單號範例' },
             { type: 'number', name: 'docSeq', label: '選單排序', changeProp: true, min: 0, step: 1 },
-            { type: 'select', name: 'docStatus', label: '狀態', changeProp: true, options: [{ id: '1', label: '啟用' }, { id: '0', label: '停用（側選單隱藏，單據無法進入）' }] }
+            { type: 'checkbox', name: 'docStatus', label: '啟用單據', changeProp: true },
+            { type: 'db-info', name: 'statusNote', label: '說明', note: true, text: '停用後側選單隱藏，單據無法進入。' }
         ];
+        list.push({ type: 'db-info', name: 'buttonsHeader', label: '前台操作功能', note: true, text: '勾選的操作才會出現在填單與列表。' });
         Object.keys(C.buttonLabels).forEach(function (key) {
-            list.push({ type: 'checkbox', name: BUTTON_PROP(key), label: '顯示「' + C.buttonLabels[key] + '」', changeProp: true });
+            list.push({ type: 'checkbox', name: BUTTON_PROP(key), label: C.buttonLabels[key], changeProp: true });
         });
-        list.push({ type: 'db-info', name: 'buttonsNote', label: '前台按鈕', note: true, text: '檢視、返回列表固定顯示。關掉的按鈕連網址一起擋下，不只是隱藏；刪除按鈕在列表的每一列上。' });
+        list.push({ type: 'db-info', name: 'buttonsNote', label: '權限說明', note: true, text: '「檢視」與「返回列表」固定開放。關閉的操作會連網址一起擋下，不只是隱藏；「刪除」按鈕在列表的每一列上。' });
         return list;
     }
 
@@ -867,7 +869,7 @@
         editor.TraitManager.addType('db-number-example', {
             createInput: function (o) {
                 var el = document.createElement('div');
-                el.className = 'db-trait-info';
+                el.className = 'db-trait-info db-number-preview';
                 el.innerHTML = '<div><div class="db-info-value db-number-example-value"></div>'
                     + '<div class="db-info-hint">範例使用今天日期與週期內第一個流水號</div></div>';
                 var view = this;
@@ -1479,7 +1481,7 @@
             noDateFormat: settings.noDateFormat,
             noSeqDigits: settings.noSeqDigits,
             docSeq: settings.seq,
-            docStatus: settings.status ? '1' : '0',
+            docStatus: !!settings.status,
             eventSchema: JSON.stringify(C.schema.events || [])
         }, buttonProps));
     }
@@ -1500,7 +1502,7 @@
         var seq = parseInt(w.get('docSeq'), 10);
         return {
             name: String(w.get('docName') || '').trim(),
-            status: String(w.get('docStatus')) === '1',
+            status: !!w.get('docStatus'),
             seq: isNaN(seq) ? 0 : seq,
             no_prefix: String(w.get('noPrefix') || '').trim(),
             no_date_format: String(w.get('noDateFormat') || 'Ymd'),

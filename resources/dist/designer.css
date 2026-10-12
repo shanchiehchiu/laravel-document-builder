@@ -76,6 +76,15 @@
 .db-info-value { color: #1f2937; font-size: 12.5px; }
 .db-info-hint { margin-top: 2px; color: #94a3b8; font-size: 11.5px; }
 .db-trait-info.is-note { color: #64748b; }
+/* 單號範例：預覽卡片（等寬字、淺藍底），與一般說明文字區分 */
+.db-trait-info.db-number-preview {
+    padding: 8px 10px;
+    margin: 4px 0;
+    background: #f0f7ff;
+    border: 1px solid #dbeafe;
+    border-radius: 6px;
+}
+.db-number-preview .db-number-example-value { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 600; color: #1e3a8a; }
 .db-trait-info.is-note::before { display: none; }
 
 /* 小按鈕（清除、自動產生） */
