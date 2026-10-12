@@ -71,7 +71,7 @@ class FormLayoutService
 
                 // 區塊佔滿整列，色調存進格子供畫布與區塊分組使用
                 if ($item['kind'] === 'section') {
-                    $cols[] = ['width' => 12, 'kind' => 'section', 'text' => (string) ($item['text'] ?? '')];
+                    $cols[] = ['width' => 12, 'kind' => 'section', 'text' => (string) ($item['text'] ?? ''), 'bg' => $item['bg'] ?? null];
 
                     continue;
                 }
@@ -102,7 +102,8 @@ class FormLayoutService
                 'components' => array_map(fn (array $col): array => isset($col['field'])
                     ? $this->fieldCell($col['field'], $col['width'])
                     : ['type' => 'db-cell', 'kind' => $col['kind'], 'width' => $col['width'], 'text' => $col['text']]
-                        + ($col['kind'] === 'heading' ? ['bg' => (string) $col['bg'], 'border' => (string) $col['border']] : []),
+                        + ($col['kind'] === 'heading' ? ['bg' => (string) $col['bg'], 'border' => (string) $col['border']] : [])
+                        + ($col['kind'] === 'section' ? ['bg' => (string) ($col['bg'] ?? '')] : []),
                     $cols),
             ], $this->rows($type));
     }
@@ -202,6 +203,8 @@ class FormLayoutService
                             // 顏色只有區段標題用得到；存小寫，空值不存
                             'bg' => $item['kind'] === 'heading' && ! empty($item['bg']) ? strtolower($item['bg']) : null,
                             'border' => $item['kind'] === 'heading' && ! empty($item['border']) ? strtolower($item['border']) : null,
+                            // 區塊底色：有填才存（小寫）；沒填就是預設的中性卡片
+                            'bg' => in_array($item['kind'], ['heading', 'section'], true) && ! empty($item['bg']) ? strtolower($item['bg']) : null,
                         ], fn ($v): bool => $v !== null);
                     }
 
@@ -388,6 +391,24 @@ class FormLayoutService
         $text = self::contrast($bg, '#ffffff') >= self::contrast($bg, self::DARK_TEXT) ? '#ffffff' : self::DARK_TEXT;
 
         return "background-color: {$bg}; color: {$text}; border: 1px solid ".($border ?: $bg);
+    }
+
+    /**
+     * 區塊的卡片樣式：沒有指定底色時用中性卡片；有指定時底色就是選的顏色，邊框同色，
+     * 標題文字依對比自動挑白字或深色字（與區段標題相同的規則）。
+     *
+     * @return array{bg: string, border: string, title: string}
+     */
+    public static function sectionStyle(?string $bg): array
+    {
+        if (! $bg) {
+            return self::SECTION_STYLE;
+        }
+
+        $bg = strtolower($bg);
+        $title = self::contrast($bg, '#ffffff') >= self::contrast($bg, self::DARK_TEXT) ? '#ffffff' : self::DARK_TEXT;
+
+        return ['bg' => $bg, 'border' => $bg, 'title' => $title];
     }
 
     /** WCAG 對比值 */

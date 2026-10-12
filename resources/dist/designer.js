@@ -29,7 +29,7 @@
     var ARCHIVED = '已封存';
     // 一格可能帶的屬性（存檔、記住已封存欄位時用）
     var PROPS = ['kind', 'width', 'fieldId', 'key', 'label', 'ftype', 'required', 'showInList', 'choices', 'layout', 'decimals', 'currency', 'source', 'text', 'bg', 'border', 'tableKey', 'sum'];
-    // 區塊固定樣式：與 FormLayoutService::SECTION_STYLE 同一組數值（中性卡片，不提供色調）
+    // 區塊預設樣式（沒選底色時）：與 FormLayoutService::SECTION_STYLE 同一組數值
     var SECTION_STYLE = { bg: '#f8fafc', border: '#e2e8f0', title: '#0f172a' };
     var KEY_RE = /^[a-z][a-z0-9_]{0,49}$/;
     var COLOR_RE = /^#[0-9a-f]{6}$/;
@@ -314,7 +314,7 @@
                     : '<h4 class="fs-5 fw-semibold border-bottom pb-2 mb-0">' + esc(m.get('text')) + '</h4>';
             case 'section':
                 return '<div class="db-section-marker">'
-                    + '<span class="db-section-tag" style="color: ' + SECTION_STYLE.title + '">區塊</span> '
+                    + '<span class="db-section-tag">區塊</span> '
                     + (m.get('text') ? '<strong>' + esc(m.get('text')) + '</strong>' : '<span class="text-muted">（無標題）</span>')
                     + '<span class="text-muted ms-2">以下的欄位屬於這個區塊，直到下一個區塊</span></div>';
             case 'note':
@@ -401,7 +401,8 @@
         var kind = m.get('kind');
         if (kind === 'section') {
             return [
-                { type: 'text', name: 'text', label: '區塊標題（選填）', changeProp: true }
+                { type: 'text', name: 'text', label: '區塊標題（選填）', changeProp: true },
+                { type: 'db-color', name: 'bg', label: '背景顏色（留空為預設）', changeProp: true }
             ];
         }
         if (kind === 'heading') {
@@ -1734,7 +1735,7 @@
         } else if (kind === 'spacer' || kind === 'divider') {
             item = { kind: kind };
         } else if (kind === 'section') {
-            item = { kind: kind, text: String(c.get('text') || '') };
+            item = { kind: kind, text: String(c.get('text') || ''), bg: c.get('bg') || null };
         } else if (kind === 'heading') {
             item = { kind: kind, text: String(c.get('text') || ''), bg: c.get('bg') || null, border: c.get('border') || null };
         } else {
@@ -1914,7 +1915,7 @@
                     };
                 }
                 if (item.kind === 'section') {
-                    return { width: 12, component: { type: 'section', text: item.text } };
+                    return { width: 12, component: item.bg ? { type: 'section', text: item.text, bg: item.bg } : { type: 'section', text: item.text } };
                 }
                 return { width: col.width, component: { type: 'note', text: item.text } };
             }) };
@@ -2230,24 +2231,39 @@
         var first = comp.components && comp.components().at(0);
         return !!first && first.get('kind') === 'section';
     }
+    // 區塊顏色：有指定底色時邊框同色、標題文字依對比自動挑白字或深色字（與區段標題相同規則）
+    function sectionColors(bg) {
+        if (!bg || !COLOR_RE.test(bg)) return SECTION_STYLE;
+        var title = contrast(bg, '#ffffff') >= contrast(bg, DARK_TEXT) ? '#ffffff' : DARK_TEXT;
+        return { bg: bg, border: bg, title: title };
+    }
     function paintSections() {
         if (!canvasDoc || !editor) return;
         ensureCanvasStyle('db-section-style', SECTION_CSS);
         var items = editor.getWrapper().components().map(function (comp) {
-            return { comp: comp, marker: isSectionRow(comp) };
+            var marker = isSectionRow(comp);
+            return { comp: comp, marker: marker, colors: marker ? sectionColors(comp.components().at(0).get('bg')) : null };
         });
-        var inSection = false;
+        var current = null;
         items.forEach(function (item, i) {
             var el = item.comp.getEl && item.comp.getEl();
             if (!el) return;
             SECTION_CLASSES.forEach(function (c) { el.classList.remove(c); });
+            el.style.removeProperty('background-color');
+            el.style.removeProperty('border-color');
+            el.style.removeProperty('color');
             if (item.marker) {
-                inSection = true;
+                current = item.colors;
                 el.classList.add('db-section-start');
                 var next = items[i + 1];
                 if (!next || next.marker) el.classList.add('db-section-empty');
-            } else if (inSection) {
+            } else if (current) {
                 el.classList.add('db-in-section');
+            }
+            if (current) {
+                el.style.setProperty('background-color', current.bg);
+                el.style.setProperty('border-color', current.border);
+                el.style.setProperty('color', current.title);
             }
         });
     }

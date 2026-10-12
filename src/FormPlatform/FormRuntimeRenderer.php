@@ -91,7 +91,7 @@ class FormRuntimeRenderer
 
                 if ($type === 'section') {
                     // 區塊只是分隔標記，佔滿整列；之後的列由 FormLayoutService::sectionBlocks() 歸進區塊
-                    $cols[] = $base + ['width' => 12, 'text' => $component['text'] ?? ''];
+                    $cols[] = $base + ['width' => 12, 'text' => $component['text'] ?? '', 'bg' => $component['bg'] ?? null];
 
                     continue;
                 }

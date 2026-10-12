@@ -64,6 +64,35 @@ class SectionBlockTest extends TestCase
         $this->assertLessThan(strpos($html, 'name="data[amount_note]"'), $greenStart, '區塊之後的欄位不在第一個卡片前');
     }
 
+    public function test_區塊可自訂底色_標題文字依對比自動挑白字或深色字(): void
+    {
+        $dark = FormLayoutService::sectionStyle('#0f766e');
+        $this->assertSame(['bg' => '#0f766e', 'border' => '#0f766e', 'title' => '#ffffff'], $dark);
+
+        $light = FormLayoutService::sectionStyle('#fef3c7');
+        $this->assertSame('#fef3c7', $light['bg']);
+        $this->assertSame('#1f2937', $light['title']);
+
+        $this->assertSame(FormLayoutService::SECTION_STYLE, FormLayoutService::sectionStyle(null), '沒指定底色仍是中性卡片');
+    }
+
+    public function test_填單頁套用區塊自訂底色(): void
+    {
+        $admin = $this->makeAdmin();
+        $type = $this->makeType('contract', [
+            ['key' => 'vendor', 'label' => '廠商', 'type' => 'text'],
+        ], '維護合約');
+        $type->forceFill(['form_layout' => ['rows' => [
+            ['cols' => [['width' => 12, 'item' => ['kind' => 'section', 'text' => '客戶資訊', 'bg' => '#0F766E']]]],
+            ['cols' => [['width' => 6, 'item' => ['kind' => 'field', 'key' => 'vendor']]]],
+        ]]])->save();
+
+        $html = $this->actingAs($admin)->get(route('doc_records.create', 'contract'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('background: #0f766e', $html, '底色存成小寫並套用');
+        $this->assertStringContainsString('color: #ffffff', $html, '深色底的標題為白字');
+    }
+
     public function test_區塊經過_Schema_匯出與驗證都會通過_設計器存檔不會被擋(): void
     {
         $type = $this->makeType('contract', [

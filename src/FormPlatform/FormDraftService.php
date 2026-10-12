@@ -396,7 +396,7 @@ class FormDraftService
         $allowed = match ($componentType) {
             'field' => ['key', 'label', 'field_type', 'section', 'table_key', 'required', 'width', 'options', 'show_in_list'],
             'heading' => ['text', 'bg', 'border', 'width'],
-            'section' => ['text'],
+            'section' => ['text', 'bg'],
             'note' => ['text', 'width'],
             'spacer' => ['width'],
             'divider' => ['width'],

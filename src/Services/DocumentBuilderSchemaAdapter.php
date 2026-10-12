@@ -220,6 +220,9 @@ class DocumentBuilderSchemaAdapter
         }
         if ($col['kind'] === 'section') {
             $component['text'] = $col['text'] ?? '';
+            if (! empty($col['bg'])) {
+                $component['bg'] = $col['bg'];
+            }
         }
         if ($col['kind'] === 'heading') {
             if (! empty($col['bg'])) {
@@ -375,7 +378,7 @@ class DocumentBuilderSchemaAdapter
                     'field' => ['type', 'key'],
                     'table' => ['type', 'key', 'title', 'fields'],
                     'heading' => ['type', 'text', 'bg', 'border'],
-                    'section' => ['type', 'text'],
+                    'section' => ['type', 'text', 'bg'],
                     'note' => ['type', 'text'],
                     'spacer' => ['type'],
                     'divider' => ['type'],

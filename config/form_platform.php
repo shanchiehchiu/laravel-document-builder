@@ -47,8 +47,9 @@ return [
             'version' => 1,
             'props' => [
                 'text' => ['type' => 'string', 'required' => false, 'max_length' => 50],
+                'bg' => ['type' => 'string', 'nullable' => true, 'pattern' => '/^#[0-9a-fA-F]{6}$/'],
             ],
-            'default_props' => ['text' => ''],
+            'default_props' => ['text' => '', 'bg' => null],
             'allowed_parents' => ['column'],
             'allowed_children' => [],
             'renderer' => 'layout.section',
