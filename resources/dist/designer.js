@@ -28,14 +28,9 @@
     var BUTTON_PROP = function (key) { return 'btn_' + key; };
     var ARCHIVED = '已封存';
     // 一格可能帶的屬性（存檔、記住已封存欄位時用）
-    var PROPS = ['kind', 'width', 'fieldId', 'key', 'label', 'ftype', 'required', 'showInList', 'choices', 'layout', 'decimals', 'currency', 'source', 'text', 'bg', 'border', 'tone', 'tableKey', 'sum'];
-    // 區塊色調：與 FormLayoutService::SECTION_TONES 同一組數值，畫布上的色條與卡片底色用它
-    var SECTION_TONES = {
-        blue: { accent: '#2563eb', bg: '#f8fafc', border: '#e2e8f0', label: '藍色' },
-        gray: { accent: '#64748b', bg: '#f8fafc', border: '#e2e8f0', label: '灰色' },
-        green: { accent: '#059669', bg: '#f5fbf8', border: '#d1ebdf', label: '綠色' },
-        amber: { accent: '#d97706', bg: '#fffbf3', border: '#f3e2c4', label: '琥珀色' }
-    };
+    var PROPS = ['kind', 'width', 'fieldId', 'key', 'label', 'ftype', 'required', 'showInList', 'choices', 'layout', 'decimals', 'currency', 'source', 'text', 'bg', 'border', 'tableKey', 'sum'];
+    // 區塊固定樣式：與 FormLayoutService::SECTION_STYLE 同一組數值（中性卡片，不提供色調）
+    var SECTION_STYLE = { bg: '#f8fafc', border: '#e2e8f0', title: '#0f172a' };
     var KEY_RE = /^[a-z][a-z0-9_]{0,49}$/;
     var COLOR_RE = /^#[0-9a-f]{6}$/;
     var DARK_TEXT = '#1f2937';
@@ -318,9 +313,8 @@
                     ? '<h4 class="fs-5 fw-semibold rounded px-3 py-2 mb-0" style="' + style + '">' + esc(m.get('text')) + '</h4>'
                     : '<h4 class="fs-5 fw-semibold border-bottom pb-2 mb-0">' + esc(m.get('text')) + '</h4>';
             case 'section':
-                var tone = SECTION_TONES[m.get('tone')] || SECTION_TONES.blue;
-                return '<div class="db-section-marker" style="border-left-color: ' + tone.accent + '">'
-                    + '<span class="db-section-tag" style="color: ' + tone.accent + '">區塊</span> '
+                return '<div class="db-section-marker">'
+                    + '<span class="db-section-tag" style="color: ' + SECTION_STYLE.title + '">區塊</span> '
                     + (m.get('text') ? '<strong>' + esc(m.get('text')) + '</strong>' : '<span class="text-muted">（無標題）</span>')
                     + '<span class="text-muted ms-2">以下的欄位屬於這個區塊，直到下一個區塊</span></div>';
             case 'note':
@@ -407,8 +401,7 @@
         var kind = m.get('kind');
         if (kind === 'section') {
             return [
-                { type: 'text', name: 'text', label: '區塊標題（選填）', changeProp: true },
-                { type: 'select', name: 'tone', label: '色調', changeProp: true, options: Object.keys(SECTION_TONES).map(function (k) { return { id: k, label: SECTION_TONES[k].label }; }) }
+                { type: 'text', name: 'text', label: '區塊標題（選填）', changeProp: true }
             ];
         }
         if (kind === 'heading') {
@@ -1091,7 +1084,7 @@
         });
     }
     bm.add('layout-heading', { label: COMPONENTS.heading.label, category: '輔助排版', media: icon('heading'), content: { type: CELL, kind: 'heading', width: 12, text: COMPONENTS.heading.label } });
-    bm.add('layout-section', { label: COMPONENTS.section.label, category: '輔助排版', media: icon('section'), content: { type: CELL, kind: 'section', width: 12, text: '', tone: 'blue' } });
+    bm.add('layout-section', { label: COMPONENTS.section.label, category: '輔助排版', media: icon('section'), content: { type: CELL, kind: 'section', width: 12, text: '' } });
     bm.add('layout-note', { label: COMPONENTS.note.label, category: '輔助排版', media: icon('note'), content: { type: CELL, kind: 'note', width: 12, text: COMPONENTS.note.label } });
     bm.add('layout-divider', { label: COMPONENTS.divider.label, category: '輔助排版', media: icon('divider'), content: { type: CELL, kind: 'divider', width: 12 } });
     bm.add('layout-spacer', { label: COMPONENTS.spacer.label, category: '輔助排版', media: icon('spacer'), content: { type: CELL, kind: 'spacer', width: 6 } });
@@ -1741,7 +1734,7 @@
         } else if (kind === 'spacer' || kind === 'divider') {
             item = { kind: kind };
         } else if (kind === 'section') {
-            item = { kind: kind, text: String(c.get('text') || ''), tone: c.get('tone') || 'blue' };
+            item = { kind: kind, text: String(c.get('text') || '') };
         } else if (kind === 'heading') {
             item = { kind: kind, text: String(c.get('text') || ''), bg: c.get('bg') || null, border: c.get('border') || null };
         } else {
@@ -1921,7 +1914,7 @@
                     };
                 }
                 if (item.kind === 'section') {
-                    return { width: 12, component: { type: 'section', text: item.text, tone: item.tone } };
+                    return { width: 12, component: { type: 'section', text: item.text } };
                 }
                 return { width: col.width, component: { type: 'note', text: item.text } };
             }) };
@@ -2219,17 +2212,13 @@
         }
         canvasDoc.body.classList.toggle('db-label-left', !!left);
     }
-    // 區塊在畫布上的示意：區塊標題那列加上色條，之後的列歸進同一個區塊（底色與色條），空區塊有最小高度與提示
-    var SECTION_CSS = Object.keys(SECTION_TONES).map(function (k) {
-        var t = SECTION_TONES[k];
-        return '.db-tone-' + k + ' { --db-accent: ' + t.accent + '; --db-bg: ' + t.bg + '; --db-bd: ' + t.border + '; }';
-    }).join('')
-        + '.db-section-start { margin-top: 14px; background: var(--db-bg); border: 1px solid var(--db-bd); border-left: 4px solid var(--db-accent); border-radius: 6px 6px 0 0; padding: 6px 12px; }'
-        + '.db-in-section { background: var(--db-bg); border-left: 4px solid var(--db-accent); border-right: 1px solid var(--db-bd); padding: 4px 12px; }'
+    // 區塊在畫布上的示意：中性卡片（淡灰底、細邊框），標題那列是區塊起點，之後的列歸進同一個區塊，空區塊有最小高度與提示
+    var SECTION_CSS = '.db-section-start { margin-top: 14px; background: ' + SECTION_STYLE.bg + '; border: 1px solid ' + SECTION_STYLE.border + '; border-radius: 6px 6px 0 0; padding: 6px 12px; }'
+        + '.db-in-section { background: ' + SECTION_STYLE.bg + '; border-left: 1px solid ' + SECTION_STYLE.border + '; border-right: 1px solid ' + SECTION_STYLE.border + '; padding: 4px 12px; }'
         + '.db-section-empty { min-height: 80px; position: relative; }'
         + '.db-section-empty::after { content: "拖曳欄位至此區塊"; position: absolute; left: 12px; bottom: 8px; color: #94a3b8; font-size: 12px; }'
         + '.db-section-marker { font-size: 13px; }';
-    var SECTION_CLASSES = ['db-section-start', 'db-in-section', 'db-section-empty'].concat(Object.keys(SECTION_TONES).map(function (k) { return 'db-tone-' + k; }));
+    var SECTION_CLASSES = ['db-section-start', 'db-in-section', 'db-section-empty'];
     function ensureCanvasStyle(id, css) {
         if (!canvasDoc || !canvasDoc.head || canvasDoc.getElementById(id)) return;
         var style = canvasDoc.createElement('style');
@@ -2237,29 +2226,28 @@
         style.textContent = css;
         canvasDoc.head.appendChild(style);
     }
-    function sectionTone(comp) {
+    function isSectionRow(comp) {
         var first = comp.components && comp.components().at(0);
-        return first && first.get('kind') === 'section' ? (first.get('tone') || 'blue') : null;
+        return !!first && first.get('kind') === 'section';
     }
     function paintSections() {
         if (!canvasDoc || !editor) return;
         ensureCanvasStyle('db-section-style', SECTION_CSS);
-        var items = [];
-        editor.getWrapper().components().forEach(function (comp) {
-            items.push({ comp: comp, tone: sectionTone(comp) });
+        var items = editor.getWrapper().components().map(function (comp) {
+            return { comp: comp, marker: isSectionRow(comp) };
         });
-        var current = null;
+        var inSection = false;
         items.forEach(function (item, i) {
             var el = item.comp.getEl && item.comp.getEl();
             if (!el) return;
             SECTION_CLASSES.forEach(function (c) { el.classList.remove(c); });
-            if (item.tone) {
-                current = item.tone;
-                el.classList.add('db-section-start', 'db-tone-' + item.tone);
+            if (item.marker) {
+                inSection = true;
+                el.classList.add('db-section-start');
                 var next = items[i + 1];
-                if (!next || sectionTone(next.comp)) el.classList.add('db-section-empty');
-            } else if (current) {
-                el.classList.add('db-in-section', 'db-tone-' + current);
+                if (!next || next.marker) el.classList.add('db-section-empty');
+            } else if (inSection) {
+                el.classList.add('db-in-section');
             }
         });
     }

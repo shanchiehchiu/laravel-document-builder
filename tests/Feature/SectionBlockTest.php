@@ -46,9 +46,9 @@ class SectionBlockTest extends TestCase
         $fieldsByKey = $type->fields->keyBy('key');
         $type->forceFill(['form_layout' => ['rows' => [
             ['cols' => [['width' => 6, 'item' => ['kind' => 'field', 'key' => 'vendor']]]],
-            ['cols' => [['width' => 12, 'item' => ['kind' => 'section', 'text' => '客戶資訊', 'tone' => 'green']]]],
+            ['cols' => [['width' => 12, 'item' => ['kind' => 'section', 'text' => '客戶資訊']]]],
             ['cols' => [['width' => 6, 'item' => ['kind' => 'field', 'key' => 'amount_note']]]],
-            ['cols' => [['width' => 12, 'item' => ['kind' => 'section', 'tone' => 'amber']]]],
+            ['cols' => [['width' => 12, 'item' => ['kind' => 'section']]]],
         ]]])->save();
         $this->assertNotNull($fieldsByKey->get('vendor'));
 
@@ -56,8 +56,9 @@ class SectionBlockTest extends TestCase
 
         $this->assertSame(2, substr_count($html, 'class="db-form-section'), '兩個區塊各一個卡片');
         $this->assertStringContainsString('客戶資訊', $html);
-        $this->assertStringContainsString('border-left: 4px solid #059669', $html, '綠色色條');
-        $this->assertStringContainsString('border-left: 4px solid #d97706', $html, '琥珀色色條');
+        $this->assertSame(2, substr_count($html, 'background: #f8fafc'), '兩個區塊都是同一種中性底色');
+        $this->assertStringNotContainsString('border-left: 4px', $html, '不應有左側色條');
+        $this->assertStringContainsString('color: #0f172a', $html, '標題為深色粗體');
         $greenStart = strpos($html, 'class="db-form-section');
         $this->assertGreaterThan(strpos($html, 'name="data[vendor]"'), $greenStart, '第一個欄位在區塊之前');
         $this->assertLessThan(strpos($html, 'name="data[amount_note]"'), $greenStart, '區塊之後的欄位不在第一個卡片前');
@@ -69,25 +70,16 @@ class SectionBlockTest extends TestCase
             ['key' => 'vendor', 'label' => '廠商', 'type' => 'text'],
         ], '維護合約');
         $type->forceFill(['form_layout' => ['rows' => [
-            ['cols' => [['width' => 12, 'item' => ['kind' => 'section', 'text' => '客戶資訊', 'tone' => 'green']]]],
+            ['cols' => [['width' => 12, 'item' => ['kind' => 'section', 'text' => '客戶資訊']]]],
             ['cols' => [['width' => 6, 'item' => ['kind' => 'field', 'key' => 'vendor']]]],
         ]]])->save();
 
         $adapter = app(\DocumentBuilder\Services\DocumentBuilderSchemaAdapter::class);
         $schema = $adapter->export($type->fresh(['fields', 'statuses']));
 
-        $this->assertSame(['type' => 'section', 'text' => '客戶資訊', 'tone' => 'green'], $schema['layout']['rows'][0]['cols'][0]['component']);
+        $this->assertSame(['type' => 'section', 'text' => '客戶資訊'], $schema['layout']['rows'][0]['cols'][0]['component']);
         $this->assertSame([], app(\DocumentBuilder\FormPlatform\FormSchemaValidator::class)->validate($schema, $type->code)['errors']);
         $payload = $adapter->toDesignerPayload($type->fresh(['fields', 'statuses']), $schema);
-        $this->assertSame('green', $payload['rows'][0]['cols'][0]['item']['tone']);
-    }
-
-    public function test_色調只能是預設配色_其他值會被擋下(): void
-    {
-        $method = new \ReflectionMethod(FormLayoutService::class, 'validateStructure');
-        $method->setAccessible(true);
-
-        $this->expectException(ValidationException::class);
-        $method->invoke(app(FormLayoutService::class), [['cols' => [['width' => 12, 'item' => ['kind' => 'section', 'tone' => 'hotpink']]]]]);
+        $this->assertSame('客戶資訊', $payload['rows'][0]['cols'][0]['item']['text']);
     }
 }

@@ -71,7 +71,7 @@ class FormLayoutService
 
                 // 區塊佔滿整列，色調存進格子供畫布與區塊分組使用
                 if ($item['kind'] === 'section') {
-                    $cols[] = ['width' => 12, 'kind' => 'section', 'text' => (string) ($item['text'] ?? ''), 'tone' => $item['tone'] ?? 'blue'];
+                    $cols[] = ['width' => 12, 'kind' => 'section', 'text' => (string) ($item['text'] ?? '')];
 
                     continue;
                 }
@@ -102,8 +102,7 @@ class FormLayoutService
                 'components' => array_map(fn (array $col): array => isset($col['field'])
                     ? $this->fieldCell($col['field'], $col['width'])
                     : ['type' => 'db-cell', 'kind' => $col['kind'], 'width' => $col['width'], 'text' => $col['text']]
-                        + ($col['kind'] === 'heading' ? ['bg' => (string) $col['bg'], 'border' => (string) $col['border']] : [])
-                        + ($col['kind'] === 'section' ? ['tone' => (string) $col['tone']] : []),
+                        + ($col['kind'] === 'heading' ? ['bg' => (string) $col['bg'], 'border' => (string) $col['border']] : []),
                     $cols),
             ], $this->rows($type));
     }
@@ -203,7 +202,6 @@ class FormLayoutService
                             // 顏色只有區段標題用得到；存小寫，空值不存
                             'bg' => $item['kind'] === 'heading' && ! empty($item['bg']) ? strtolower($item['bg']) : null,
                             'border' => $item['kind'] === 'heading' && ! empty($item['border']) ? strtolower($item['border']) : null,
-                            'tone' => $item['kind'] === 'section' ? ($item['tone'] ?? 'blue') : null,
                         ], fn ($v): bool => $v !== null);
                     }
 
@@ -243,7 +241,6 @@ class FormLayoutService
             'rows.*.cols.*.item.bg' => ['nullable', 'regex:'.self::COLOR],
             'rows.*.cols.*.item.border' => ['nullable', 'regex:'.self::COLOR],
             // 區塊色調只接受預設配色的代碼
-            'rows.*.cols.*.item.tone' => ['nullable', Rule::in(array_keys(self::SECTION_TONES))],
             'rows.*.cols.*.item.title' => ['nullable', 'string', 'required_if:rows.*.cols.*.item.kind,table', 'max:50'],
             'rows.*.cols.*.item.key' => ['nullable', 'string'],
             'rows.*.cols.*.item.fields' => ['nullable', 'array', 'max:30'],
@@ -349,12 +346,11 @@ class FormLayoutService
      * 區段標題的 inline style；沒設定顏色回傳 null（沿用預設的底線樣式）。
      * 文字顏色不讓使用者選，依背景自動挑白字或深色字中對比較高的一個，避免淺底白字看不見。
      */
-    /** 區塊色調與顏色：字色與底色成套，使用者只能選這幾組，避免任意配色造成對比不足 */
-    public const SECTION_TONES = [
-        'blue' => ['accent' => '#2563eb', 'bg' => '#f8fafc', 'border' => '#e2e8f0'],
-        'gray' => ['accent' => '#64748b', 'bg' => '#f8fafc', 'border' => '#e2e8f0'],
-        'green' => ['accent' => '#059669', 'bg' => '#f5fbf8', 'border' => '#d1ebdf'],
-        'amber' => ['accent' => '#d97706', 'bg' => '#fffbf3', 'border' => '#f3e2c4'],
+    /** 區塊的固定樣式：中性卡片（淡灰底、細邊框、圓角），標題用深色粗體；不提供色調選擇 */
+    public const SECTION_STYLE = [
+        'bg' => '#f8fafc',
+        'border' => '#e2e8f0',
+        'title' => '#0f172a',
     ];
 
     /**

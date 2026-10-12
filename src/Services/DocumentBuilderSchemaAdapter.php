@@ -173,7 +173,6 @@ class DocumentBuilderSchemaAdapter
                         'text' => $component['text'] ?? null,
                         'bg' => $component['bg'] ?? null,
                         'border' => $component['border'] ?? null,
-                        'tone' => $component['tone'] ?? null,
                     ], fn (mixed $value): bool => $value !== null),
                 ];
             }
@@ -221,7 +220,6 @@ class DocumentBuilderSchemaAdapter
         }
         if ($col['kind'] === 'section') {
             $component['text'] = $col['text'] ?? '';
-            $component['tone'] = $col['tone'] ?? 'blue';
         }
         if ($col['kind'] === 'heading') {
             if (! empty($col['bg'])) {
@@ -377,7 +375,7 @@ class DocumentBuilderSchemaAdapter
                     'field' => ['type', 'key'],
                     'table' => ['type', 'key', 'title', 'fields'],
                     'heading' => ['type', 'text', 'bg', 'border'],
-                    'section' => ['type', 'text', 'tone'],
+                    'section' => ['type', 'text'],
                     'note' => ['type', 'text'],
                     'spacer' => ['type'],
                     'divider' => ['type'],

@@ -396,7 +396,7 @@ class FormDraftService
         $allowed = match ($componentType) {
             'field' => ['key', 'label', 'field_type', 'section', 'table_key', 'required', 'width', 'options', 'show_in_list'],
             'heading' => ['text', 'bg', 'border', 'width'],
-            'section' => ['text', 'tone'],
+            'section' => ['text'],
             'note' => ['text', 'width'],
             'spacer' => ['width'],
             'divider' => ['width'],
@@ -546,11 +546,10 @@ class FormDraftService
     {
         $input = Validator::make($props, [
             'text' => ['sometimes', 'nullable', 'string', 'max:50'],
-            'tone' => ['sometimes', 'nullable', Rule::in(array_keys(FormLayoutService::SECTION_TONES))],
         ])->validate();
 
         return [
-            ['type' => 'section', 'text' => (string) ($input['text'] ?? ''), 'tone' => $input['tone'] ?? 'blue'],
+            ['type' => 'section', 'text' => (string) ($input['text'] ?? '')],
             12,
             null,
         ];
