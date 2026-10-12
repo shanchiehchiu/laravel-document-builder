@@ -11,12 +11,12 @@ use DocumentBuilder\Models\DocType;
 use DocumentBuilder\Services\DocRecordService;
 use DocumentBuilder\Services\FilterIndexService;
 use DocumentBuilder\Services\MasterSourceRegistry;
+use DocumentBuilder\Services\RecordTermService;
 use DocumentBuilder\Services\RecordValidator;
 use DocumentBuilder\FormPlatform\FormRevisionService;
 use DocumentBuilder\FormPlatform\FormRuntimeRenderer;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -33,6 +33,7 @@ class DocRecordController extends Controller
         private readonly FormRuntimeRenderer $runtimeRenderer,
         private readonly FormRevisionService $revisions,
         private readonly FilterIndexService $filters,
+        private readonly RecordTermService $terms,
     ) {}
 
     public function index(Request $request, DocType $docType)
@@ -86,11 +87,7 @@ class DocRecordController extends Controller
                     $query->where($field->type === 'master' ? "data->{$key}->id" : "data->{$key}", $value);
                 }
             })
-            ->when($request->filled('keyword'), function (Builder $query) use ($request): void {
-                $keyword = '%'.addcslashes((string) $request->input('keyword'), '%_\\').'%';
-                // 只比對單據的值，不比對 JSON 的鍵名（否則搜「customer」會命中所有單據）
-                $query->where(fn (Builder $query) => $query->where('no', 'like', $keyword)->orWhere(fn (Builder $query) => $this->valueContains($query, $keyword)));
-            })
+            ->when($request->filled('keyword'), fn (Builder $query) => $this->terms->constrain($query, $docType, (string) $request->input('keyword')))
             ->orderByDesc('doc_date')
             ->orderByDesc('id');
 
@@ -107,18 +104,6 @@ class DocRecordController extends Controller
         }
 
         return $table->make(true);
-    }
-
-    /** JSON 值（不含鍵名）包含關鍵字；MySQL 用 JSON_SEARCH，SQLite 用 json_each */
-    private function valueContains(Builder $query, string $keyword): void
-    {
-        if (DB::getDriverName() === 'sqlite') {
-            $query->whereRaw('exists (select 1 from json_each(doc_records.data) where json_each.value like ? escape ?)', [$keyword, '\\']);
-
-            return;
-        }
-
-        $query->whereRaw("JSON_SEARCH(doc_records.data, 'one', ?, '\\\\') IS NOT NULL", [$keyword]);
     }
 
     public function create(DocType $docType)

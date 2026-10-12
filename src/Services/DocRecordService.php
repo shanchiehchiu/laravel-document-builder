@@ -21,6 +21,7 @@ class DocRecordService
         private readonly MasterSourceRegistry $masters,
         private readonly DocNumberGenerator $numbers,
         private readonly FormRevisionService $revisions,
+        private readonly RecordTermService $terms,
     ) {}
 
     /** @param  array{doc_date: string, data?: array, items?: array}  $input  已通過 RecordValidator 驗證的資料 */
@@ -38,6 +39,7 @@ class DocRecordService
                 'updated_by' => $userId,
             ]);
             $this->syncItems($type, $record, $input['items'] ?? []);
+            $this->terms->replace($record);
 
             return $record;
         });
@@ -52,6 +54,7 @@ class DocRecordService
                 'updated_by' => $userId,
             ]);
             $this->syncItems($type, $record, $input['items'] ?? []);
+            $this->terms->replace($record);
 
             return $record;
         });
