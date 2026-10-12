@@ -94,7 +94,11 @@ class FormSchemaValidator
     private function validateForm(array $form): void
     {
         $path = 'form';
-        $this->onlyKeys($form, ['code', 'name', 'enabled', 'order', 'buttons', 'numbering'], $path);
+        $this->onlyKeys($form, ['code', 'name', 'enabled', 'order', 'buttons', 'numbering', 'label_layout'], $path);
+        // 標籤位置為選填：舊的 Schema 沒有這個鍵時視為上方
+        if (array_key_exists('label_layout', $form) && ! in_array($form['label_layout'], DocType::LABEL_LAYOUTS, true)) {
+            $this->error($path.'.label_layout', '標籤位置只能是 top 或 left');
+        }
         $this->string($form, 'code', $path, 30, '/^[a-z][a-z0-9_]*$/');
         $this->string($form, 'name', $path, 50);
         $this->boolean($form, 'enabled', $path);

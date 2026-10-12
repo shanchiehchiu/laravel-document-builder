@@ -207,6 +207,8 @@ class DocRecordController extends Controller
             ? $this->revisions->schemaForRecord($docType, $record)
             : $this->revisions->runtimeSchema($docType);
         $rows = $this->runtimeRenderer->rowsForType($docType, $schema);
+        // 表頭欄位標籤位置：依 Schema（發布版本）決定，舊 Schema 沒有設定時為上方
+        $labelLeft = ($schema['form']['label_layout'] ?? 'top') === 'left';
         $adjacent = $record && $docType->hasButton('navigation') ? $this->service->adjacent($record) : null;
         $items = $record ? $record->items->groupBy('table_key') : collect();
         $statuses = $docType->statuses;
@@ -216,7 +218,7 @@ class DocRecordController extends Controller
         $formRevision = $record?->formRevision;
 
         return view('document-builder::records.form', compact(
-            'docType', 'record', 'show', 'rows', 'adjacent', 'items', 'statuses', 'events', 'conversionGroups', 'isOutdated', 'formRevision'
+            'docType', 'record', 'show', 'rows', 'labelLeft', 'adjacent', 'items', 'statuses', 'events', 'conversionGroups', 'isOutdated', 'formRevision'
         ));
     }
 

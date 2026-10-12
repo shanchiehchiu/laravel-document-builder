@@ -31,6 +31,7 @@ class FormSchemaPreviewService
         $html = view('document-builder::records.schema_preview', [
             'formName' => $schema['form']['name'],
             'rows' => $this->runtimeRenderer->rows($schema, $expectedFormCode),
+            'labelLeft' => ($schema['form']['label_layout'] ?? 'top') === 'left',
             'record' => null,
             'show' => true,
             'values' => [],

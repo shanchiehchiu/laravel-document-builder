@@ -47,6 +47,7 @@ class DocumentBuilderSchemaAdapter
                     'date_format' => (string) $type->no_date_format,
                     'sequence_digits' => (int) $type->no_seq_digits,
                 ],
+                'label_layout' => $type->label_layout,
             ],
             'layout' => [
                 'rows' => $rows,
@@ -192,6 +193,7 @@ class DocumentBuilderSchemaAdapter
                 'no_prefix' => (string) ($numbering['prefix'] ?? ''),
                 'no_date_format' => (string) ($numbering['date_format'] ?? ''),
                 'no_seq_digits' => (int) ($numbering['sequence_digits'] ?? 0),
+                'label_layout' => (string) ($form['label_layout'] ?? 'top'),
                 'buttons' => $form['buttons'] ?? [],
             ],
         ];
@@ -354,7 +356,7 @@ class DocumentBuilderSchemaAdapter
     {
         $this->assertOnlyKeys($schema, ['schema_version', 'form', 'layout', 'fields', 'statuses', 'bindings', 'events', 'conversion_groups'], 'Schema');
         $form = $schema['form'] ?? [];
-        $this->assertOnlyKeys($form, ['code', 'name', 'enabled', 'order', 'buttons', 'numbering'], 'Schema form');
+        $this->assertOnlyKeys($form, ['code', 'name', 'enabled', 'order', 'buttons', 'numbering', 'label_layout'], 'Schema form');
         $this->assertOnlyKeys($form['buttons'] ?? [], array_keys(DocType::BUTTONS), 'Schema 按鈕');
         $this->assertOnlyKeys($form['numbering'] ?? [], ['prefix', 'date_format', 'sequence_digits'], 'Schema 單號設定');
 

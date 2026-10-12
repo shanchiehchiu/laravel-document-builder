@@ -75,13 +75,14 @@ class DocDesignerController extends Controller
                 'settings.no_prefix' => ['sometimes', 'nullable', 'string', 'max:20'],
                 'settings.no_date_format' => ['sometimes', Rule::in(['Ymd', 'Ym', 'Y'])],
                 'settings.no_seq_digits' => ['sometimes', 'integer', 'min:1', 'max:12'],
+                'settings.label_layout' => ['sometimes', Rule::in(DocType::LABEL_LAYOUTS)],
                 // array:key1,key2 會擋下清單以外的按鈕代碼
                 'settings.buttons' => ['sometimes', 'array:'.implode(',', array_keys(DocType::BUTTONS))],
                 'settings.buttons.*' => ['boolean'],
             ], [], [
                 'settings.name' => '單據名稱', 'settings.status' => '狀態', 'settings.seq' => '選單排序',
                 'settings.no_prefix' => '單號前綴', 'settings.no_date_format' => '單號日期格式',
-                'settings.no_seq_digits' => '流水號位數', 'settings.buttons' => '按鈕',
+                'settings.no_seq_digits' => '流水號位數', 'settings.label_layout' => '標籤位置', 'settings.buttons' => '按鈕',
             ])['settings'] ?? null;
             $rows = (array) $request->input('rows', []);
             $events = null;
@@ -224,6 +225,7 @@ class DocDesignerController extends Controller
             'noPrefix' => (string) $schema['form']['numbering']['prefix'],
             'noDateFormat' => (string) $schema['form']['numbering']['date_format'],
             'noSeqDigits' => (int) $schema['form']['numbering']['sequence_digits'],
+            'labelLayout' => (string) ($schema['form']['label_layout'] ?? 'top'),
             'exampleNo' => $schema['form']['numbering']['prefix']
                 .now()->format($schema['form']['numbering']['date_format'])
                 .str_pad('1', (int) $schema['form']['numbering']['sequence_digits'], '0', STR_PAD_LEFT),

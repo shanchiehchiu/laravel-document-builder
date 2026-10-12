@@ -15,6 +15,9 @@ class DocType extends Model
     public const MENU_LINK_PREFIX = 'doc_records.';
 
     /** 可在單據設定開關的基礎按鈕；檢視與回列表固定顯示，不在此列 */
+    /** 表頭欄位標籤位置：top 在欄位上方（預設），left 在欄位左側 */
+    public const LABEL_LAYOUTS = ['top', 'left'];
+
     public const BUTTONS = [
         'create' => '新增',
         'edit' => '編輯',
@@ -24,7 +27,7 @@ class DocType extends Model
 
     protected $fillable = [
         'code', 'name', 'status', 'seq', 'permission_id', 'form_layout', 'buttons',
-        'no_prefix', 'no_date_format', 'no_seq_digits', 'event_schema', 'conversion_groups', 'working_revision_id', 'published_revision_id',
+        'no_prefix', 'no_date_format', 'no_seq_digits', 'label_layout', 'event_schema', 'conversion_groups', 'working_revision_id', 'published_revision_id',
     ];
 
     protected $casts = [
@@ -110,6 +113,12 @@ class DocType extends Model
     }
 
     /** 按鈕是否開啟；舊資料沒有設定時一律視為開啟 */
+    /** 表頭欄位標籤是否在左側 */
+    public function labelOnLeft(): bool
+    {
+        return $this->label_layout === 'left';
+    }
+
     public function hasButton(string $key): bool
     {
         return (bool) ($this->buttons[$key] ?? true);

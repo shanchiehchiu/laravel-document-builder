@@ -47,6 +47,7 @@ class DocTypeService
                 'no_prefix' => array_key_exists('no_prefix', $data) ? (string) $data['no_prefix'] : $type->no_prefix,
                 'no_date_format' => (string) ($data['no_date_format'] ?? $type->no_date_format),
                 'no_seq_digits' => (int) ($data['no_seq_digits'] ?? $type->no_seq_digits),
+                'label_layout' => (string) ($data['label_layout'] ?? $type->label_layout),
             ]);
             $this->syncMenu($type);
         });

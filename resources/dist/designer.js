@@ -274,8 +274,9 @@
                 + '<div class="db-tf">' + (sum ? '合計' : '') + '</div>';
         }
 
-        return '<div class="db-badges">' + badges.join('') + '</div>'
-            + '<label class="form-label">' + label + star + '</label>' + input;
+        // 標籤位置（上方／左側）由 .db-field-body 的 CSS 決定，見 applyLabelLayout
+        return '<div class="db-field-body"><div class="db-badges">' + badges.join('') + '</div>'
+            + '<label class="form-label">' + label + star + '</label>' + input + '</div>';
     }
 
     // 與 FormLayoutService::headingStyle() 同一個公式：字色依 WCAG 對比自動挑白字或深色字
@@ -340,12 +341,12 @@
     // 固定的第一列：單號（存檔時自動產生）＋單據日期，和填單頁的第一列一樣
     function fixedRowPreview(example) {
         var lock = '<div class="db-badges"><span class="db-badge is-fixed" title="固定欄位" aria-label="固定欄位">' + BADGE_LOCK_ICON + '</span></div>';
-        return '<div class="col-md-4 db-cell">' + lock
+        return '<div class="col-md-4 db-cell"><div class="db-field-body">' + lock
             + '<label class="form-label">單號</label>'
-            + '<div class="form-control-plaintext text-muted">存檔時自動產生' + (example ? '，例如 ' + esc(example) : '') + '</div></div>'
-            + '<div class="col-md-4 db-cell">' + lock
+            + '<div class="form-control-plaintext text-muted">存檔時自動產生' + (example ? '，例如 ' + esc(example) : '') + '</div></div></div>'
+            + '<div class="col-md-4 db-cell"><div class="db-field-body">' + lock
             + '<label class="form-label">單據日期<span class="text-danger">*</span></label>'
-            + '<input type="date" class="form-control" readonly tabindex="-1"></div>';
+            + '<input type="date" class="form-control" readonly tabindex="-1"></div></div>';
     }
 
     /* ───────────────────────── 右側設定（依格子種類不同） ───────────────────────── */
@@ -356,6 +357,7 @@
             { type: 'text', name: 'docName', label: '單據名稱', changeProp: true },
             { type: 'db-info', name: 'docCode', label: '單據代碼', text: C.settings.code, hint: '用在網址，建立後不得修改' },
             { type: 'number', name: 'docSeq', label: '選單排序', changeProp: true, min: 0, step: 1 },
+            { type: 'select', name: 'labelLayout', label: '欄位標籤位置', changeProp: true, options: [{ id: 'top', label: '上方' }, { id: 'left', label: '左側' }] },
             { type: 'checkbox', name: 'docStatus', label: '啟用單據', changeProp: true },
             { type: 'db-info', name: 'statusNote', label: '說明', note: true, text: '停用後側選單隱藏，單據無法進入。' },
             { type: 'db-section', name: 'secNumbering', text: '編碼規則' },
@@ -1498,6 +1500,7 @@
             noSeqDigits: settings.noSeqDigits,
             docSeq: settings.seq,
             docStatus: !!settings.status,
+            labelLayout: settings.labelLayout === 'left' ? 'left' : 'top',
             eventSchema: JSON.stringify(C.schema.events || [])
         }, buttonProps));
     }
@@ -1523,6 +1526,7 @@
             no_prefix: String(w.get('noPrefix') || '').trim(),
             no_date_format: String(w.get('noDateFormat') || 'Ymd'),
             no_seq_digits: parseInt(w.get('noSeqDigits'), 10) || 3,
+            label_layout: w.get('labelLayout') === 'left' ? 'left' : 'top',
             buttons: buttons
         };
     }
@@ -1912,7 +1916,8 @@
                 prefix: settings.no_prefix,
                 date_format: settings.no_date_format,
                 sequence_digits: settings.no_seq_digits
-            }
+            },
+            label_layout: settings.label_layout === 'left' ? 'left' : 'top'
         };
         try {
             schema.events = JSON.parse(editor.getWrapper().get('eventSchema') || '[]');
@@ -2170,10 +2175,31 @@
     /* ───────────────────────── 載入完成 ───────────────────────── */
 
     var canvasDoc = null;
+
+    // 欄位標籤位置：左側時標籤與欄位並排（標籤約 1/3 寬），樣式注入畫布文件，只改顯示不改資料
+    var LABEL_LEFT_CSS = '.db-label-left .db-field-body { display: grid; grid-template-columns: 35% minmax(0, 1fr); column-gap: 8px; align-items: center; position: relative; }'
+        + '.db-label-left .db-field-body > label { grid-column: 1; margin-bottom: 0; }'
+        + '.db-label-left .db-field-body > :not(label):not(.db-badges) { grid-column: 2; min-width: 0; }'
+        + '.db-label-left .db-field-body > .db-badges { position: absolute; top: 4px; right: 4px; }';
+    function applyLabelLayout(left) {
+        if (!canvasDoc || !canvasDoc.body) return;
+        if (!canvasDoc.getElementById('db-label-layout-style')) {
+            var style = canvasDoc.createElement('style');
+            style.id = 'db-label-layout-style';
+            style.textContent = LABEL_LEFT_CSS;
+            canvasDoc.head.appendChild(style);
+        }
+        canvasDoc.body.classList.toggle('db-label-left', !!left);
+    }
+    editor.on('component:update:labelLayout', function (c) {
+        if (c === editor.getWrapper()) applyLabelLayout(c.get('labelLayout') === 'left');
+    });
+
     editor.on('load', function () {
         // 畫布在 iframe 裡，鍵盤事件要另外聽（復原快捷鍵）
         canvasDoc = editor.Canvas.getDocument();
         if (canvasDoc) canvasDoc.addEventListener('keydown', onHistoryKey);
+        applyLabelLayout(C.settings.labelLayout === 'left');
         // 自訂按鈕主色：放在畫布 CSS 之後，才能蓋過預設色
         if (canvasDoc && C.themeCss) {
             var themeStyle = canvasDoc.createElement('style');
