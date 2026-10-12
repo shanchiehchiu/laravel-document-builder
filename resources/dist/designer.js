@@ -1363,11 +1363,13 @@
         targetSelect.disabled = fields.length === 0;
         $('#db-event-save').disabled = fields.length === 0;
 
+        // 主檔與複選的值不是單一字串，只能用「沒有填寫」判斷（後端的事件驗證也會擋下其他運算子）
+        var emptyOnly = source.type === 'master' || source.type === 'checkgroup';
         var operator = current && current.condition ? current.condition.operator : 'always';
-        if (source.type === 'master' && operator !== 'is_empty') operator = 'always';
+        if (emptyOnly && operator !== 'is_empty') operator = 'always';
         $('#db-event-condition').value = operator;
         Array.prototype.forEach.call($('#db-event-condition').options, function (option) {
-            option.disabled = source.type === 'master' && ['equals', 'not_equals'].indexOf(option.value) !== -1;
+            option.disabled = emptyOnly && ['equals', 'not_equals'].indexOf(option.value) !== -1;
         });
 
         var compareValue = current && current.condition ? current.condition.value : '';
